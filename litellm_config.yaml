@@ -1,0 +1,63 @@
+# LiteLLM router — Free-first model routing per agent
+# See architecture Cost Map tab
+
+model_list:
+  - model_name: research_agent
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
+    model_info:
+      mode: chat
+
+  - model_name: research_agent_fallback
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: os.environ/GROQ_API_KEY
+
+  - model_name: content_agent
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
+
+  - model_name: content_agent_fallback
+    litellm_params:
+      model: anthropic/claude-haiku-4-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: visual_agent
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: os.environ/GROQ_API_KEY
+
+  - model_name: visual_agent_fallback
+    litellm_params:
+      model: cerebras/llama-3.3-70b
+      api_key: os.environ/CEREBRAS_API_KEY
+
+  - model_name: seo_agent
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: os.environ/GROQ_API_KEY
+
+  - model_name: seo_agent_fallback
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
+
+  - model_name: local_fallback
+    litellm_params:
+      model: ollama/llama3.1:8b
+      api_base: os.environ/OLLAMA_BASE_URL
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 2
+  timeout: 120
+  fallbacks:
+    - research_agent: [research_agent_fallback, local_fallback]
+    - content_agent: [content_agent_fallback, local_fallback]
+    - visual_agent: [visual_agent_fallback, local_fallback]
+    - seo_agent: [seo_agent_fallback, local_fallback]
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

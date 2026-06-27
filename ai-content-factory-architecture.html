@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Content Factory — Full Architecture (HLD + LLD)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg: #070710;
+    --surface: #0E0E1A;
+    --panel: #12121F;
+    --border: #1C1C30;
+    --border2: #252540;
+    --accent: #7C6FFF;
+    --accent2: #A78BFA;
+    --teal: #00E5C3;
+    --amber: #FFB830;
+    --rose: #FF4D6D;
+    --green: #00D68F;
+    --sky: #38BDF8;
+    --orange: #FB923C;
+    --text: #E2E4F0;
+    --muted: #5A5A80;
+    --muted2: #3A3A60;
+    --font: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #0A0A18 0%, #0E0E22 100%);
+    border-bottom: 1px solid var(--border2);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900;
+    color: white; font-family: var(--mono);
+  }
+  .header-meta h1 { font-size: 1rem; font-weight: 800; color: var(--text); }
+  .header-meta p { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 1px; }
+
+  .tab-bar {
+    display: flex; gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .tab-btn {
+    background: none; border: none; cursor: pointer;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 0.75rem; font-weight: 600;
+    color: var(--muted); transition: all 0.2s;
+    font-family: var(--font);
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* ── Main canvas ── */
+  .canvas {
+    padding: 24px;
+    overflow-x: auto;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.72rem; color: var(--muted);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+  }
+
+  /* ── Layer rows ── */
+  .arch-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 1100px;
+  }
+
+  .layer {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    position: relative;
+  }
+
+  .layer-label {
+    width: 130px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-right: 3px solid;
+    border-radius: 10px 0 0 10px;
+    margin-bottom: 0;
+  }
+  .layer-label .layer-name {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .layer-label .layer-sub {
+    font-size: 0.58rem;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  .layer-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    position: relative;
+  }
+
+  /* connector between layers */
+  .layer-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    position: relative;
+  }
+  .layer-connector::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--border2), var(--accent) 50%, var(--border2));
+    transform: translateX(-50%);
+  }
+  .layer-connector-label {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.6rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    z-index: 1;
+  }
+
+  /* ── Node cards ── */
+  .node {
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 120px;
+    max-width: 180px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .node:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124,111,255,0.2);
+  }
+  .node.active-node {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(124,111,255,0.3);
+  }
+  .node-icon { font-size: 1rem; margin-bottom: 4px; }
+  .node-name { font-size: 0.72rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .node-tech { font-size: 0.6rem; color: var(--muted); font-family: var(--mono); margin-top: 3px; }
+  .node-badge {
+    position: absolute;
+    top: -5px; right: -5px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .node-FREE { border-left: 3px solid var(--green); }
+  .node-PAID { border-left: 3px solid var(--amber); }
+  .node-OSS  { border-left: 3px solid var(--sky); }
+  .node-MANAGED { border-left: 3px solid var(--accent); }
+  .node-CRITICAL { border-left: 3px solid var(--rose); }
+
+  .badge-FREE { background: rgba(0,214,143,0.15); color: var(--green); border: 1px solid rgba(0,214,143,0.3); }
+  .badge-PAID { background: rgba(255,184,48,0.15); color: var(--amber); border: 1px solid rgba(255,184,48,0.3); }
+  .badge-OSS  { background: rgba(56,189,248,0.15); color: var(--sky);  border: 1px solid rgba(56,189,248,0.3); }
+  .badge-MANAGED { background: rgba(124,111,255,0.15); color: var(--accent2); border: 1px solid rgba(124,111,255,0.3); }
+
+  /* ── Agent graph (LLD view) ── */
+  .agent-graph {
+    display: none;
+  }
+  .agent-graph.visible { display: block; }
+
+  /* ── Detail panel ── */
+  .detail-panel {
+    position: fixed;
+    right: 0; top: 0; bottom: 0;
+    width: 340px;
+    background: var(--panel);
+    border-left: 1px solid var(--border2);
+    padding: 20px;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 200;
+  }
+  .detail-panel.open { transform: translateX(0); }
+  .detail-close {
+    position: absolute; top: 14px; right: 14px;
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 6px; color: var(--muted);
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.9rem;
+  }
+  .detail-icon { font-size: 2rem; margin-bottom: 8px; }
+  .detail-name { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
+  .detail-type { font-size: 0.7rem; font-family: var(--mono); color: var(--muted); margin-bottom: 16px; }
+  .detail-section { margin-bottom: 14px; }
+  .detail-section-title {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px;
+  }
+  .detail-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+  }
+  .detail-row-label { color: var(--muted); }
+  .detail-row-value { color: var(--text); font-weight: 600; font-family: var(--mono); font-size: 0.7rem; }
+  .chip {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 0.65rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    margin: 2px;
+  }
+
+  /* ── Data flow arrows ── */
+  .flow-arrow {
+    display: flex; align-items: center;
+    font-size: 0.6rem; color: var(--muted);
+    gap: 4px; padding: 0 4px;
+    flex-shrink: 0;
+  }
+  .flow-arrow::before {
+    content: '→';
+    color: var(--accent2);
+    font-size: 0.8rem;
+  }
+
+  /* ── LLD Agent flow ── */
+  .lld-container {
+    min-width: 1100px;
+  }
+
+  .lld-title {
+    font-size: 0.75rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .agent-pipeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    position: relative;
+    padding: 20px 0;
+  }
+
+  .agent-node-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+
+  .agent-node-card {
+    background: var(--panel);
+    border: 2px solid var(--border2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+    width: 140px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 2;
+  }
+  .agent-node-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+  .agent-node-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .agent-node-name { font-size: 0.78rem; font-weight: 800; line-height: 1.2; }
+  .agent-node-model { font-size: 0.6rem; font-family: var(--mono); color: var(--muted); margin-top: 4px; }
+
+  .agent-arrow {
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 46px;
+    position: relative;
+    z-index: 1;
+  }
+  .agent-arrow svg { width: 40px; height: 20px; }
+
+  .agent-tools {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 140px;
+  }
+  .agent-tool-tag {
+    font-size: 0.58rem;
+    font-family: var(--mono);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 7px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .hitl-badge {
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--green);
+    color: var(--bg);
+    font-size: 0.55rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Infra grid (LLD) ── */
+  .infra-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .infra-card {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .infra-card-title {
+    font-size: 0.7rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .infra-card-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .infra-row {
+    display: flex; justify-content: space-between;
+    padding: 4px 0; border-bottom: 1px solid var(--border);
+    font-size: 0.7rem;
+  }
+  .infra-row:last-child { border-bottom: none; }
+  .infra-key { color: var(--muted); }
+  .infra-val { color: var(--text); font-family: var(--mono); font-size: 0.65rem; font-weight: 600; }
+
+  /* ── DB schema ── */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .schema-table {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .schema-table-header {
+    padding: 8px 12px;
+    font-size: 0.7rem; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .schema-field {
+    padding: 5px 12px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px; align-items: center;
+    font-size: 0.65rem; font-family: var(--mono);
+  }
+  .field-name { color: var(--text); font-weight: 600; flex: 1; }
+  .field-type { color: var(--muted); }
+  .field-pk { color: var(--amber); font-size: 0.55rem; font-weight: 800; }
+  .field-fk { color: var(--sky); font-size: 0.55rem; font-weight: 800; }
+  .field-idx { color: var(--green); font-size: 0.55rem; font-weight: 800; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  /* ── Misc ── */
+  .section-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0 12px;
+  }
+  .section-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .section-divider-text {
+    font-size: 0.68rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+  }
+  .cost-table th {
+    text-align: left;
+    padding: 6px 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border2);
+  }
+  .cost-table td {
+    padding: 7px 10px;
+    font-size: 0.72rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .cost-table tr:last-child td { border-bottom: none; }
+  .cost-table td:nth-child(1) { color: var(--text); font-weight: 600; }
+  .cost-table td:nth-child(2) { font-family: var(--mono); color: var(--muted); font-size: 0.65rem; }
+  .cost-table td:nth-child(3) { font-family: var(--mono); font-size: 0.65rem; }
+  .free-tag { color: var(--green); font-weight: 800; }
+  .paid-tag { color: var(--amber); font-weight: 700; }
+
+  .api-endpoint {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 7px 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 5px;
+  }
+  .method-badge {
+    font-size: 0.6rem; font-weight: 800; font-family: var(--mono);
+    padding: 2px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  }
+  .GET  { background: rgba(0,214,143,0.15); color: var(--green); }
+  .POST { background: rgba(124,111,255,0.15); color: var(--accent2); }
+  .DEL  { background: rgba(255,77,109,0.15); color: var(--rose); }
+  .PUT  { background: rgba(255,184,48,0.15); color: var(--amber); }
+  .endpoint-path { font-size: 0.68rem; font-family: var(--mono); color: var(--text); line-height: 1.3; }
+  .endpoint-desc { font-size: 0.62rem; color: var(--muted); margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-title">
+    <div class="logo-mark">⚡</div>
+    <div class="header-meta">
+      <h1>AI Content Factory — System Architecture</h1>
+      <p>HLD + LLD · Multi-Agent · Multi-Platform · HITL · Production-Grade</p>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('hld', this)">HLD</button>
+    <button class="tab-btn" onclick="switchTab('lld', this)">LLD Agents</button>
+    <button class="tab-btn" onclick="switchTab('db', this)">Data & DB</button>
+    <button class="tab-btn" onclick="switchTab('api', this)">API Contracts</button>
+    <button class="tab-btn" onclick="switchTab('cost', this)">Cost Map</button>
+  </div>
+</div>
+
+<!-- Detail Panel -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-close" onclick="closeDetail()">✕</div>
+  <div id="detailContent"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ HLD TAB -->
+<div id="tab-hld" class="canvas">
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Free Tier</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Paid / Low-cost</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--sky)"></div>Open Source / Self-hosted</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Managed Cloud</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Critical Path</div>
+    <div style="margin-left:auto;font-size:0.68rem;color:var(--muted)">Click any node for details →</div>
+  </div>
+
+  <div class="arch-diagram">
+
+    <!-- L0: Client -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--sky)">
+        <span class="layer-name" style="color:var(--sky)">Client</span>
+        <span class="layer-sub">User devices & browsers</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-OSS" onclick="showDetail('nextjs')" title="Next.js 14 App">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🖥️</div>
+          <div class="node-name">Next.js 14 App</div>
+          <div class="node-tech">App Router · RSC · TypeScript</div>
+        </div>
+        <div class="flow-arrow">REST/WS</div>
+        <div class="node node-OSS" onclick="showDetail('react')" title="React SPA">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">⚛️</div>
+          <div class="node-name">React SPA</div>
+          <div class="node-tech">Vite · TailwindCSS · shadcn/ui</div>
+        </div>
+        <div class="flow-arrow">SSE</div>
+        <div class="node node-OSS" onclick="showDetail('mobile')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">📱</div>
+          <div class="node-name">Mobile App</div>
+          <div class="node-tech">React Native · Expo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-connector">
+      <span class="layer-connector-label">HTTPS · TLS 1.3</span>
+    </div>
+
+    <!-- L1: Edge / CDN -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--orange)">
+        <span class="layer-name" style="color:var(--orange)">Edge / CDN</span>
+        <span class="layer-sub">Global distribution & protection</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-PAID" onclick="showDetail('cloudflare')">
+          <div class="node-badge badge-PAID">~$0</div>
+          <div class="node-icon">🌐</div>
+          <div class="node-name">Cloudflare CDN</div>
+          <div class="node-tech">WAF · DDoS · Pages (Free)</div>
+        </div>
+        <div class="flow-arrow">Origin pull</div>
+        <div class="node node-PAID" onclick="showDetail('vercel')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">▲</div>
+          <div class="node-name">Vercel Edge</div>
+          <div class="node-tech">Next.js host · ISR · Middleware</div>
+        </div>
+        <div class="flow-arrow">Headers</div>
+        <div class="node node-FREE" onclick="showDetail('auth')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🔐</div>
+          <div class="node-name">Auth Layer</div>
+          <div class="node-tech">Clerk / NextAuth · JWT · RBAC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-connector">
+      <span class="layer-connector-label">Internal VPC · mTLS</span>
+    </div>
+
+    <!-- L2: API Gateway -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--rose)">
+        <span class="layer-name" style="color:var(--rose)">API Gateway</span>
+        <span class="layer-sub">Rate limit · Auth · Route</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-CRITICAL" onclick="showDetail('nginx')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🔀</div>
+          <div class="node-name">NGINX / Traefik</div>
+          <div class="node-tech">Reverse proxy · TLS termination</div>
+        </div>
+        <div class="flow-arrow">Route</div>
+        <div class="node node-FREE" onclick="showDetail('ratelimit')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🚦</div>
+          <div class="node-name">Rate Limiter</div>
+          <div class="node-tech">Redis-based · Sliding window</div>
+        </div>
+        <div class="flow-arrow">Validate</div>
+        <div class="node node-FREE" onclick="showDetail('litellm')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🔁</div>
+          <div class="node-name">LiteLLM Router</div>
+          <div class="node-tech">Model fallback · Load balance</div>
+        </div>
+        <div class="flow-arrow">SSE stream</div>
+        <div class="node node-OSS" onclick="showDetail('websocket')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🔌</div>
+          <div class="node-name">WS Gateway</div>
+          <div class="node-tech">Socket.io · HITL push events</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-connector">
+      <span class="layer-connector-label">Internal HTTP/2 · gRPC</span>
+    </div>
+
+    <!-- L3: Backend Services -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--accent)">
+        <span class="layer-name" style="color:var(--accent)">Backend Services</span>
+        <span class="layer-sub">FastAPI microservices</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-MANAGED" onclick="showDetail('api-service')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">⚡</div>
+          <div class="node-name">API Service</div>
+          <div class="node-tech">FastAPI · Pydantic v2 · Async</div>
+        </div>
+        <div class="flow-arrow">Enqueue</div>
+        <div class="node node-MANAGED" onclick="showDetail('pipeline-service')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🔧</div>
+          <div class="node-name">Pipeline Service</div>
+          <div class="node-tech">LangGraph runner · State mgmt</div>
+        </div>
+        <div class="flow-arrow">Dispatch</div>
+        <div class="node node-MANAGED" onclick="showDetail('hitl-service')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🧑‍💼</div>
+          <div class="node-name">HITL Service</div>
+          <div class="node-tech">Interrupt handler · Approval API</div>
+        </div>
+        <div class="flow-arrow">Post</div>
+        <div class="node node-MANAGED" onclick="showDetail('publish-service')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🚀</div>
+          <div class="node-name">Publisher Service</div>
+          <div class="node-tech">Platform API adapter · Queue</div>
+        </div>
+        <div class="flow-arrow">Store</div>
+        <div class="node node-MANAGED" onclick="showDetail('auth-service')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🛡️</div>
+          <div class="node-name">Auth Service</div>
+          <div class="node-tech">JWT verify · RBAC · API keys</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-connector">
+      <span class="layer-connector-label">Celery · Redis Streams · async/await</span>
+    </div>
+
+    <!-- L4: Agent Orchestration -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--teal)">
+        <span class="layer-name" style="color:var(--teal)">Agent Layer</span>
+        <span class="layer-sub">LangGraph multi-agent graph</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-FREE" onclick="showDetail('langgraph')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🕸️</div>
+          <div class="node-name">LangGraph Engine</div>
+          <div class="node-tech">StateGraph · interrupt_before · Checkpointer</div>
+        </div>
+        <div class="flow-arrow">Node exec</div>
+        <div class="node node-FREE" onclick="showDetail('research-agent')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🔬</div>
+          <div class="node-name">Research Agent</div>
+          <div class="node-tech">Gemini 2.5 Flash · web_search</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('content-agent')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">✍️</div>
+          <div class="node-name">Content Agent</div>
+          <div class="node-tech">Gemini Flash / Haiku 4.5</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('seo-agent')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">📈</div>
+          <div class="node-name">SEO Agent</div>
+          <div class="node-tech">Groq Llama 3.3 70B</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('visual-agent')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🎨</div>
+          <div class="node-name">Visual Agent</div>
+          <div class="node-tech">Groq · DALL·E / Flux (opt)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-connector">
+      <span class="layer-connector-label">HTTP · OpenAI-compatible API</span>
+    </div>
+
+    <!-- L5: LLM Providers -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--accent2)">
+        <span class="layer-name" style="color:var(--accent2)">LLM Providers</span>
+        <span class="layer-sub">Free-first routing via LiteLLM</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-FREE" onclick="showDetail('gemini')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">✦</div>
+          <div class="node-name">Google AI Studio</div>
+          <div class="node-tech">Gemini 2.5 Flash · 1.5K RPD · 1M ctx</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('groq')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">⚡</div>
+          <div class="node-name">Groq</div>
+          <div class="node-tech">Llama 3.3 70B · 394 TPS · LPU</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('cerebras')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🧠</div>
+          <div class="node-name">Cerebras</div>
+          <div class="node-tech">1M tokens/day · Wafer-scale</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-PAID" onclick="showDetail('claude')">
+          <div class="node-badge badge-PAID">$0.25/M</div>
+          <div class="node-icon">◆</div>
+          <div class="node-name">Claude Haiku 4.5</div>
+          <div class="node-tech">Fallback · High-quality writing</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-OSS" onclick="showDetail('ollama')">
+          <div class="node-badge badge-OSS">Local</div>
+          <div class="node-icon">🏠</div>
+          <div class="node-name">Ollama (Local)</div>
+          <div class="node-tech">Llama 3.1 8B · Dev fallback</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-connector">
+      <span class="layer-connector-label">SQL · Redis · S3 API · gRPC</span>
+    </div>
+
+    <!-- L6: Data Layer -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--amber)">
+        <span class="layer-name" style="color:var(--amber)">Data Layer</span>
+        <span class="layer-sub">Persistence & caching</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-FREE" onclick="showDetail('postgres')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🐘</div>
+          <div class="node-name">PostgreSQL</div>
+          <div class="node-tech">Supabase Free · Neon Free · RLS</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('redis')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🔴</div>
+          <div class="node-name">Redis</div>
+          <div class="node-tech">Upstash Free · Cache · Queue · State</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('pinecone')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🌲</div>
+          <div class="node-name">Pinecone / Qdrant</div>
+          <div class="node-tech">Vector DB · RAG · Research index</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('s3')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🪣</div>
+          <div class="node-name">Object Storage</div>
+          <div class="node-tech">Cloudflare R2 Free · Media assets</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('langsmith')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🔍</div>
+          <div class="node-name">LangSmith</div>
+          <div class="node-tech">Traces · Evals · Dev tier free</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-connector">
+      <span class="layer-connector-label">OAuth2 · Platform APIs</span>
+    </div>
+
+    <!-- L7: External Platforms -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--green)">
+        <span class="layer-name" style="color:var(--green)">Publish Targets</span>
+        <span class="layer-sub">Social & content platforms</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-FREE" onclick="showDetail('linkedin-api')">
+          <div class="node-icon">💼</div>
+          <div class="node-name">LinkedIn API</div>
+          <div class="node-tech">UGC Posts · OAuth2 · v2</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('substack-api')">
+          <div class="node-icon">📰</div>
+          <div class="node-name">Substack API</div>
+          <div class="node-tech">Draft post · Publish endpoint</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('medium-api')">
+          <div class="node-icon">📝</div>
+          <div class="node-name">Medium API</div>
+          <div class="node-tech">Create post · publishStatus</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('instagram-api')">
+          <div class="node-icon">📸</div>
+          <div class="node-name">Instagram Graph</div>
+          <div class="node-tech">Media · Container · Publish</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('x-api')">
+          <div class="node-icon">𝕏</div>
+          <div class="node-name">X API v2</div>
+          <div class="node-tech">Tweets · Threads · Free Basic</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-connector">
+      <span class="layer-connector-label">Metrics · Logs · Traces (OpenTelemetry)</span>
+    </div>
+
+    <!-- L8: Observability -->
+    <div class="layer">
+      <div class="layer-label" style="border-color:var(--muted)">
+        <span class="layer-name" style="color:var(--muted)">Observability</span>
+        <span class="layer-sub">Monitor · Alert · Debug</span>
+      </div>
+      <div class="layer-content">
+        <div class="node node-FREE" onclick="showDetail('langfuse')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">📊</div>
+          <div class="node-name">Langfuse</div>
+          <div class="node-tech">LLM tracing · Cost tracking · Self-host</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('grafana')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">📈</div>
+          <div class="node-name">Grafana + Prometheus</div>
+          <div class="node-tech">Metrics · Dashboards · Alerts</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('sentry')">
+          <div class="node-badge badge-FREE">Free</div>
+          <div class="node-icon">🚨</div>
+          <div class="node-name">Sentry</div>
+          <div class="node-tech">Error tracking · Performance</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="node node-FREE" onclick="showDetail('otel')">
+          <div class="node-badge badge-OSS">OSS</div>
+          <div class="node-icon">🔭</div>
+          <div class="node-name">OpenTelemetry</div>
+          <div class="node-tech">Distributed tracing · OTLP export</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ LLD AGENTS TAB -->
+<div id="tab-lld" class="canvas" style="display:none">
+  <div class="lld-container">
+
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">LangGraph State Machine — Agent Execution Graph</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="agent-pipeline">
+
+      <!-- START -->
+      <div class="agent-node-wrap">
+        <div class="agent-node-card" style="border-color:var(--muted2);width:100px;" onclick="showDetail('start')">
+          <div class="agent-node-icon">▶</div>
+          <div class="agent-node-name" style="font-size:0.72rem;color:var(--muted)">Pipeline Start</div>
+          <div class="agent-node-model">TopicState init</div>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tool-tag">topic: str</div>
+          <div class="agent-tool-tag">config: dict</div>
+        </div>
+      </div>
+
+      <div class="agent-arrow">
+        <svg viewBox="0 0 40 20"><path d="M0 10 L30 10" stroke="#3A3A60" stroke-width="2" fill="none"/><polygon points="28,6 38,10 28,14" fill="#7C6FFF"/></svg>
+      </div>
+
+      <!-- Research -->
+      <div class="agent-node-wrap">
+        <div class="agent-node-card" style="border-color:var(--teal)" onclick="showDetail('research-agent')">
+          <div class="agent-node-icon">🔬</div>
+          <div class="agent-node-name">Research<br/>Agent</div>
+          <div class="agent-node-model">Gemini 2.5 Flash</div>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tool-tag">web_search tool</div>
+          <div class="agent-tool-tag">arXiv API</div>
+          <div class="agent-tool-tag">Semantic Scholar</div>
+          <div class="agent-tool-tag">→ ResearchState</div>
+        </div>
+      </div>
+
+      <div class="agent-arrow">
+        <svg viewBox="0 0 40 20"><path d="M0 10 L30 10" stroke="#3A3A60" stroke-width="2" fill="none"/><polygon points="28,6 38,10 28,14" fill="#7C6FFF"/></svg>
+      </div>
+
+      <!-- Content -->
+      <div class="agent-node-wrap">
+        <div class="agent-node-card" style="border-color:var(--accent2)" onclick="showDetail('content-agent')">
+          <div class="agent-node-icon">✍️</div>
+          <div class="agent-node-name">Content<br/>Agent</div>
+          <div class="agent-node-model">Gemini Flash / Haiku</div>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tool-tag">5× platform drafts</div>
+          <div class="agent-tool-tag">hook generator</div>
+          <div class="agent-tool-tag">format adapter</div>
+          <div class="agent-tool-tag">→ DraftState</div>
+        </div>
+      </div>
+
+      <div class="agent-arrow">
+        <svg viewBox="0 0 40 20"><path d="M0 10 L30 10" stroke="#3A3A60" stroke-width="2" fill="none"/><polygon points="28,6 38,10 28,14" fill="#7C6FFF"/></svg>
+      </div>
+
+      <!-- Visual + SEO (parallel) -->
+      <div class="agent-node-wrap" style="position:relative">
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+          <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:700">Parallel</div>
+          <div class="agent-node-card" style="border-color:var(--amber);width:130px" onclick="showDetail('visual-agent')">
+            <div class="agent-node-icon" style="font-size:1rem">🎨</div>
+            <div class="agent-node-name">Visual Agent</div>
+            <div class="agent-node-model">Groq Llama 3.3</div>
+          </div>
+          <div class="agent-node-card" style="border-color:var(--rose);width:130px" onclick="showDetail('seo-agent')">
+            <div class="agent-node-icon" style="font-size:1rem">📈</div>
+            <div class="agent-node-name">SEO Agent</div>
+            <div class="agent-node-model">Groq Llama 3.3</div>
+          </div>
+        </div>
+        <div class="agent-tools" style="width:130px">
+          <div class="agent-tool-tag">img prompts</div>
+          <div class="agent-tool-tag">keywords · hashtags</div>
+          <div class="agent-tool-tag">→ EnrichedState</div>
+        </div>
+      </div>
+
+      <div class="agent-arrow">
+        <svg viewBox="0 0 40 20"><path d="M0 10 L30 10" stroke="#3A3A60" stroke-width="2" fill="none"/><polygon points="28,6 38,10 28,14" fill="#00D68F"/></svg>
+      </div>
+
+      <!-- HITL -->
+      <div class="agent-node-wrap">
+        <div class="agent-node-card" style="border-color:var(--green);background:rgba(0,214,143,0.05)" onclick="showDetail('hitl-service')">
+          <div class="hitl-badge">HITL Gate</div>
+          <div class="agent-node-icon">🧑‍💼</div>
+          <div class="agent-node-name">Human<br/>Review</div>
+          <div class="agent-node-model">interrupt_before ✋</div>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tool-tag">WS push to UI</div>
+          <div class="agent-tool-tag">edit / approve / skip</div>
+          <div class="agent-tool-tag">Resume on signal</div>
+          <div class="agent-tool-tag">→ ApprovedState</div>
+        </div>
+      </div>
+
+      <div class="agent-arrow">
+        <svg viewBox="0 0 40 20"><path d="M0 10 L30 10" stroke="#3A3A60" stroke-width="2" fill="none"/><polygon points="28,6 38,10 28,14" fill="#7C6FFF"/></svg>
+      </div>
+
+      <!-- Publisher -->
+      <div class="agent-node-wrap">
+        <div class="agent-node-card" style="border-color:var(--accent)" onclick="showDetail('publish-service')">
+          <div class="agent-node-icon">🚀</div>
+          <div class="agent-node-name">Publisher<br/>Agent</div>
+          <div class="agent-node-model">Platform API calls</div>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tool-tag">LinkedIn API</div>
+          <div class="agent-tool-tag">Substack API</div>
+          <div class="agent-tool-tag">X API v2</div>
+          <div class="agent-tool-tag">Medium · Instagram</div>
+          <div class="agent-tool-tag">→ PublishedState</div>
+        </div>
+      </div>
+
+      <div class="agent-arrow">
+        <svg viewBox="0 0 40 20"><path d="M0 10 L30 10" stroke="#3A3A60" stroke-width="2" fill="none"/><polygon points="28,6 38,10 28,14" fill="#00D68F"/></svg>
+      </div>
+
+      <!-- END -->
+      <div class="agent-node-wrap">
+        <div class="agent-node-card" style="border-color:var(--green);width:100px" onclick="showDetail('done')">
+          <div class="agent-node-icon">✅</div>
+          <div class="agent-node-name" style="color:var(--green)">Done</div>
+          <div class="agent-node-model">Analytics emit</div>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tool-tag">post_ids[]</div>
+          <div class="agent-tool-tag">timestamps[]</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LangGraph state schema -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">LangGraph TypedState Schema</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div style="background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:16px;font-family:var(--mono);font-size:0.72rem;line-height:1.8;color:var(--text)">
+      <span style="color:var(--muted)">from</span> <span style="color:var(--teal)">langgraph.graph</span> <span style="color:var(--muted)">import</span> StateGraph, START, END<br>
+      <span style="color:var(--muted)">from</span> <span style="color:var(--teal)">typing</span> <span style="color:var(--muted)">import</span> TypedDict, Annotated, List, Optional<br><br>
+      <span style="color:var(--accent2)">class</span> <span style="color:var(--amber)">ContentFactoryState</span>(TypedDict):<br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">topic</span>: str &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Input</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">research_brief</span>: Optional[str]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Research Agent output</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">platform_drafts</span>: Optional[dict]&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># {linkedin, substack, medium, x, instagram}</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">image_prompts</span>: Optional[List[str]]<span style="color:var(--muted2)"># Visual Agent output</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">seo_data</span>: Optional[dict]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># {keywords, hooks, hashtags}</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">hitl_approved</span>: Optional[dict]&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Human decisions per platform</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">hitl_edits</span>: Optional[dict]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Human-edited content</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">published_results</span>: Optional[dict]<span style="color:var(--muted2)"># {platform: post_id}</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">error</span>: Optional[str]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Error propagation</span><br>
+      &nbsp;&nbsp;<span style="color:var(--sky)">run_id</span>: str &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Trace ID for LangSmith</span><br><br>
+      <span style="color:var(--muted)">builder</span> = StateGraph(<span style="color:var(--amber)">ContentFactoryState</span>)<br>
+      builder.add_node(<span style="color:var(--green)">"research"</span>, research_agent)<br>
+      builder.add_node(<span style="color:var(--green)">"content"</span>, content_agent)<br>
+      builder.add_node(<span style="color:var(--green)">"visual"</span>, visual_agent) &nbsp;<span style="color:var(--muted2)"># parallel</span><br>
+      builder.add_node(<span style="color:var(--green)">"seo"</span>, seo_agent) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--green)"># parallel</span><br>
+      builder.add_node(<span style="color:var(--green)">"hitl"</span>, human_review_node, <span style="color:var(--amber)">interrupt_before</span>=True)<br>
+      builder.add_node(<span style="color:var(--green)">"publish"</span>, publisher_agent)<br>
+      <span style="color:var(--muted)">graph</span> = builder.compile(checkpointer=<span style="color:var(--teal)">RedisCheckpointer</span>())
+    </div>
+
+    <!-- Infra detail -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">Deployment Infrastructure</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="infra-grid">
+      <div class="infra-card">
+        <div class="infra-card-title"><div class="infra-card-dot" style="background:var(--teal)"></div>Frontend Deployment</div>
+        <div class="infra-row"><span class="infra-key">Host</span><span class="infra-val">Vercel (Free/Hobby)</span></div>
+        <div class="infra-row"><span class="infra-key">Framework</span><span class="infra-val">Next.js 14 App Router</span></div>
+        <div class="infra-row"><span class="infra-key">CDN</span><span class="infra-val">Vercel Edge + Cloudflare</span></div>
+        <div class="infra-row"><span class="infra-key">Auth</span><span class="infra-val">Clerk (Free 10k MAU)</span></div>
+        <div class="infra-row"><span class="infra-key">WS</span><span class="infra-val">Socket.io client</span></div>
+        <div class="infra-row"><span class="infra-key">State</span><span class="infra-val">Zustand + React Query</span></div>
+        <div class="infra-row"><span class="infra-key">Streaming</span><span class="infra-val">SSE (EventSource)</span></div>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-title"><div class="infra-card-dot" style="background:var(--accent)"></div>Backend Deployment</div>
+        <div class="infra-row"><span class="infra-key">Host</span><span class="infra-val">Railway / Render (Free)</span></div>
+        <div class="infra-row"><span class="infra-key">Runtime</span><span class="infra-val">Python 3.12 · FastAPI</span></div>
+        <div class="infra-row"><span class="infra-key">ASGI</span><span class="infra-val">Uvicorn + Gunicorn</span></div>
+        <div class="infra-row"><span class="infra-key">Queue</span><span class="infra-val">Celery + Redis Streams</span></div>
+        <div class="infra-row"><span class="infra-key">Container</span><span class="infra-val">Docker · docker-compose</span></div>
+        <div class="infra-row"><span class="infra-key">CI/CD</span><span class="infra-val">GitHub Actions (Free)</span></div>
+        <div class="infra-row"><span class="infra-key">Secrets</span><span class="infra-val">Doppler / .env vault</span></div>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-title"><div class="infra-card-dot" style="background:var(--amber)"></div>Data Infrastructure</div>
+        <div class="infra-row"><span class="infra-key">Primary DB</span><span class="infra-val">Supabase / Neon (Free)</span></div>
+        <div class="infra-row"><span class="infra-key">Cache</span><span class="infra-val">Upstash Redis (Free)</span></div>
+        <div class="infra-row"><span class="infra-key">Vector</span><span class="infra-val">Pinecone Free / Qdrant OSS</span></div>
+        <div class="infra-row"><span class="infra-key">Storage</span><span class="infra-val">Cloudflare R2 (10GB free)</span></div>
+        <div class="infra-row"><span class="infra-key">Checkpointer</span><span class="infra-val">LangGraph + Redis</span></div>
+        <div class="infra-row"><span class="infra-key">ORM</span><span class="infra-val">SQLAlchemy 2 + Alembic</span></div>
+        <div class="infra-row"><span class="infra-key">Search</span><span class="infra-val">pg_trgm (Postgres FTS)</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ DB TAB -->
+<div id="tab-db" class="canvas" style="display:none">
+  <div class="lld-container">
+
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">PostgreSQL Schema — Entity Relationship</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="schema-grid">
+
+      <div class="schema-table">
+        <div class="schema-table-header" style="background:rgba(0,229,195,0.1);color:var(--teal)">🗂 users</div>
+        <div class="schema-field"><span class="field-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="schema-field"><span class="field-idx">IDX</span><span class="field-name">email</span><span class="field-type">varchar(255) UNIQUE</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">name</span><span class="field-type">varchar(100)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">clerk_id</span><span class="field-type">varchar(100)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">role</span><span class="field-type">enum(admin,editor,viewer)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">platform_tokens</span><span class="field-type">jsonb (encrypted)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">created_at</span><span class="field-type">timestamptz DEFAULT now()</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-table-header" style="background:rgba(124,111,255,0.1);color:var(--accent2)">⚡ pipeline_runs</div>
+        <div class="schema-field"><span class="field-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="schema-field"><span class="field-fk">FK</span><span class="field-name">user_id</span><span class="field-type">uuid → users.id</span></div>
+        <div class="schema-field"><span class="field-idx">IDX</span><span class="field-name">topic</span><span class="field-type">text</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">status</span><span class="field-type">enum(running,hitl_wait,done,error)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">langgraph_run_id</span><span class="field-type">varchar(100)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">state_snapshot</span><span class="field-type">jsonb</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">started_at</span><span class="field-type">timestamptz</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">completed_at</span><span class="field-type">timestamptz</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">total_tokens</span><span class="field-type">int</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">total_cost_usd</span><span class="field-type">numeric(10,6)</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-table-header" style="background:rgba(255,184,48,0.1);color:var(--amber)">📝 content_drafts</div>
+        <div class="schema-field"><span class="field-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="schema-field"><span class="field-fk">FK</span><span class="field-name">run_id</span><span class="field-type">uuid → pipeline_runs.id</span></div>
+        <div class="schema-field"><span class="field-idx">IDX</span><span class="field-name">platform</span><span class="field-type">enum(linkedin,substack,medium,instagram,x)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">draft_content</span><span class="field-type">text</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">edited_content</span><span class="field-type">text (HITL edit)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">seo_keywords</span><span class="field-type">text[]</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">hashtags</span><span class="field-type">text[]</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">hook_variant</span><span class="field-type">text</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">char_count</span><span class="field-type">int</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">approved_by</span><span class="field-type">uuid (user)</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-table-header" style="background:rgba(0,214,143,0.1);color:var(--green)">🚀 published_posts</div>
+        <div class="schema-field"><span class="field-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="schema-field"><span class="field-fk">FK</span><span class="field-name">draft_id</span><span class="field-type">uuid → content_drafts.id</span></div>
+        <div class="schema-field"><span class="field-idx">IDX</span><span class="field-name">platform</span><span class="field-type">varchar(50)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">external_post_id</span><span class="field-type">varchar(200)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">post_url</span><span class="field-type">text</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">published_at</span><span class="field-type">timestamptz</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">analytics_data</span><span class="field-type">jsonb (periodic sync)</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-table-header" style="background:rgba(56,189,248,0.1);color:var(--sky)">🔑 api_keys</div>
+        <div class="schema-field"><span class="field-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="schema-field"><span class="field-fk">FK</span><span class="field-name">user_id</span><span class="field-type">uuid → users.id</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">key_hash</span><span class="field-type">varchar(64) (SHA-256)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">name</span><span class="field-type">varchar(100)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">scopes</span><span class="field-type">text[]</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">last_used_at</span><span class="field-type">timestamptz</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">expires_at</span><span class="field-type">timestamptz</span></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-table-header" style="background:rgba(251,146,60,0.1);color:var(--orange)">📊 agent_traces</div>
+        <div class="schema-field"><span class="field-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="schema-field"><span class="field-fk">FK</span><span class="field-name">run_id</span><span class="field-type">uuid → pipeline_runs.id</span></div>
+        <div class="schema-field"><span class="field-idx">IDX</span><span class="field-name">agent_name</span><span class="field-type">varchar(50)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">model_used</span><span class="field-type">varchar(100)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">input_tokens</span><span class="field-type">int</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">output_tokens</span><span class="field-type">int</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">latency_ms</span><span class="field-type">int</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">langfuse_trace_id</span><span class="field-type">varchar(100)</span></div>
+        <div class="schema-field"><span class="field-name" style="padding-left:20px">error_msg</span><span class="field-type">text</span></div>
+      </div>
+
+    </div>
+
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">Redis Key Patterns</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div style="background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:16px;font-family:var(--mono);font-size:0.72rem;line-height:2">
+      <div><span style="color:var(--teal)">pipeline:state:{run_id}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted)">→ LangGraph checkpoint (TTL 24h)</span></div>
+      <div><span style="color:var(--accent2)">ratelimit:{user_id}:{minute}</span>&nbsp;&nbsp;<span style="color:var(--muted)">→ sliding window counter</span></div>
+      <div><span style="color:var(--amber)">hitl:pending:{run_id}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted)">→ pub/sub channel for WS push</span></div>
+      <div><span style="color:var(--green)">cache:research:{topic_hash}</span>&nbsp;&nbsp;<span style="color:var(--muted)">→ research brief cache (TTL 6h)</span></div>
+      <div><span style="color:var(--rose)">queue:publish</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted)">→ Celery task queue (Redis Stream)</span></div>
+      <div><span style="color:var(--sky)">session:{session_id}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted)">→ user session (TTL 7d)</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ API TAB -->
+<div id="tab-api" class="canvas" style="display:none">
+  <div class="lld-container">
+
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">FastAPI REST Contract — Base URL: /api/v1</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+      <div>
+        <div style="font-size:0.68rem;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Pipeline</div>
+        <div class="api-endpoint">
+          <div class="method-badge POST">POST</div>
+          <div><div class="endpoint-path">/pipelines/run</div><div class="endpoint-desc">Start a new content pipeline run</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge GET">GET</div>
+          <div><div class="endpoint-path">/pipelines/{run_id}</div><div class="endpoint-desc">Get run status + current state</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge GET">GET</div>
+          <div><div class="endpoint-path">/pipelines/{run_id}/stream</div><div class="endpoint-desc">SSE stream of agent outputs</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge DEL">DEL</div>
+          <div><div class="endpoint-path">/pipelines/{run_id}</div><div class="endpoint-desc">Cancel / abort a running pipeline</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge GET">GET</div>
+          <div><div class="endpoint-path">/pipelines</div><div class="endpoint-desc">List runs for current user (paginated)</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.68rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">HITL</div>
+        <div class="api-endpoint">
+          <div class="method-badge GET">GET</div>
+          <div><div class="endpoint-path">/hitl/{run_id}/review</div><div class="endpoint-desc">Get current pending review state</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge POST">POST</div>
+          <div><div class="endpoint-path">/hitl/{run_id}/approve</div><div class="endpoint-desc">Approve platforms + submit edits</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge POST">POST</div>
+          <div><div class="endpoint-path">/hitl/{run_id}/reject</div><div class="endpoint-desc">Reject all — stops the pipeline</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.68rem;font-weight:800;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Content</div>
+        <div class="api-endpoint">
+          <div class="method-badge GET">GET</div>
+          <div><div class="endpoint-path">/content/{run_id}/drafts</div><div class="endpoint-desc">All platform drafts for a run</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge PUT">PUT</div>
+          <div><div class="endpoint-path">/content/{draft_id}</div><div class="endpoint-desc">Edit a specific platform draft</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge GET">GET</div>
+          <div><div class="endpoint-path">/content/{run_id}/published</div><div class="endpoint-desc">Published post IDs + URLs</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.68rem;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Auth & User</div>
+        <div class="api-endpoint">
+          <div class="method-badge POST">POST</div>
+          <div><div class="endpoint-path">/auth/token</div><div class="endpoint-desc">Exchange clerk token → JWT</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge GET">GET</div>
+          <div><div class="endpoint-path">/users/me</div><div class="endpoint-desc">Current user profile + quotas</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge POST">POST</div>
+          <div><div class="endpoint-path">/users/platforms/connect</div><div class="endpoint-desc">OAuth2 flow for social platforms</div></div>
+        </div>
+        <div class="api-endpoint">
+          <div class="method-badge GET">GET</div>
+          <div><div class="endpoint-path">/users/platforms</div><div class="endpoint-desc">List connected platform accounts</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">WebSocket Events (Socket.io)</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:14px">
+        <div style="font-size:0.68rem;font-weight:700;color:var(--sky);margin-bottom:8px;text-transform:uppercase">Server → Client (emit)</div>
+        <div class="infra-row"><span class="infra-key">agent:start</span><span class="infra-val">{agent_name, timestamp}</span></div>
+        <div class="infra-row"><span class="infra-key">agent:chunk</span><span class="infra-val">{agent_name, token}</span></div>
+        <div class="infra-row"><span class="infra-key">agent:done</span><span class="infra-val">{agent_name, output_key}</span></div>
+        <div class="infra-row"><span class="infra-key">hitl:ready</span><span class="infra-val">{run_id, drafts}</span></div>
+        <div class="infra-row"><span class="infra-key">publish:result</span><span class="infra-val">{platform, post_id, url}</span></div>
+        <div class="infra-row"><span class="infra-key">pipeline:error</span><span class="infra-val">{run_id, error_msg}</span></div>
+      </div>
+      <div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:14px">
+        <div style="font-size:0.68rem;font-weight:700;color:var(--accent2);margin-bottom:8px;text-transform:uppercase">Client → Server (on)</div>
+        <div class="infra-row"><span class="infra-key">join_run</span><span class="infra-val">{run_id}</span></div>
+        <div class="infra-row"><span class="infra-key">hitl:approve</span><span class="infra-val">{run_id, decisions}</span></div>
+        <div class="infra-row"><span class="infra-key">hitl:edit</span><span class="infra-val">{draft_id, content}</span></div>
+        <div class="infra-row"><span class="infra-key">cancel_run</span><span class="infra-val">{run_id}</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ COST TAB -->
+<div id="tab-cost" class="canvas" style="display:none">
+  <div class="lld-container">
+
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">Cost Map — Dev Phase (Month 0–3)</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <table class="cost-table">
+      <thead>
+        <tr><th>Component</th><th>Service / Tier</th><th>Cost</th><th>Limits</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🕸️ LangGraph</td><td>OSS self-hosted (MIT)</td><td class="free-tag">$0</td><td>Unlimited nodes</td></tr>
+        <tr><td>🔍 LangSmith</td><td>Developer Free</td><td class="free-tag">$0</td><td>5k traces/mo, 1 seat</td></tr>
+        <tr><td>✦ Gemini Flash</td><td>Google AI Studio Free</td><td class="free-tag">$0</td><td>1,500 req/day, 1M ctx</td></tr>
+        <tr><td>⚡ Groq</td><td>Free tier</td><td class="free-tag">$0</td><td>1,000 RPD, 100K TPD</td></tr>
+        <tr><td>🧠 Cerebras</td><td>Free tier</td><td class="free-tag">$0</td><td>1M tokens/day</td></tr>
+        <tr><td>◆ Claude Haiku 4.5</td><td>Anthropic API (fallback)</td><td class="paid-tag">~$1–5/mo</td><td>$0.25/M in, $1.25/M out</td></tr>
+        <tr><td>▲ Vercel</td><td>Hobby / Free</td><td class="free-tag">$0</td><td>100GB BW, 100 deploys</td></tr>
+        <tr><td>🔐 Clerk Auth</td><td>Free tier</td><td class="free-tag">$0</td><td>10,000 MAU</td></tr>
+        <tr><td>🐘 Supabase</td><td>Free tier</td><td class="free-tag">$0</td><td>500MB DB, 50k rows</td></tr>
+        <tr><td>🔴 Upstash Redis</td><td>Free tier</td><td class="free-tag">$0</td><td>10k cmds/day</td></tr>
+        <tr><td>🌲 Pinecone</td><td>Starter Free</td><td class="free-tag">$0</td><td>1 index, 100k vectors</td></tr>
+        <tr><td>🪣 Cloudflare R2</td><td>Free tier</td><td class="free-tag">$0</td><td>10GB storage, 1M ops</td></tr>
+        <tr><td>🌐 Cloudflare CDN</td><td>Free plan</td><td class="free-tag">$0</td><td>Unlimited bandwidth</td></tr>
+        <tr><td>📊 Langfuse</td><td>Self-hosted OSS</td><td class="free-tag">$0</td><td>Unlimited (own infra)</td></tr>
+        <tr><td>🚨 Sentry</td><td>Developer Free</td><td class="free-tag">$0</td><td>5k errors/mo</td></tr>
+        <tr><td>🖥️ Railway / Render</td><td>Free tier (backend)</td><td class="free-tag">$0</td><td>500hr/mo compute</td></tr>
+        <tr style="background:rgba(0,214,143,0.05)"><td><strong>Total Dev Phase</strong></td><td>Free-first stack</td><td class="free-tag"><strong>~$1–5/mo</strong></td><td>Scales to $50–100/mo at production</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-text">Model Routing Decision Tree</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div style="background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:16px;font-family:var(--mono);font-size:0.72rem;line-height:2">
+      <div style="color:var(--muted2)">LiteLLM router config (litellm_config.yaml)</div>
+      <br>
+      <div><span style="color:var(--amber)">research_agent</span>:</div>
+      <div>&nbsp;&nbsp;<span style="color:var(--sky)">primary:</span> <span style="color:var(--green)">gemini/gemini-2.5-flash</span>&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Free · 1M ctx · multimodal</span></div>
+      <div>&nbsp;&nbsp;<span style="color:var(--sky)">fallback:</span> <span style="color:var(--teal)">groq/llama-3.3-70b-versatile</span>&nbsp;<span style="color:var(--muted2)"># Free · fast</span></div>
+      <br>
+      <div><span style="color:var(--amber)">content_agent</span>:</div>
+      <div>&nbsp;&nbsp;<span style="color:var(--sky)">primary:</span> <span style="color:var(--green)">gemini/gemini-2.5-flash</span>&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Free · quality</span></div>
+      <div>&nbsp;&nbsp;<span style="color:var(--sky)">fallback:</span> <span style="color:var(--accent2)">anthropic/claude-haiku-4-5</span>&nbsp;&nbsp;<span style="color:var(--muted2)"># $0.25/M · best writing</span></div>
+      <br>
+      <div><span style="color:var(--amber)">visual_agent</span>:</div>
+      <div>&nbsp;&nbsp;<span style="color:var(--sky)">primary:</span> <span style="color:var(--teal)">groq/llama-3.3-70b-versatile</span>&nbsp;<span style="color:var(--muted2)"># Free · fast for prompts</span></div>
+      <div>&nbsp;&nbsp;<span style="color:var(--sky)">fallback:</span> <span style="color:var(--orange)">cerebras/llama-3.3-70b</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Free · 1M tok/day</span></div>
+      <br>
+      <div><span style="color:var(--amber)">seo_agent</span>:</div>
+      <div>&nbsp;&nbsp;<span style="color:var(--sky)">primary:</span> <span style="color:var(--teal)">groq/llama-3.3-70b-versatile</span>&nbsp;<span style="color:var(--muted2)"># Free · structured output</span></div>
+      <div>&nbsp;&nbsp;<span style="color:var(--sky)">fallback:</span> <span style="color:var(--green)">gemini/gemini-2.5-flash</span>&nbsp;&nbsp;&nbsp;<span style="color:var(--muted2)"># Free · backup</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Detail panel content definitions -->
+<script>
+const DETAILS = {
+  nextjs: { icon:'🖥️', name:'Next.js 14 App', type:'Frontend Framework', details:[
+    {k:'Version',v:'Next.js 14.2'},
+    {k:'Rendering',v:'App Router + RSC + SSR'},
+    {k:'Language',v:'TypeScript 5.3'},
+    {k:'Styling',v:'TailwindCSS + shadcn/ui'},
+    {k:'State',v:'Zustand + React Query v5'},
+    {k:'Real-time',v:'Socket.io-client + SSE'},
+    {k:'Deploy',v:'Vercel (free hobby tier)'},
+  ], chips:['next/app','use client','use server','Streaming UI'] },
+
+  langgraph: { icon:'🕸️', name:'LangGraph Engine', type:'Agent Orchestration (MIT License)', details:[
+    {k:'Version',v:'LangGraph 1.x stable'},
+    {k:'License',v:'MIT — self-hosted free'},
+    {k:'Primitives',v:'StateGraph, nodes, edges'},
+    {k:'HITL',v:'interrupt_before on hitl node'},
+    {k:'Checkpointer',v:'RedisCheckpointer (state persist)'},
+    {k:'Parallelism',v:'async branches (visual + seo)'},
+    {k:'Observability',v:'LangSmith Dev (free, 5k traces)'},
+    {k:'Streaming',v:'astream_events → SSE → UI'},
+  ], chips:['StateGraph','interrupt_before','Checkpointer','astream_events'] },
+
+  postgres: { icon:'🐘', name:'PostgreSQL', type:'Primary Relational Database', details:[
+    {k:'Host',v:'Supabase Free / Neon Free'},
+    {k:'Version',v:'PostgreSQL 15+'},
+    {k:'ORM',v:'SQLAlchemy 2 + Alembic'},
+    {k:'Security',v:'Row Level Security (RLS)'},
+    {k:'Extensions',v:'pgcrypto, pg_trgm, uuid-ossp'},
+    {k:'Free Limits',v:'500MB Supabase / 3GB Neon'},
+    {k:'Backups',v:'Daily automated (Supabase)'},
+  ], chips:['RLS','pgcrypto','jsonb','UPSERT'] },
+
+  redis: { icon:'🔴', name:'Redis', type:'Cache + Queue + State Store', details:[
+    {k:'Host',v:'Upstash Redis (Free tier)'},
+    {k:'Free Limit',v:'10,000 commands/day'},
+    {k:'Use cases',v:'Rate limit, session, queue'},
+    {k:'LangGraph',v:'RedisCheckpointer for state'},
+    {k:'Pub/Sub',v:'HITL notification channel'},
+    {k:'Celery',v:'Task broker + result backend'},
+    {k:'TTL Strategy',v:'24h pipeline state, 7d session'},
+  ], chips:['INCR','XADD','SUBSCRIBE','SETEX'] },
+
+  gemini: { icon:'✦', name:'Gemini 2.5 Flash', type:'Primary LLM — Google AI Studio Free', details:[
+    {k:'Free Tier',v:'1,500 req/day, no credit card'},
+    {k:'Context',v:'1M tokens (largest free)'},
+    {k:'Multimodal',v:'Text, image, PDF, audio'},
+    {k:'Speed',v:'Fast (optimized Flash arch)'},
+    {k:'Use in pipeline',v:'Research + Content agents'},
+    {k:'SDK',v:'google-generativeai Python'},
+    {k:'Fallback to',v:'Groq on rate limit (429)'},
+  ], chips:['1M ctx','multimodal','free','OpenAI-compat'] },
+
+  groq: { icon:'⚡', name:'Groq', type:'Free LLM — LPU Hardware', details:[
+    {k:'Model',v:'Llama 3.3 70B Versatile'},
+    {k:'Free Limit',v:'1,000 RPD, 100K TPD'},
+    {k:'Speed',v:'~394 tokens/sec on 70B'},
+    {k:'Hardware',v:'LPU (Language Processing Unit)'},
+    {k:'Use in pipeline',v:'Visual + SEO agents'},
+    {k:'API',v:'OpenAI-compatible endpoint'},
+    {k:'Fallback',v:'Cerebras if 429'},
+  ], chips:['LPU','fast','OpenAI-compat','free'] },
+
+  litellm: { icon:'🔁', name:'LiteLLM Router', type:'Model Load Balancer', details:[
+    {k:'Purpose',v:'Unified API across providers'},
+    {k:'Config',v:'litellm_config.yaml'},
+    {k:'Fallback',v:'Auto-retry on 429/error'},
+    {k:'Providers',v:'Gemini, Groq, Cerebras, Claude'},
+    {k:'Protocol',v:'OpenAI-compatible passthrough'},
+    {k:'Cost tracking',v:'Built-in token cost logging'},
+    {k:'Self-hosted',v:'Free (OSS)'},
+  ], chips:['router','fallback','cost_tracking','OSS'] },
+
+  hitl: { icon:'🧑‍💼', name:'HITL Gate', type:'Human-in-the-Loop Interrupt', details:[
+    {k:'LangGraph primitive',v:'interrupt_before=True'},
+    {k:'Mechanism',v:'Graph pauses, saves checkpoint'},
+    {k:'Notification',v:'WS push → UI (hitl:ready event)'},
+    {k:'User actions',v:'Approve / Edit / Skip / Reject'},
+    {k:'Resume',v:'POST /hitl/{run_id}/approve'},
+    {k:'State merge',v:'Human edits merged into state'},
+    {k:'Timeout',v:'24h — then auto-expire pipeline'},
+  ], chips:['interrupt_before','checkpoint','WebSocket','approval'] },
+};
+
+function showDetail(id) {
+  const d = DETAILS[id];
+  if (!d) return;
+  const panel = document.getElementById('detailPanel');
+  const content = document.getElementById('detailContent');
+  content.innerHTML = `
+    <div class="detail-icon">${d.icon}</div>
+    <div class="detail-name">${d.name}</div>
+    <div class="detail-type">${d.type}</div>
+    <div class="detail-section">
+      <div class="detail-section-title">Specifications</div>
+      ${d.details.map(r => `<div class="detail-row"><span class="detail-row-label">${r.k}</span><span class="detail-row-value">${r.v}</span></div>`).join('')}
+    </div>
+    ${d.chips ? `<div class="detail-section"><div class="detail-section-title">Tags</div><div>${d.chips.map(c => `<span class="chip">${c}</span>`).join('')}</div></div>` : ''}
+  `;
+  panel.classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+function switchTab(tab, btn) {
+  ['hld','lld','db','api','cost'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
