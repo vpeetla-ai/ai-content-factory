@@ -1,15 +1,19 @@
-"""LiteLLM client — routes to proxy with agent-specific model names + mock dev mode."""
+"""LiteLLM client — routes to proxy with agent-specific model names + observability."""
 
 import json
 import os
+import re
 import time
+from typing import Any
 
 from litellm import acompletion
 
 from agents.context import get_agent_name, get_run_id
 from app.core.config import get_settings
+from app.core.logging import get_logger
 
 settings = get_settings()
+logger = get_logger(__name__)
 
 PROXY_MODELS = {
     "research": "research_agent",
@@ -57,6 +61,8 @@ def use_mock_llm() -> bool:
 def _use_litellm_proxy() -> bool:
     if use_mock_llm() or not settings.litellm_proxy_url:
         return False
+    if settings.use_litellm_proxy:
+        return True
     return os.environ.get("USE_LITELLM_PROXY", "").lower() in ("1", "true", "yes")
 
 
@@ -115,7 +121,19 @@ def _mock_response(agent_name: str, user_prompt: str) -> str:
     return json.dumps({"result": topic})
 
 
-def _record_usage(agent_name: str, model: str, input_tokens: int, output_tokens: int, latency_ms: int) -> None:
+def parse_llm_json(raw: str) -> dict[str, Any] | None:
+    """Parse JSON from LLM output, stripping markdown fences."""
+    text = raw.strip()
+    fence = re.search(r"```(?:json)?\s*([\s\S]*?)```", text)
+    if fence:
+        text = fence.group(1).strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return None
+
+
+def _record_usage(agent_name: str, model: str, input_tokens: int, output_tokens: int, latency_ms: int, *, trace_id: str | None = None) -> None:
     run_id = get_run_id()
     if not run_id:
         return
@@ -130,6 +148,7 @@ def _record_usage(agent_name: str, model: str, input_tokens: int, output_tokens:
             "input_tokens": input_tokens,
             "output_tokens": output_tokens,
             "latency_ms": latency_ms,
+            "langfuse_trace_id": trace_id,
         }
     )
 
@@ -154,6 +173,29 @@ async def call_llm(
         _record_usage(agent_name, "mock", in_tok, out_tok, latency_ms)
         return content
 
+    langfuse_trace_id: str | None = None
+    langfuse_generation = None
+    langfuse = None
+    if settings.langfuse_configured:
+        try:
+            from app.core.observability import get_langfuse
+
+            langfuse = get_langfuse()
+            if langfuse:
+                trace = langfuse.trace(
+                    name=f"llm.{agent_name}",
+                    user_id=get_run_id(),
+                    metadata={"agent": agent_name, "model": model},
+                )
+                langfuse_trace_id = trace.id
+                langfuse_generation = trace.generation(
+                    name=agent_name,
+                    model=model,
+                    input={"system": system_prompt, "user": user_prompt},
+                )
+        except Exception as exc:
+            logger.warning("langfuse_trace_start_failed", error=str(exc))
+
     kwargs: dict = {
         "model": model,
         "messages": [
@@ -165,7 +207,7 @@ async def call_llm(
     }
     if use_proxy:
         kwargs["api_base"] = settings.litellm_proxy_url
-        kwargs["api_key"] = os.environ.get("LITELLM_MASTER_KEY", "sk-acf-dev")
+        kwargs["api_key"] = settings.litellm_master_key or os.environ.get("LITELLM_MASTER_KEY", "sk-acf-dev")
     else:
         api_key = _direct_api_key(model)
         if api_key:
@@ -178,10 +220,17 @@ async def call_llm(
         in_tok = getattr(usage, "prompt_tokens", 0) or 0
         out_tok = getattr(usage, "completion_tokens", 0) or 0
         latency_ms = int((time.monotonic() - started) * 1000)
-        _record_usage(agent_name, model, in_tok, out_tok, latency_ms)
+        _record_usage(agent_name, model, in_tok, out_tok, latency_ms, trace_id=langfuse_trace_id)
+        if langfuse_generation is not None:
+            langfuse_generation.end(output=content, usage={"input": in_tok, "output": out_tok})
         return content
-    except Exception:
-        content = _mock_response(agent_name, user_prompt)
-        latency_ms = int((time.monotonic() - started) * 1000)
-        _record_usage(agent_name, "mock-fallback", 50, 100, latency_ms)
-        return content
+    except Exception as exc:
+        logger.warning("llm_call_failed", agent=agent_name, model=model, error=str(exc))
+        if langfuse_generation is not None:
+            langfuse_generation.end(level="ERROR", status_message=str(exc))
+        if not settings.is_production:
+            content = _mock_response(agent_name, user_prompt)
+            latency_ms = int((time.monotonic() - started) * 1000)
+            _record_usage(agent_name, "mock-fallback", 50, 100, latency_ms, trace_id=langfuse_trace_id)
+            return content
+        raise

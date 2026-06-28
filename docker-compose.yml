@@ -1,3 +1,6 @@
+# Local development stack — NOT used in production cloud deploy
+# Production: Render (API) + Vercel (frontend) + Neon/Upstash/Qdrant Cloud
+
 services:
   postgres:
     image: postgres:15-alpine
@@ -27,6 +30,13 @@ services:
       timeout: 3s
       retries: 5
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
     ports:
@@ -35,57 +45,34 @@ services:
       - ./litellm_config.yaml:/app/config.yaml
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     env_file:
-      - .env
+      - .env.local
+    profiles: ["litellm"]
     depends_on:
       redis:
         condition: service_healthy
 
-  qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
-    volumes:
-      - qdrant_data:/qdrant/storage
-
   api:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - .env.local
     environment:
+      APP_ENV: development
+      RUN_MIGRATIONS_ON_STARTUP: "true"
+      MOCK_LLM: "true"
       DATABASE_URL: postgresql+asyncpg://acf:acf@postgres:5432/ai_content_factory
       REDIS_URL: redis://redis:6379/0
-      LITELLM_PROXY_URL: http://litellm:4000
       QDRANT_URL: http://qdrant:6333
-    volumes:
-      - ./backend:/app
-      - ./agents:/app/agents
+      LITELLM_PROXY_URL: http://litellm:4000
+    profiles: ["full"]
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-  celery-worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: postgresql+asyncpg://acf:acf@postgres:5432/ai_content_factory
-      REDIS_URL: redis://redis:6379/0
-    volumes:
-      - ./backend:/app
-      - ./agents:/app/agents
-    depends_on:
-      - api
-      - redis
-    command: celery -A app.worker.celery_app worker --loglevel=info
 
 volumes:
   postgres_data:

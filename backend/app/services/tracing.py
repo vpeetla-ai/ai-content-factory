@@ -54,6 +54,7 @@ async def record_agent_trace(
     output_tokens: int,
     latency_ms: int,
     error_msg: str | None = None,
+    langfuse_trace_id: str | None = None,
 ) -> None:
     db.add(
         AgentTrace(
@@ -64,6 +65,7 @@ async def record_agent_trace(
             output_tokens=output_tokens,
             latency_ms=latency_ms,
             error_msg=error_msg,
+            langfuse_trace_id=langfuse_trace_id,
         )
     )
 

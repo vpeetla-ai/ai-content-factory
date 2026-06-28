@@ -98,7 +98,7 @@ class PipelineService:
         await redis.set(PIPELINE_STATE.format(run_id=run_id_str), "running", ex=settings.pipeline_state_ttl)
 
         graph_config = {"configurable": {"thread_id": thread_id}}
-        graph_input: dict | Command | None
+        graph_input: dict | None
 
         if resume:
             await self.graph.aupdate_state(
@@ -271,6 +271,7 @@ class PipelineService:
                     input_tokens=call.get("input_tokens", 0),
                     output_tokens=call.get("output_tokens", 0),
                     latency_ms=call.get("latency_ms", latency_ms),
+                    langfuse_trace_id=call.get("langfuse_trace_id"),
                 )
             metrics.llm_calls = [c for c in metrics.llm_calls if c not in matched]
         elif node_name in ("hitl", "publish"):

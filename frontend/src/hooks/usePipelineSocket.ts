@@ -6,14 +6,18 @@ import { usePipelineStore } from "@/lib/store";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:8000";
 
-export function usePipelineSocket(runId: string | null) {
+export function usePipelineSocket(runId: string | null, authToken: string | null) {
   const socketRef = useRef<Socket | null>(null);
   const { addLog, setStatus } = usePipelineStore();
 
   useEffect(() => {
     if (!runId) return;
 
-    const socket = io(WS_URL, { transports: ["websocket", "polling"] });
+    const socket = io(WS_URL, {
+      transports: ["websocket", "polling"],
+      auth: authToken ? { token: authToken } : undefined,
+      query: authToken ? { token: authToken } : undefined,
+    });
     socketRef.current = socket;
 
     socket.on("connect", () => {
@@ -39,7 +43,7 @@ export function usePipelineSocket(runId: string | null) {
     return () => {
       socket.disconnect();
     };
-  }, [runId, addLog, setStatus]);
+  }, [runId, authToken, addLog, setStatus]);
 
   return socketRef;
 }

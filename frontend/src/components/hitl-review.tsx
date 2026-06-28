@@ -3,6 +3,18 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
+interface HitlDraft {
+  id: string;
+  platform: string;
+  draft_content: string;
+  hook_variant?: string;
+  char_count: number;
+}
+
+interface HitlReviewResponse {
+  drafts: HitlDraft[];
+}
+
 interface Props {
   runId: string;
   onComplete: () => void;
@@ -11,14 +23,14 @@ interface Props {
 export function HITLReview({ runId, onComplete }: Props) {
   const { data: review, refetch } = useQuery({
     queryKey: ["hitl", runId],
-    queryFn: () => api.hitl.review(runId),
+    queryFn: () => api.hitl.review(runId) as Promise<HitlReviewResponse>,
   });
 
   const approveMutation = useMutation({
     mutationFn: () =>
       api.hitl.approve(
         runId,
-        (review?.drafts || []).map((d: { platform: string; draft_content: string }) => ({
+        (review?.drafts || []).map((d) => ({
           platform: d.platform,
           approved: true,
           edited_content: d.draft_content,
@@ -41,13 +53,7 @@ export function HITLReview({ runId, onComplete }: Props) {
         ✋ Human Review (HITL Gate)
       </h2>
       <div className="space-y-4">
-        {(review?.drafts || []).map((draft: {
-          id: string;
-          platform: string;
-          draft_content: string;
-          hook_variant?: string;
-          char_count: number;
-        }) => (
+        {(review?.drafts || []).map((draft) => (
           <div key={draft.id} className="bg-surface rounded-lg p-4 border border-white/5">
             <div className="flex justify-between mb-2">
               <span className="text-xs font-bold uppercase text-accent">{draft.platform}</span>

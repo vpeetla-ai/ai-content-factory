@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_call:
 
 jobs:
   backend:
@@ -23,8 +24,14 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis:7
+        image: redis/redis-stack-server:latest
         ports: ["6379:6379"]
+    env:
+      APP_ENV: development
+      MOCK_LLM: "true"
+      DATABASE_URL: postgresql+asyncpg://acf:acf@localhost:5432/ai_content_factory
+      REDIS_URL: redis://localhost:6379/0
+      VECTOR_BACKEND: none
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,12 +39,19 @@ jobs:
           python-version: "3.12"
       - name: Install backend deps
         run: pip install -r backend/requirements.txt
-      - name: Lint import
-        run: python -c "import sys; sys.path.insert(0, 'backend'); sys.path.insert(0, '.'); from agents.graph import graph; print('graph ok')"
-        working-directory: .
+      - name: Run migrations
+        run: alembic upgrade head
+        working-directory: backend
+      - name: Import smoke test
+        run: python -c "import sys; sys.path.insert(0, 'backend'); sys.path.insert(0, '.'); from agents.graph import build_graph; print('graph ok')"
+      - name: Health import smoke
+        run: python -c "import sys; sys.path.insert(0, 'backend'); from app.main import app; print('app ok')"
 
   frontend:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_WS_URL: http://localhost:8000
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

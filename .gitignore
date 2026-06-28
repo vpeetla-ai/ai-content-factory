@@ -16,7 +16,9 @@ build/
 # Environment
 .env
 .env.local
+.env.production
 .env.*.local
+!.env*.example
 
 # IDE
 .idea/

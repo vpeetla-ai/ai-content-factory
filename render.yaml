@@ -1,0 +1,62 @@
+# Render Blueprint — AI Content Factory API (free tier compatible)
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: acf-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    branch: main
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: RUN_MIGRATIONS_ON_STARTUP
+        value: "true"
+      - key: MOCK_LLM
+        value: "false"
+      - key: ALLOW_DEV_AUTH
+        value: "false"
+      - key: LOG_JSON
+        value: "true"
+      - key: APP_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: acf-postgres
+          property: connectionString
+      - key: REDIS_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CLERK_JWKS_URL
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: LANGSMITH_API_KEY
+        sync: false
+      - key: LANGFUSE_PUBLIC_KEY
+        sync: false
+      - key: LANGFUSE_SECRET_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+
+databases:
+  - name: acf-postgres
+    plan: free
+    databaseName: ai_content_factory
+    user: acf
