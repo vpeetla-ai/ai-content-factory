@@ -2,6 +2,8 @@
 
 **By Venkata Peetla** · [GitHub](https://github.com/vpeetla-ai) · [venkat-ai.com](https://venkat-ai.com) · [Substack](https://venkatapeetla.substack.com)
 
+> **Publishing:** Substack-ready version → [from-multi-agent-os-to-agent-governance-substack.md](./from-multi-agent-os-to-agent-governance-substack.md)
+
 ---
 
 Most teams building with AI agents follow the same arc:
