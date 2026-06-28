@@ -14,7 +14,7 @@ from agents.context import set_run_context
 from agents.llm import register_run_metrics, unregister_run_metrics
 from app.core.cancel_registry import cancel_run as mark_cancelled
 from app.core.cancel_registry import is_cancelled
-from app.core.checkpointer import get_graph
+from app.core.checkpointer import ensure_graph_initialized, get_graph
 from app.core.config import get_settings
 from app.core.database import async_session_factory
 from app.core.pipeline_events import publish_pipeline_event
@@ -42,7 +42,9 @@ NODE_OUTPUT_KEYS = {
 class PipelineService:
     def __init__(self, db: AsyncSession):
         self.db = db
-        self.graph = get_graph()
+
+    def _graph(self):
+        return get_graph()
 
     async def create_run(
         self,
@@ -83,6 +85,9 @@ class PipelineService:
         thread_id = run.langgraph_run_id or str(run.id)
         run_id_str = str(run.id)
 
+        await ensure_graph_initialized()
+        graph = self._graph()
+
         if is_cancelled(run_id_str):
             run.status = PipelineStatus.error
             run.state_snapshot = {**(run.state_snapshot or {}), "error": "Cancelled"}
@@ -101,7 +106,7 @@ class PipelineService:
         graph_input: dict | None
 
         if resume:
-            await self.graph.aupdate_state(
+            await graph.aupdate_state(
                 graph_config,
                 {"hitl_approved": hitl_approved or {}, "hitl_edits": hitl_edits or {}},
             )
@@ -120,7 +125,7 @@ class PipelineService:
         active_nodes: set[str] = set()
 
         try:
-            async for event in self.graph.astream_events(
+            async for event in graph.astream_events(
                 graph_input,
                 graph_config,
                 version="v2",
@@ -166,7 +171,7 @@ class PipelineService:
                     )
                     active_nodes.discard(node_name)
 
-            snapshot = await self.graph.aget_state(graph_config)
+            snapshot = await graph.aget_state(graph_config)
             state = snapshot.values or {}
             await self._persist_state(run, state)
             await self._persist_published(run, state)

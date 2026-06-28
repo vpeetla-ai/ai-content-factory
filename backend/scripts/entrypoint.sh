@@ -11,23 +11,15 @@ if [ "${RUN_MIGRATIONS_ON_STARTUP:-false}" = "true" ]; then
 fi
 
 PORT="${PORT:-8000}"
-# Free-tier hosts (Render) OOM with multiple workers — default to 1 in production
-if [ "${APP_ENV:-development}" = "production" ]; then
-  WORKERS="${WORKERS:-1}"
-else
-  WORKERS="${WORKERS:-2}"
-fi
 
 if [ "${APP_ENV:-development}" = "production" ]; then
-  echo "==> Starting Gunicorn with ${WORKERS} worker(s) on port ${PORT}"
-  exec gunicorn app.main:app \
-    -k uvicorn.workers.UvicornWorker \
-    -b "0.0.0.0:${PORT}" \
-    --workers "${WORKERS}" \
-    --timeout 120 \
-    --graceful-timeout 30 \
-    --access-logfile - \
-    --error-logfile -
+  # Render free tier: single uvicorn process (gunicorn multi-worker OOMs)
+  echo "==> Starting Uvicorn on port ${PORT} (production, 1 process)"
+  exec uvicorn app.main:app \
+    --host 0.0.0.0 \
+    --port "${PORT}" \
+    --timeout-keep-alive 120 \
+    --log-level info
 else
   echo "==> Starting Uvicorn (development) on port ${PORT}"
   exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT}" --reload

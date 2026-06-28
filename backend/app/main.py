@@ -1,6 +1,5 @@
 """FastAPI application entrypoint — production bootstrap."""
 
-import asyncio
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -16,12 +15,7 @@ from app.api.routes.auth import auth_router, users_router
 from app.api.routes.content import router as content_router
 from app.api.routes.hitl import router as hitl_router
 from app.api.routes.pipelines import router as pipelines_router
-from app.core.checkpointer import (
-    force_memory_graph,
-    init_graph,
-    is_memory_checkpointer,
-    shutdown_graph,
-)
+from app.core.checkpointer import is_graph_ready, is_memory_checkpointer, shutdown_graph
 from app.core.config import get_settings
 from app.core.logging import setup_logging, get_logger
 from app.core.observability import flush_observability, init_observability
@@ -34,23 +28,8 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Keep startup minimal — graph/vector init is lazy (first pipeline request)
     init_observability()
-    try:
-        await asyncio.wait_for(
-            init_graph(settings.redis_url, ttl_seconds=settings.pipeline_state_ttl),
-            timeout=20.0,
-        )
-    except Exception as exc:
-        logger.warning("graph_init_timeout_or_error", error=str(exc))
-        force_memory_graph()
-
-    try:
-        from app.services.vector_store import ensure_collection
-
-        await asyncio.wait_for(ensure_collection(), timeout=15.0)
-    except Exception as exc:
-        logger.warning("vector_store_init_skipped", error=str(exc))
-
     logger.info("application_started", app_env=settings.app_env)
     yield
     await shutdown_graph()
@@ -87,15 +66,14 @@ app.mount("/api/v1", api)
 
 @app.get("/health")
 async def health():
-    from agents.llm import use_mock_llm
-
     return {
         "status": "ok",
         "service": "ai-content-factory-api",
         "version": "1.0.0",
         "environment": settings.app_env,
-        "mock_llm": use_mock_llm(),
-        "checkpointer": "memory" if is_memory_checkpointer() else "redis",
+        "mock_llm": settings.mock_llm,
+        "graph_ready": is_graph_ready(),
+        "checkpointer": "memory" if is_memory_checkpointer() else ("redis" if is_graph_ready() else "pending"),
         "llm_keys_configured": bool(
             settings.google_api_key or settings.groq_api_key or settings.anthropic_api_key
         ),
