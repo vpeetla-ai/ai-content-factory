@@ -39,7 +39,10 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     name: Mapped[str | None] = mapped_column(String(100))
     clerk_id: Mapped[str | None] = mapped_column(String(100))
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.editor)
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, name="userrole", native_enum=True, create_constraint=False, values_callable=lambda x: [e.value for e in x]),
+        default=UserRole.editor,
+    )
     platform_tokens: Mapped[dict | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

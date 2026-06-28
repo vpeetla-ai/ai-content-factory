@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
@@ -27,51 +28,59 @@ async def exchange_token(
 ):
     """Exchange Clerk session JWT → internal API JWT."""
     settings = get_settings()
-    email: str
-    clerk_id: str | None = None
-    name: str | None = None
+    try:
+        email: str
+        clerk_id: str | None = None
+        name: str | None = None
 
-    if settings.clerk_configured or settings.clerk_secret_key:
-        try:
+        if settings.clerk_configured or settings.clerk_secret_key:
             claims = await verify_clerk_token(body.clerk_token)
             email, clerk_id, name = await extract_clerk_identity(claims)
-        except ValueError as exc:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
-        except Exception as exc:
-            logger.exception("clerk_token_exchange_failed")
+        elif settings.allow_dev_auth and settings.is_development:
+            email = body.clerk_token if "@" in body.clerk_token else f"{body.clerk_token}@dev.local"
+            name = email.split("@")[0]
+            logger.info("dev_auth_bypass", email=email)
+        else:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Authentication service error",
-            ) from exc
-    elif settings.allow_dev_auth and settings.is_development:
-        email = body.clerk_token if "@" in body.clerk_token else f"{body.clerk_token}@dev.local"
-        name = email.split("@")[0]
-        logger.info("dev_auth_bypass", email=email)
-    else:
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Clerk authentication is required but not configured",
+            )
+
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+        if not user:
+            user = User(
+                id=uuid4(),
+                email=email,
+                name=name or email.split("@")[0],
+                clerk_id=clerk_id,
+                role=UserRole.editor,
+            )
+            db.add(user)
+            await db.flush()
+        elif clerk_id and not user.clerk_id:
+            user.clerk_id = clerk_id
+            if name:
+                user.name = name
+
+        token = create_access_token(user.id, user.email, user.role.value)
+        return TokenResponse(access_token=token, expires_in=settings.jwt_expire_minutes * 60)
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+    except SQLAlchemyError as exc:
+        logger.exception("auth_database_error")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Clerk authentication is required but not configured",
-        )
-
-    result = await db.execute(select(User).where(User.email == email))
-    user = result.scalar_one_or_none()
-    if not user:
-        user = User(
-            id=uuid4(),
-            email=email,
-            name=name or email.split("@")[0],
-            clerk_id=clerk_id,
-            role=UserRole.editor,
-        )
-        db.add(user)
-        await db.flush()
-    elif clerk_id and not user.clerk_id:
-        user.clerk_id = clerk_id
-        if name:
-            user.name = name
-
-    token = create_access_token(user.id, user.email, user.role.value)
-    return TokenResponse(access_token=token, expires_in=settings.jwt_expire_minutes * 60)
+            detail="Database unavailable — check DATABASE_URL and migrations on Render",
+        ) from exc
+    except Exception as exc:
+        logger.exception("clerk_token_exchange_failed")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Authentication service error",
+        ) from exc
 
 
 @users_router.get("/me", response_model=UserProfileResponse)

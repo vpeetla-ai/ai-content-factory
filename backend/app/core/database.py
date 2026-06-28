@@ -9,7 +9,22 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-engine = create_async_engine(settings.database_url, echo=settings.app_env == "development")
+
+def _asyncpg_connect_args(database_url: str) -> dict:
+    """Neon and other managed Postgres require TLS for asyncpg."""
+    if any(
+        marker in database_url
+        for marker in ("ssl=require", "sslmode=require", "neon.tech", ".render.com")
+    ):
+        return {"ssl": True}
+    return {}
+
+
+engine = create_async_engine(
+    settings.database_url,
+    echo=settings.app_env == "development",
+    connect_args=_asyncpg_connect_args(settings.database_url),
+)
 async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

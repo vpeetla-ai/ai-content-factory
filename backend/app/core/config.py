@@ -113,11 +113,14 @@ class Settings(BaseSettings):
     @field_validator("database_url", mode="before")
     @classmethod
     def normalize_database_url(cls, v: str) -> str:
-        # Render/Heroku provide postgres:// — asyncpg needs postgresql+asyncpg://
+        # Render/Heroku/Neon provide postgres:// — asyncpg needs postgresql+asyncpg://
         if v.startswith("postgres://"):
-            return v.replace("postgres://", "postgresql+asyncpg://", 1)
-        if v.startswith("postgresql://") and "+asyncpg" not in v:
-            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+            v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif v.startswith("postgresql://") and "+asyncpg" not in v:
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        # asyncpg uses ?ssl=require (not sslmode=require from Neon/psycopg2 URLs)
+        if "+asyncpg" in v and "sslmode=require" in v:
+            v = v.replace("sslmode=require", "ssl=require")
         return v
 
     @model_validator(mode="after")

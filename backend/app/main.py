@@ -10,8 +10,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import socketio
+from sqlalchemy import text
 
 from app.api.routes.auth import auth_router, users_router
+from app.core.database import async_session_factory
 from app.api.routes.content import router as content_router
 from app.api.routes.hitl import router as hitl_router
 from app.api.routes.pipelines import router as pipelines_router
@@ -66,11 +68,20 @@ app.mount("/api/v1", api)
 
 @app.get("/health")
 async def health():
+    db_ok = False
+    try:
+        async with async_session_factory() as session:
+            await session.execute(text("SELECT 1"))
+            db_ok = True
+    except Exception as exc:
+        logger.warning("health_db_check_failed", error=str(exc))
+
     return {
-        "status": "ok",
+        "status": "ok" if db_ok else "degraded",
         "service": "ai-content-factory-api",
         "version": "1.0.0",
         "environment": settings.app_env,
+        "database": "ok" if db_ok else "error",
         "mock_llm": settings.mock_llm,
         "graph_ready": is_graph_ready(),
         "checkpointer": "memory" if is_memory_checkpointer() else ("redis" if is_graph_ready() else "pending"),

@@ -21,10 +21,13 @@ def _sync_database_url() -> str:
         "DATABASE_URL",
         config.get_main_option("sqlalchemy.url"),
     )
-    return (
-        url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
-        .replace("postgresql+asyncpg:", "postgresql+psycopg2:")
-    )
+    if url.startswith("postgres://"):
+        url = "postgresql+psycopg2://" + url[len("postgres://") :]
+    elif url.startswith("postgresql://") and "+" not in url.split("://", 1)[0]:
+        url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+    elif url.startswith("postgresql+asyncpg://"):
+        url = url.replace("postgresql+asyncpg://", "postgresql+psycopg2://", 1)
+    return url
 
 
 def run_migrations_offline() -> None:
