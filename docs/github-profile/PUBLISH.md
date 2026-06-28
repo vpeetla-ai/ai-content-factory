@@ -133,6 +133,33 @@ If you have **private** repos counted in your “11 projects,” add them to `sc
 
 ---
 
+## Troubleshooting: `gh auth login` permission denied
+
+If you see:
+
+```text
+mkdir /Users/.../.config/gh: permission denied
+```
+
+Your `~/.config` folder is owned by **root**. Browser auth may succeed, but **gh cannot save the token**.
+
+**Fix** — use a writable config path, then log in again:
+
+```bash
+export GH_CONFIG_DIR=~/.local/gh-config
+mkdir -p ~/.local/gh-config
+gh auth login
+cd /path/to/ai-content-factory
+./scripts/publish-profile-readme.sh
+./scripts/set-github-metadata.sh
+```
+
+Project scripts set `GH_CONFIG_DIR` automatically via `scripts/gh-env.sh`.
+
+**Permanent fix (optional):** `sudo chown -R "$(whoami)" ~/.config`
+
+---
+
 ## Checklist
 
 - [ ] Push `ai-content-factory` growth assets to GitHub

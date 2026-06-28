@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Set GitHub repo descriptions and topics for vpeetla-ai org/user repos.
-# Prerequisites: gh auth login
+# Prerequisites: gh auth login (see docs/github-profile/PUBLISH.md)
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=gh-env.sh
+source "$SCRIPT_DIR/gh-env.sh"
 
 OWNER="vpeetla-ai"
 

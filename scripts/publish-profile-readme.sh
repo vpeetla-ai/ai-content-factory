@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # Create github.com/vpeetla-ai/vpeetla-ai and push the profile README.
-# Prerequisites: gh auth login
+# Prerequisites: gh auth login (see docs/github-profile/PUBLISH.md)
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=gh-env.sh
+source "$SCRIPT_DIR/gh-env.sh"
+
 PROFILE_DIR="${PROFILE_DIR:-$HOME/vpeetla-ai}"
-SOURCE_README="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/docs/github-profile/README.md"
+SOURCE_README="$(cd "$SCRIPT_DIR/.." && pwd)/docs/github-profile/README.md"
 
 mkdir -p "$PROFILE_DIR"
 
@@ -29,16 +33,34 @@ else
   git commit -m "Update GitHub profile README"
 fi
 
+ensure_remote() {
+  local url="https://github.com/vpeetla-ai/vpeetla-ai.git"
+  if git remote get-url origin &>/dev/null; then
+    git remote set-url origin "$url"
+  else
+    git remote add origin "$url"
+  fi
+}
+
 if gh repo view vpeetla-ai/vpeetla-ai &>/dev/null; then
   echo "Repo exists — pushing..."
-  git remote remove origin 2>/dev/null || true
-  git remote add origin "https://github.com/vpeetla-ai/vpeetla-ai.git"
+  ensure_remote
   git push -u origin main
 else
   echo "Creating vpeetla-ai/vpeetla-ai..."
-  gh repo create vpeetla-ai --public \
+  if gh repo create vpeetla-ai --public \
     --description "GitHub profile README — Overview banner for @vpeetla-ai" \
-    --source=. --remote=origin --push
+    --source=. --remote=origin --push 2>&1; then
+    :
+  else
+    echo "gh repo create reported an error — retrying push if repo exists..."
+    if gh repo view vpeetla-ai/vpeetla-ai &>/dev/null; then
+      ensure_remote
+      git push -u origin main
+    else
+      exit 1
+    fi
+  fi
 fi
 
 echo ""
