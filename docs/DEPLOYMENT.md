@@ -211,7 +211,10 @@ ALLOW_DEV_AUTH=false
 **Vercel (frontend):**
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
+CLERK_SECRET_KEY=sk_live_...
 ```
+
+> **Important:** `@clerk/nextjs` middleware requires **both** keys on Vercel. Missing `CLERK_SECRET_KEY` causes build failure.
 
 ### 6.6 Verify Clerk integration
 
@@ -425,6 +428,7 @@ Vercel → Project → **Settings** → **Environment Variables**:
 | `NEXT_PUBLIC_API_URL` | `https://acf-api.onrender.com/api/v1` | Production |
 | `NEXT_PUBLIC_WS_URL` | `https://acf-api.onrender.com` | Production |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | `pk_live_...` | Production |
+| `CLERK_SECRET_KEY` | `sk_live_...` | Production |
 
 For **Preview** deployments, use the same or staging Clerk keys.
 
