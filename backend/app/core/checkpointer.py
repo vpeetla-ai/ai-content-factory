@@ -17,6 +17,20 @@ _checkpointer_cm = None
 _using_memory = False
 
 
+def force_memory_graph() -> None:
+    """Fallback when Redis checkpointer is unavailable (e.g. Upstash without RediSearch)."""
+    global _checkpointer, _graph, _checkpointer_cm, _using_memory
+    from langgraph.checkpoint.memory import MemorySaver
+
+    from agents.graph import build_graph
+
+    _checkpointer = None
+    _checkpointer_cm = None
+    _graph = build_graph(checkpointer=MemorySaver())
+    _using_memory = True
+    logger.warning("LangGraph using MemorySaver fallback")
+
+
 async def init_graph(redis_url: str, *, ttl_seconds: int = 86400) -> None:
     """Initialize Redis checkpointer and compile graph once at app startup."""
     global _checkpointer, _graph, _checkpointer_cm, _using_memory

@@ -1,10 +1,12 @@
 """FastAPI application entrypoint — production bootstrap."""
 
+import asyncio
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+# Docker: /app/app/main.py → parents[1] = /app (agents package lives here)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +16,12 @@ from app.api.routes.auth import auth_router, users_router
 from app.api.routes.content import router as content_router
 from app.api.routes.hitl import router as hitl_router
 from app.api.routes.pipelines import router as pipelines_router
-from app.core.checkpointer import init_graph, is_memory_checkpointer, shutdown_graph
+from app.core.checkpointer import (
+    force_memory_graph,
+    init_graph,
+    is_memory_checkpointer,
+    shutdown_graph,
+)
 from app.core.config import get_settings
 from app.core.logging import setup_logging, get_logger
 from app.core.observability import flush_observability, init_observability
@@ -25,32 +32,22 @@ logger = get_logger(__name__)
 settings = get_settings()
 
 
-async def _run_migrations() -> None:
-    if not settings.run_migrations_on_startup:
-        return
-    try:
-        from alembic import command
-        from alembic.config import Config
-
-        alembic_cfg = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
-        command.upgrade(alembic_cfg, "head")
-        logger.info("migrations_applied")
-    except Exception as exc:
-        logger.error("migration_failed", error=str(exc))
-        if settings.is_production:
-            raise
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_observability()
-    await _run_migrations()
-    await init_graph(settings.redis_url, ttl_seconds=settings.pipeline_state_ttl)
-
-    from app.services.vector_store import ensure_collection
+    try:
+        await asyncio.wait_for(
+            init_graph(settings.redis_url, ttl_seconds=settings.pipeline_state_ttl),
+            timeout=20.0,
+        )
+    except Exception as exc:
+        logger.warning("graph_init_timeout_or_error", error=str(exc))
+        force_memory_graph()
 
     try:
-        await ensure_collection()
+        from app.services.vector_store import ensure_collection
+
+        await asyncio.wait_for(ensure_collection(), timeout=15.0)
     except Exception as exc:
         logger.warning("vector_store_init_skipped", error=str(exc))
 

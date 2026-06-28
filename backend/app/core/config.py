@@ -126,7 +126,7 @@ class Settings(BaseSettings):
             self.allow_dev_auth = False
             self.mock_llm = False
             self.log_json = True
-            self.run_migrations_on_startup = True
+            # Migrations run in entrypoint.sh — not in Gunicorn worker lifespan
             if self.app_secret_key == "dev-secret-change-me":
                 raise ValueError("APP_SECRET_KEY must be set in production")
         return self
