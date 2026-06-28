@@ -271,10 +271,11 @@ Interactive docs (local only): http://localhost:8000/docs
 
 ## Related projects
 
-| Project | Description |
-|---------|-------------|
-| [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Governed RAG — access-aware retrieval, evals, guardrails |
-| [AegisLoop AgentOps Workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | Tracing, evals, and ops for production agents |
+| Project | Role |
+|---------|------|
+| [AegisAI](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | Agent governance control plane — gateway + HITL |
+| [Venkat AI Platform](https://github.com/vpeetla-ai/venkat-ai-platform) | Multi-agent personal OS — Chief orchestrator |
+| [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Governed RAG reference |
 | [Production Agent Patterns](https://github.com/vpeetla-ai/react-agent-pattern) | ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm |
 
 Built by [Venkata Peetla](https://github.com/vpeetla-ai) — [venkat-ai.com](https://venkat-ai.com) · [Substack](https://venkatapeetla.substack.com) · [Medium](https://medium.com/@vpeetla.ai)

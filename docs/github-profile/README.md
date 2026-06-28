@@ -1,10 +1,8 @@
-<!-- Profile README for https://github.com/vpeetla-ai (Overview tab only).
-     Not a separate project — paste this into repo vpeetla-ai/vpeetla-ai if you want a profile banner.
-     Skip this repo entirely if you prefer bio + pinned repos only. -->
+<!-- Profile README for https://github.com/vpeetla-ai (Overview tab) -->
 
 # Hi, I'm Venkata Peetla — AI Architect
 
-> I build **production-grade multi-agent systems**, **enterprise RAG**, and **AgentOps** — not demos.
+> I build **production-grade multi-agent systems**, **enterprise agent governance**, and **governed RAG** — not demos.
 
 [![Website](https://img.shields.io/badge/Website-venkat--ai.com-blue)](https://venkat-ai.com)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2)](https://linkedin.com/in/venkata-peetla)
@@ -13,55 +11,70 @@
 
 ---
 
-## Flagship project
+## Top projects
+
+### [AegisAI — Enterprise Agent Governance](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform)
+
+**Monitor → Govern → Remediate** — AI Gateway intercepts every agent tool call: policy, HITL, signed audit, FinOps.
+
+[▶ Live control plane](https://aegisai-enterprise-agent-platform.vercel.app) · LangGraph · OPA · FastAPI · Next.js
+
+### [Venkat AI Platform (VAP)](https://github.com/vpeetla-ai/venkat-ai-platform)
+
+**Principal-architect multi-agent OS** — Chief routes intent → parallel specialists → Critic → Slack / Telegram / WhatsApp.
+
+LangGraph · Qdrant RAG · Langfuse · Postgres · publication-ready ADRs
 
 ### [AI Content Factory](https://github.com/vpeetla-ai/ai-content-factory)
 
-**Multi-agent content orchestration** — Research → Content → SEO/Visual → Human-in-the-loop → Publish
+**Multi-agent content pipeline** — Research → 5 platform drafts → HITL → Publish.
 
-LangGraph · FastAPI · Next.js · Clerk · LangSmith · Free-first cloud stack
-
-[▶ Live demo](https://ai-content-factory-iota.vercel.app) · [📖 Deploy guide](https://github.com/vpeetla-ai/ai-content-factory/blob/main/docs/DEPLOYMENT.md) · [⭐ Star the repo](https://github.com/vpeetla-ai/ai-content-factory)
-
-```text
-Topic → Research (RAG) → 5 platform drafts → HITL gate → Publish
-```
+[▶ Live demo](https://ai-content-factory-iota.vercel.app) · LangGraph · Clerk · Render + Vercel
 
 ---
 
-## What I build
+## Portfolio map
 
-| Area | Repository | What it solves |
-|------|------------|----------------|
-| **Content automation** | [ai-content-factory](https://github.com/vpeetla-ai/ai-content-factory) | End-to-end multi-agent pipeline with human approval |
-| **Enterprise RAG** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Governed RAG — access control, evals, guardrails |
-| **AgentOps** | [aegisloop-agentops-workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | Tracing, evals, and ops for production agents |
-| **Agent patterns** | Series below | Reference implementations you can run locally |
+```text
+Governance layer     →  AegisAI (gateway, HITL, audit, FinOps)
+Orchestration layer  →  Venkat AI Platform (Chief + 15 agents)
+Application layer    →  AI Content Factory (content automation)
+Knowledge layer      →  Enterprise RAG Platform (governed retrieval)
+Patterns layer       →  ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm
+```
+
+| Layer | Repository | What it proves |
+|-------|------------|----------------|
+| **Agent governance** | [aegisai-enterprise-agent-platform](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | Gateway-first control plane for production fleets |
+| **Multi-agent OS** | [venkat-ai-platform](https://github.com/vpeetla-ai/venkat-ai-platform) | Intent routing, parallel workers, critic gate, notifications |
+| **Content automation** | [ai-content-factory](https://github.com/vpeetla-ai/ai-content-factory) | End-to-end pipeline with human approval before publish |
+| **Enterprise RAG** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Access-aware retrieval, evals, guardrails |
+| **AgentOps** | [aegisloop-agentops-workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | Tracing, evals, production agent monitoring |
 
 ### Production Agent Patterns (series)
 
-| # | Pattern | Repository | Use when |
-|---|---------|------------|----------|
-| 1 | ReAct | [react-agent-pattern](https://github.com/vpeetla-ai/react-agent-pattern) | Tool use + reasoning loops |
-| 2 | Reflection | [reflection-agent-pattern](https://github.com/vpeetla-ai/reflection-agent-pattern) | Self-critique and improve output |
-| 3 | Plan-Execute | [plan-execute-agent-pattern](https://github.com/vpeetla-ai/plan-execute-agent-pattern) | Decompose goals into steps |
-| 4 | Multi-Agent | [multi-agent-system-pattern](https://github.com/vpeetla-ai/multi-agent-system-pattern) | Specialized role delegation |
-| 5 | Swarm | [swarm-agent-pattern](https://github.com/vpeetla-ai/swarm-agent-pattern) | Parallel autonomous agents |
+| # | Pattern | Repository |
+|---|---------|------------|
+| 1 | ReAct | [react-agent-pattern](https://github.com/vpeetla-ai/react-agent-pattern) |
+| 2 | Reflection | [reflection-agent-pattern](https://github.com/vpeetla-ai/reflection-agent-pattern) |
+| 3 | Plan-Execute | [plan-execute-agent-pattern](https://github.com/vpeetla-ai/plan-execute-agent-pattern) |
+| 4 | Multi-Agent | [multi-agent-system-pattern](https://github.com/vpeetla-ai/multi-agent-system-pattern) |
+| 5 | Swarm | [swarm-agent-pattern](https://github.com/vpeetla-ai/swarm-agent-pattern) |
 
 ---
 
 ## Currently building
 
-- [ ] Real OAuth publish adapters (LinkedIn, Substack, Medium, Instagram, X)
+- [ ] OAuth publish adapters for AI Content Factory
+- [ ] AegisAI agent registry → Postgres migration
 - [ ] Unified learning path across agent pattern repos
-- [ ] Enterprise RAG evaluation harness
 
 ---
 
 ## Writing
 
-- **Substack** — architecture decisions for production AI → [venkatapeetla.substack.com](https://venkatapeetla.substack.com)
-- **Medium** — agent patterns and RAG governance → [@vpeetla.ai](https://medium.com/@vpeetla.ai)
+- **Substack** — [venkatapeetla.substack.com](https://venkatapeetla.substack.com) — architecture decisions for production AI
+- **Medium** — [@vpeetla.ai](https://medium.com/@vpeetla.ai) — agent patterns & RAG governance
 
 ---
 

@@ -56,5 +56,13 @@ set_repo "swarm-agent-pattern" \
   "Swarm agent pattern — parallel autonomous agents with coordination" \
   "langgraph" "swarm" "ai-agents" "tutorial" "python"
 
+set_repo "aegisai-enterprise-agent-platform" \
+  "Enterprise agent governance control plane — AI Gateway, HITL, OPA policy, signed audit, FinOps" \
+  "ai-governance" "agentops" "langgraph" "enterprise" "ai-agents" "hitl" "fastapi"
+
+set_repo "venkat-ai-platform" \
+  "Principal-architect multi-agent OS — LangGraph, RAG, Langfuse, Slack/Telegram/WhatsApp delivery" \
+  "langgraph" "multi-agent" "rag" "fastapi" "nextjs" "ai-agents" "langfuse"
+
 echo ""
 echo "Done. Verify at https://github.com/$OWNER"
