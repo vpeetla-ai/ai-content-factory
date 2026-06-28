@@ -31,12 +31,18 @@ async def exchange_token(
     clerk_id: str | None = None
     name: str | None = None
 
-    if settings.clerk_configured:
+    if settings.clerk_configured or settings.clerk_secret_key:
         try:
             claims = await verify_clerk_token(body.clerk_token)
-            email, clerk_id, name = extract_clerk_identity(claims)
+            email, clerk_id, name = await extract_clerk_identity(claims)
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+        except Exception as exc:
+            logger.exception("clerk_token_exchange_failed")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Authentication service error",
+            ) from exc
     elif settings.allow_dev_auth and settings.is_development:
         email = body.clerk_token if "@" in body.clerk_token else f"{body.clerk_token}@dev.local"
         name = email.split("@")[0]

@@ -147,7 +147,7 @@ class Settings(BaseSettings):
 
     @property
     def clerk_configured(self) -> bool:
-        return bool(self.clerk_secret_key and self.clerk_jwks_url)
+        return bool(self.clerk_secret_key)
 
     @property
     def langsmith_enabled(self) -> bool:
