@@ -25,6 +25,8 @@
 
 Chief → parallel specialists → Critic → Slack / Telegram / WhatsApp · pairs with AegisAI
 
+[▶ Live demo](https://venkat-ai-platform.vercel.app)
+
 ### [AI Content Factory](https://github.com/vpeetla-ai/ai-content-factory)
 
 **Multi-agent content pipeline** — Research → 5 platform drafts → HITL → Publish.
@@ -35,9 +37,13 @@ Chief → parallel specialists → Critic → Slack / Telegram / WhatsApp · pai
 
 **Governed knowledge layer** — access-before-ranking, hybrid retrieval, AegisAI HITL bridge, Qdrant adapter, OTLP export.
 
+[▶ Live demo](https://enterprise-rag-platform.vercel.app)
+
 ### [AegisLoop AgentOps Workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench)
 
 **Mission fleets + eval gates** — FinOps estimates, Langfuse spans, VAP delegation, AegisAI human-gated ship, Netlify→FastAPI proxy.
+
+[▶ Live mission console](https://aegisloop-agentops-workbench.vercel.app)
 
 ---
 
@@ -51,23 +57,23 @@ How do we operate them?    →  AegisLoop (missions, traces, eval gates)
 What do they produce?        →  AI Content Factory (governed publish pipeline)
 ```
 
-| Layer | Repository | What it proves |
-|-------|------------|----------------|
-| **Agent governance** | [aegisai-enterprise-agent-platform](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | Gateway, registry, RAG HITL, mission ship HITL, deploy HITL |
-| **Multi-agent OS** | [venkat-ai-platform](https://github.com/vpeetla-ai/venkat-ai-platform) | 3 orchestrators · 16 intents · RAG lab + Enterprise RAG adapter |
-| **Knowledge** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Hybrid retrieval, guardrails, AegisAI bridge, Qdrant + OTLP |
-| **AgentOps** | [aegisloop-agentops-workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | Mission fleets, FinOps, Langfuse, VAP delegation |
-| **Content automation** | [ai-content-factory](https://github.com/vpeetla-ai/ai-content-factory) | End-to-end pipeline with human approval before publish |
+| Layer | Repository | Live demo |
+|-------|------------|-----------|
+| **Agent governance** | [aegisai-enterprise-agent-platform](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | [Control plane](https://aegisai-enterprise-agent-platform.vercel.app) |
+| **Multi-agent OS** | [venkat-ai-platform](https://github.com/vpeetla-ai/venkat-ai-platform) | [VAP console](https://venkat-ai-platform.vercel.app) |
+| **Knowledge** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | [RAG lab](https://enterprise-rag-platform.vercel.app) |
+| **AgentOps** | [aegisloop-agentops-workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | [Mission console](https://aegisloop-agentops-workbench.vercel.app) |
+| **Content automation** | [ai-content-factory](https://github.com/vpeetla-ai/ai-content-factory) | [Content pipeline](https://ai-content-factory-iota.vercel.app) |
 
 ### Production Agent Patterns (series)
 
-| # | Pattern | Repository | Live in VAP |
-|---|---------|------------|-------------|
-| 1 | ReAct | [react-agent-pattern](https://github.com/vpeetla-ai/react-agent-pattern) | Deep Research orchestrator |
-| 2 | Reflection | [reflection-agent-pattern](https://github.com/vpeetla-ai/reflection-agent-pattern) | Research + Architecture pipelines |
-| 3 | Plan-Execute | [plan-execute-agent-pattern](https://github.com/vpeetla-ai/plan-execute-agent-pattern) | Architecture Review orchestrator |
-| 4 | Multi-Agent | [multi-agent-system-pattern](https://github.com/vpeetla-ai/multi-agent-system-pattern) | Platform + specialist workers |
-| 5 | Swarm | [swarm-agent-pattern](https://github.com/vpeetla-ai/swarm-agent-pattern) | Parallel asyncio bundles |
+| # | Pattern | Repository | Live demo |
+|---|---------|------------|-----------|
+| 1 | ReAct | [react-agent-pattern](https://github.com/vpeetla-ai/react-agent-pattern) | [Trace viewer](https://react-agent-pattern.vercel.app) |
+| 2 | Reflection | [reflection-agent-pattern](https://github.com/vpeetla-ai/reflection-agent-pattern) | [Trace viewer](https://reflection-agent-pattern.vercel.app) |
+| 3 | Plan-Execute | [plan-execute-agent-pattern](https://github.com/vpeetla-ai/plan-execute-agent-pattern) | [Trace viewer](https://plan-execute-agent-pattern.vercel.app) |
+| 4 | Multi-Agent | [multi-agent-system-pattern](https://github.com/vpeetla-ai/multi-agent-system-pattern) | [Trace viewer](https://multi-agent-system-pattern.vercel.app) |
+| 5 | Swarm | [swarm-agent-pattern](https://github.com/vpeetla-ai/swarm-agent-pattern) | [Trace viewer](https://swarm-agent-pattern.vercel.app) |
 
 ---
 
@@ -81,6 +87,7 @@ What do they produce?        →  AI Content Factory (governed publish pipeline)
 - [x] Content Factory + cron pipelines through gateway
 - [x] OAuth publish adapters for AI Content Factory
 - [x] Enterprise RAG knowledge graph expansion
+- [x] Live demos on Vercel for VAP, AegisLoop, Enterprise RAG, and all 5 agent pattern repos
 
 ---
 
