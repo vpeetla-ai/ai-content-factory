@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import uuid
 from datetime import UTC, datetime
 
@@ -19,12 +20,13 @@ from app.core.database import async_session_factory
 from app.core.pipeline_events import publish_pipeline_event
 from app.core.redis import get_redis
 from app.core.redis_keys import HITL_PENDING, PIPELINE_STATE, PUBLISH_QUEUE
-from app.models import ContentDraft, PipelineRun, PipelineStatus, Platform
+from app.models import ContentDraft, PipelineRun, PipelineStatus, Platform, PublishedPost
 from app.services.publisher import PublisherService
 from app.services.tracing import RunMetrics, apply_run_metrics, record_agent_trace
 from app.websocket import gateway as ws
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 GRAPH_NODES = frozenset({"research", "content", "enrich", "hitl", "publish"})
 
@@ -404,17 +406,18 @@ def get_agent_name_from_active(active: set[str]) -> str:
 
 
 async def _execute_pipeline_background(run_id: uuid.UUID) -> None:
-    from app.core.cancel_registry import register_task
+    from app.core.cancel_registry import register_task, unregister_task
 
     task = asyncio.current_task()
     if task:
         register_task(str(run_id), task)
 
-    async with async_session_factory() as db:
-        try:
+    try:
+        async with async_session_factory() as db:
             result = await db.execute(select(PipelineRun).where(PipelineRun.id == run_id))
             run = result.scalar_one_or_none()
             if not run:
+                logger.warning("Pipeline run %s not found", run_id)
                 return
             snap = run.state_snapshot or {}
             service = PipelineService(db)
@@ -424,10 +427,18 @@ async def _execute_pipeline_background(run_id: uuid.UUID) -> None:
                 config=snap.get("config"),
             )
             await db.commit()
+    except Exception as exc:
+        logger.exception("Pipeline %s background execution failed", run_id)
+        try:
+            async with async_session_factory() as db:
+                result = await db.execute(select(PipelineRun).where(PipelineRun.id == run_id))
+                run = result.scalar_one_or_none()
+                if run and run.status == PipelineStatus.running:
+                    run.status = PipelineStatus.error
+                    run.state_snapshot = {**(run.state_snapshot or {}), "error": str(exc)}
+                    run.completed_at = datetime.now(UTC)
+                    await db.commit()
         except Exception:
-            await db.rollback()
-            raise
-        finally:
-            from app.core.cancel_registry import unregister_task
-
-            unregister_task(str(run_id))
+            logger.exception("Failed to persist error for pipeline %s", run_id)
+    finally:
+        unregister_task(str(run_id))

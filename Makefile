@@ -1,23 +1,26 @@
-.PHONY: dev up down migrate frontend install
+.PHONY: up down migrate api frontend install test dev
 
 up:
-	docker compose up -d postgres redis qdrant
+	docker compose up -d postgres redis qdrant litellm
 
 down:
 	docker compose down
 
-api:
-	cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
 migrate:
-	cd backend && alembic upgrade head
+	cd backend && . .venv/bin/activate && alembic upgrade head
+
+api:
+	cd .. && source backend/.venv/bin/activate && PYTHONPATH=backend:. uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 frontend:
 	cd frontend && npm run dev
 
 install:
-	cd backend && pip install -r requirements.txt
+	cd backend && python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
 	cd frontend && npm install
 
+test:
+	./scripts/test_pipeline.sh
+
 dev: up
-	@echo "Run 'make api' and 'make frontend' in separate terminals"
+	@echo "Infrastructure up. Run 'make api' and 'make frontend' in separate terminals."

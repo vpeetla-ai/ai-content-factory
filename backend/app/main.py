@@ -14,7 +14,7 @@ from app.api.routes.auth import auth_router, users_router
 from app.api.routes.content import router as content_router
 from app.api.routes.hitl import router as hitl_router
 from app.api.routes.pipelines import router as pipelines_router
-from app.core.checkpointer import init_graph, shutdown_graph
+from app.core.checkpointer import init_graph, is_memory_checkpointer, shutdown_graph
 from app.core.config import get_settings
 from app.websocket.gateway import sio
 
@@ -52,10 +52,21 @@ api.include_router(users_router)
 
 app.mount("/api/v1", api)
 
-socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
-app = socket_app
-
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "ai-content-factory-api", "mock_llm": settings.app_env == "development"}
+    from agents.llm import use_mock_llm
+
+    return {
+        "status": "ok",
+        "service": "ai-content-factory-api",
+        "mock_llm": use_mock_llm(),
+        "checkpointer": "memory" if is_memory_checkpointer() else "redis",
+        "llm_keys_configured": bool(
+            settings.google_api_key or settings.groq_api_key or settings.anthropic_api_key
+        ),
+    }
+
+
+socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
+app = socket_app

@@ -1,5 +1,6 @@
 """Alembic migrations."""
 
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -15,16 +16,29 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 
+def _sync_database_url() -> str:
+    url = os.environ.get(
+        "DATABASE_URL",
+        config.get_main_option("sqlalchemy.url"),
+    )
+    return (
+        url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+        .replace("postgresql+asyncpg:", "postgresql+psycopg2:")
+    )
+
+
 def run_migrations_offline() -> None:
-    url = config.get_main_option("sqlalchemy.url")
+    url = _sync_database_url()
     context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
     with context.begin_transaction():
         context.run_migrations()
 
 
 def run_migrations_online() -> None:
+    section = config.get_section(config.config_ini_section, {}) or {}
+    section["sqlalchemy.url"] = _sync_database_url()
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        section,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

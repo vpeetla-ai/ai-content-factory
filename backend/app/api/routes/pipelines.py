@@ -2,10 +2,11 @@
 
 import asyncio
 import json
+import logging
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sse_starlette.sse import EventSourceResponse
@@ -18,13 +19,14 @@ from app.models import PipelineRun, User
 from app.schemas import PipelineRunRequest, PipelineRunResponse, PipelineStateResponse, PipelineStatusEnum
 from app.services.pipeline import PipelineService, _execute_pipeline_background
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/pipelines", tags=["Pipeline"])
 
 
 @router.post("/run", response_model=PipelineRunResponse, status_code=status.HTTP_201_CREATED)
 async def start_pipeline(
     body: PipelineRunRequest,
-    background_tasks: BackgroundTasks,
     user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -34,7 +36,18 @@ async def start_pipeline(
     run = await service.create_run(user.id, body.topic, platforms, body.config)
     run.state_snapshot = {"platforms": platforms, "config": body.config or {}}
     await db.flush()
-    background_tasks.add_task(_execute_pipeline_background, run.id)
+
+    task = asyncio.create_task(_execute_pipeline_background(run.id))
+
+    def _log_task_result(t: asyncio.Task) -> None:
+        if t.cancelled():
+            return
+        exc = t.exception()
+        if exc:
+            logger.exception("Background pipeline %s failed", run.id, exc_info=exc)
+
+    task.add_done_callback(_log_task_result)
+
     return PipelineRunResponse(
         run_id=run.id,
         status=PipelineStatusEnum(run.status.value),

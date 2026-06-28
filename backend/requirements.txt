@@ -5,6 +5,7 @@ pydantic>=2.9.0
 pydantic-settings>=2.6.0
 sqlalchemy[asyncio]>=2.0.36
 asyncpg>=0.30.0
+psycopg2-binary>=2.9.9
 alembic>=1.14.0
 # LangGraph Redis checkpointer
 langgraph-checkpoint-redis>=0.0.2

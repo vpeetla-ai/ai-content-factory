@@ -11,14 +11,20 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-AGENT_MODELS = {
+PROXY_MODELS = {
     "research": "research_agent",
     "content": "content_agent",
     "visual": "visual_agent",
     "seo": "seo_agent",
 }
 
-# Populated by pipeline service during a run
+DIRECT_MODELS = {
+    "research": "gemini/gemini-2.5-flash",
+    "content": "gemini/gemini-2.5-flash",
+    "visual": "groq/llama-3.3-70b-versatile",
+    "seo": "groq/llama-3.3-70b-versatile",
+}
+
 _run_metrics: dict[str, object] = {}
 
 
@@ -31,9 +37,12 @@ def unregister_run_metrics(run_id: str) -> None:
 
 
 def use_mock_llm() -> bool:
-    if os.environ.get("MOCK_LLM", "").lower() in ("1", "true", "yes"):
+    env_val = os.environ.get("MOCK_LLM", "").lower()
+    if env_val in ("1", "true", "yes"):
         return True
-    if os.environ.get("MOCK_LLM", "").lower() in ("0", "false", "no"):
+    if env_val in ("0", "false", "no"):
+        return False
+    if not settings.mock_llm:
         return False
     return not any(
         [
@@ -43,6 +52,24 @@ def use_mock_llm() -> bool:
             settings.anthropic_api_key,
         ]
     )
+
+
+def _use_litellm_proxy() -> bool:
+    if use_mock_llm() or not settings.litellm_proxy_url:
+        return False
+    return os.environ.get("USE_LITELLM_PROXY", "").lower() in ("1", "true", "yes")
+
+
+def _direct_api_key(model: str) -> str | None:
+    if model.startswith("gemini/"):
+        return settings.google_api_key or None
+    if model.startswith("groq/"):
+        return settings.groq_api_key or None
+    if model.startswith("anthropic/"):
+        return settings.anthropic_api_key or None
+    if model.startswith("cerebras/"):
+        return settings.cerebras_api_key or None
+    return None
 
 
 def _mock_response(agent_name: str, user_prompt: str) -> str:
@@ -96,7 +123,6 @@ def _record_usage(agent_name: str, model: str, input_tokens: int, output_tokens:
     if metrics is None:
         return
     metrics.add_llm_usage(input_tokens, output_tokens, model=model)
-    # Per-call trace data stored on metrics for node-level flush
     metrics.llm_calls.append(
         {
             "agent": agent_name or get_agent_name(),
@@ -115,7 +141,9 @@ async def call_llm(
     *,
     temperature: float = 0.7,
 ) -> str:
-    model = AGENT_MODELS.get(agent_name, "research_agent")
+    use_proxy = _use_litellm_proxy()
+    models = PROXY_MODELS if use_proxy else DIRECT_MODELS
+    model = models.get(agent_name, models["research"])
     started = time.monotonic()
 
     if use_mock_llm():
@@ -126,7 +154,6 @@ async def call_llm(
         _record_usage(agent_name, "mock", in_tok, out_tok, latency_ms)
         return content
 
-    api_base = settings.litellm_proxy_url or None
     kwargs: dict = {
         "model": model,
         "messages": [
@@ -134,10 +161,15 @@ async def call_llm(
             {"role": "user", "content": user_prompt},
         ],
         "temperature": temperature,
+        "timeout": 90,
     }
-    if api_base:
-        kwargs["api_base"] = api_base
+    if use_proxy:
+        kwargs["api_base"] = settings.litellm_proxy_url
         kwargs["api_key"] = os.environ.get("LITELLM_MASTER_KEY", "sk-acf-dev")
+    else:
+        api_key = _direct_api_key(model)
+        if api_key:
+            kwargs["api_key"] = api_key
 
     try:
         response = await acompletion(**kwargs)
@@ -149,7 +181,6 @@ async def call_llm(
         _record_usage(agent_name, model, in_tok, out_tok, latency_ms)
         return content
     except Exception:
-        # Fallback to mock when providers unavailable (local dev without keys)
         content = _mock_response(agent_name, user_prompt)
         latency_ms = int((time.monotonic() - started) * 1000)
         _record_usage(agent_name, "mock-fallback", 50, 100, latency_ms)
