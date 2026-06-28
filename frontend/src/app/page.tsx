@@ -26,7 +26,7 @@ function ClerkDashboard() {
 
   const authMutation = useMutation({
     mutationFn: async () => {
-      const clerkToken = await getClerkToken();
+      const clerkToken = await getClerkToken({ skipCache: true });
       if (!clerkToken) throw new Error("Not signed in");
       return api.auth.token(clerkToken);
     },

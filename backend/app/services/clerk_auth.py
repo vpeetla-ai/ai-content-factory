@@ -18,10 +18,7 @@ _JWKS_TTL_SECONDS = 3600
 
 
 def _resolve_jwks_url(token: str) -> str:
-    settings = get_settings()
-    if settings.clerk_jwks_url:
-        return settings.clerk_jwks_url.rstrip("/")
-
+    """Always derive JWKS from token issuer so dev/prod keys cannot mismatch."""
     try:
         claims = jwt.get_unverified_claims(token)
         issuer = claims.get("iss", "").rstrip("/")
@@ -29,6 +26,10 @@ def _resolve_jwks_url(token: str) -> str:
             return f"{issuer}/.well-known/jwks.json"
     except JWTError:
         pass
+
+    settings = get_settings()
+    if settings.clerk_jwks_url:
+        return settings.clerk_jwks_url.rstrip("/")
 
     raise ValueError("CLERK_JWKS_URL is not configured and could not be derived from token issuer")
 
@@ -106,12 +107,15 @@ async def verify_clerk_token(token: str) -> dict[str, Any]:
             token,
             signing_key,
             algorithms=[header.get("alg", "RS256")],
-            options={"verify_aud": False},
+            options={"verify_aud": False, "leeway": 120},
         )
         return claims
     except JWTError as exc:
-        logger.warning("clerk_jwt_invalid", error=str(exc))
-        raise ValueError("Invalid Clerk token") from exc
+        err = str(exc)
+        logger.warning("clerk_jwt_invalid", error=err)
+        if "expired" in err.lower():
+            raise ValueError("Clerk token expired — please retry") from exc
+        raise ValueError(f"Invalid Clerk token: {err}") from exc
 
 
 async def extract_clerk_identity(claims: dict[str, Any]) -> tuple[str, str | None, str | None]:
