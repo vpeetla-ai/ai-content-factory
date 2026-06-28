@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0e1a2e"/>
+      <stop offset="100%" style="stop-color:#12101f"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <rect x="40" y="40" width="880" height="460" rx="12" fill="#1a1a2e" stroke="#38bdf8" stroke-width="2" stroke-dasharray="8 4"/>
+  <text x="480" y="230" text-anchor="middle" fill="#e2e4f0" font-family="system-ui,sans-serif" font-size="28" font-weight="600">Demo GIF placeholder</text>
+  <text x="480" y="270" text-anchor="middle" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="16">Record pipeline flow ’ save as docs/assets/demo.gif</text>
+  <text x="480" y="300" text-anchor="middle" fill="#64748b" font-family="system-ui,sans-serif" font-size="14">See docs/DEMO_GIF.md for steps</text>
+  <text x="480" y="340" text-anchor="middle" fill="#00e5c3" font-family="monospace" font-size="13">Topic ’ Research ’ Content ’ HITL ’ Publish</text>
+</svg>

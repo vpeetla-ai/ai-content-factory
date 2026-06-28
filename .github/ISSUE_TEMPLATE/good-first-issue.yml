@@ -1,0 +1,56 @@
+name: Good first issue suggestion
+description: Propose a small, well-scoped task for new contributors
+title: "[good first issue] "
+labels: ["good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping grow the contributor funnel. Good first issues should be completable in 1–4 hours without deep domain knowledge.
+
+  - type: input
+    id: title
+    attributes:
+      label: Task title
+      placeholder: "Add health check badge to README"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What should be done?
+      description: Be specific — files, expected outcome, acceptance criteria.
+      placeholder: |
+        - Update README.md to show CI status badge
+        - Badge should link to GitHub Actions workflow
+        - Done when badge renders on main branch README
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Documentation
+        - Frontend
+        - Backend / API
+        - Agents / LangGraph
+        - DevOps / CI
+        - Tests
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: criteria
+    attributes:
+      label: Good first issue checklist
+      options:
+        - label: Scoped to a single file or small set of files
+          required: true
+        - label: No production secrets or paid API keys required
+          required: true
+        - label: Acceptance criteria are clear
+          required: true

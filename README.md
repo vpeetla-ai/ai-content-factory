@@ -1,6 +1,40 @@
 # AI Content Factory
 
-Multi-agent content orchestration platform — **production-grade, free-first cloud stack**.
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ai-content-factory-iota.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Multi--Agent-purple)](https://langchain-ai.github.io/langgraph/)
+[![Stack](https://img.shields.io/badge/stack-free--first-blue)]()
+
+**Turn one topic into platform-ready content across LinkedIn, Substack, Medium, Instagram & X — with human approval before anything goes live.**
+
+> Not another ChatGPT wrapper. A production multi-agent pipeline with RAG, human-in-the-loop gates, full observability, and CI/CD to Render + Vercel.
+
+[🚀 Try the live demo](https://ai-content-factory-iota.vercel.app) · [📖 Production deploy](docs/DEPLOYMENT.md) · [🐛 Report an issue](https://github.com/vpeetla-ai/ai-content-factory/issues) · [🤝 Contribute](CONTRIBUTING.md)
+
+---
+
+## Why this exists
+
+Most "AI content tools" are single-prompt generators. Real teams need:
+
+- **Specialized agents** (research, writing, SEO, visuals) — not one monolithic LLM call
+- **Human-in-the-loop (HITL)** before publishing to any platform
+- **Observability** (LangSmith, Langfuse, Sentry) when agents fail silently
+- **Deployable architecture** on a free-tier cloud stack (Render, Vercel, Neon, Upstash)
+
+This repo is a reference implementation for that stack.
+
+---
+
+## 60-second overview
+
+```text
+Topic → Research Agent (RAG) → Content Agent (5 platform drafts)
+      → SEO + Visual (parallel) → HITL Review → Publisher → Live
+```
+
+<!-- Replace with your recording: docs/assets/demo.gif -->
+![Pipeline demo — record with docs/DEMO_GIF.md](docs/assets/demo-placeholder.svg)
 
 | | Local | Production |
 |---|-------|------------|
@@ -9,7 +43,7 @@ Multi-agent content orchestration platform — **production-grade, free-first cl
 | **Auth** | Dev bypass or Clerk | Clerk (required) |
 | **Observability** | Postgres traces | LangSmith + Langfuse + Sentry |
 
-**Full deployment guide:** [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) — includes step-by-step setup for Render, Vercel, Clerk, Neon, Upstash, Qdrant, LangSmith, Langfuse, and Sentry.
+**Full deployment guide:** [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) — step-by-step setup for Render, Vercel, Clerk, Neon, Upstash, Qdrant, LangSmith, Langfuse, and Sentry.
 
 ---
 
@@ -232,6 +266,26 @@ Base URL: `/api/v1`
 | GET | `/content/{id}/drafts` | Content drafts |
 
 Interactive docs (local only): http://localhost:8000/docs
+
+---
+
+## Related projects
+
+| Project | Description |
+|---------|-------------|
+| [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Governed RAG — access-aware retrieval, evals, guardrails |
+| [AegisLoop AgentOps Workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | Tracing, evals, and ops for production agents |
+| [Production Agent Patterns](https://github.com/vpeetla-ai/react-agent-pattern) | ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm |
+
+Built by [Venkata Peetla](https://github.com/vpeetla-ai) — [venkat-ai.com](https://venkat-ai.com) · [Substack](https://venkatapeetla.substack.com) · [Medium](https://medium.com/@vpeetla.ai)
+
+---
+
+## Contributing
+
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Look for issues labeled [`good first issue`](https://github.com/vpeetla-ai/ai-content-factory/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+
+If this repo helped you, a ⭐ helps other builders discover it.
 
 ---
 

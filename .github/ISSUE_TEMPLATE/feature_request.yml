@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an enhancement
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What problem does this solve? Who benefits?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Agents / LangGraph
+        - HITL / Review UI
+        - Platform publishing
+        - RAG / Vector store
+        - Auth / Security
+        - Observability
+        - DevOps
+        - Other
+    validations:
+      required: true
