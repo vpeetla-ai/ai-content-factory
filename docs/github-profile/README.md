@@ -15,15 +15,15 @@
 
 ### [AegisAI — Enterprise Agent Governance](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform)
 
-**Monitor → Govern → Remediate** — AI Gateway intercepts every agent tool call: policy, HITL, signed audit, FinOps.
+**Monitor → Govern → Remediate** — AI Gateway for tool authorization: policy, HITL, signed audit, registry lifecycle, FinOps.
 
-[▶ Live control plane](https://aegisai-enterprise-agent-platform.vercel.app) · LangGraph · OPA · FastAPI · Next.js
+[▶ Live control plane](https://aegisai-enterprise-agent-platform.vercel.app) · Gateway SDK · OPA · FastAPI · Next.js
 
 ### [Venkat AI Platform (VAP)](https://github.com/vpeetla-ai/venkat-ai-platform)
 
-**Principal-architect multi-agent OS** — Chief routes intent → parallel specialists → Critic → Slack / Telegram / WhatsApp.
+**Principal-architect multi-agent OS** — 3 LangGraph orchestrators, **7 RAG strategies** (incl. Enterprise RAG adapter), loop patterns (ReAct · Reflection · Plan-Execute), gateway-wrapped notify.
 
-LangGraph · Qdrant RAG · Langfuse · Postgres · publication-ready ADRs
+Chief → parallel specialists → Critic → Slack / Telegram / WhatsApp · pairs with AegisAI
 
 ### [AI Content Factory](https://github.com/vpeetla-ai/ai-content-factory)
 
@@ -31,43 +31,55 @@ LangGraph · Qdrant RAG · Langfuse · Postgres · publication-ready ADRs
 
 [▶ Live demo](https://ai-content-factory-iota.vercel.app) · LangGraph · Clerk · Render + Vercel
 
+### [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform)
+
+**Governed knowledge layer** — access-before-ranking, hybrid retrieval, AegisAI HITL bridge, Qdrant adapter, OTLP export.
+
+### [AegisLoop AgentOps Workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench)
+
+**Mission fleets + eval gates** — FinOps estimates, Langfuse spans, VAP delegation, AegisAI human-gated ship, Netlify→FastAPI proxy.
+
 ---
 
-## Portfolio map
+## How the stack fits together
 
 ```text
-Governance layer     →  AegisAI (gateway, HITL, audit, FinOps)
-Orchestration layer  →  Venkat AI Platform (Chief + 15 agents)
-Application layer    →  AI Content Factory (content automation)
-Knowledge layer      →  Enterprise RAG Platform (governed retrieval)
-Patterns layer       →  ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm
+What should agents do?     →  Venkat AI Platform (orchestration)
+What are agents allowed?   →  AegisAI (gateway, policy, HITL, audit)
+What knowledge can they use? → Enterprise RAG (access-aware retrieval)
+How do we operate them?    →  AegisLoop (missions, traces, eval gates)
+What do they produce?        →  AI Content Factory (governed publish pipeline)
 ```
 
 | Layer | Repository | What it proves |
 |-------|------------|----------------|
-| **Agent governance** | [aegisai-enterprise-agent-platform](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | Gateway-first control plane for production fleets |
-| **Multi-agent OS** | [venkat-ai-platform](https://github.com/vpeetla-ai/venkat-ai-platform) | Intent routing, parallel workers, critic gate, notifications |
+| **Agent governance** | [aegisai-enterprise-agent-platform](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | Gateway, registry, RAG HITL, mission ship HITL, deploy HITL |
+| **Multi-agent OS** | [venkat-ai-platform](https://github.com/vpeetla-ai/venkat-ai-platform) | 3 orchestrators · 16 intents · RAG lab + Enterprise RAG adapter |
+| **Knowledge** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Hybrid retrieval, guardrails, AegisAI bridge, Qdrant + OTLP |
+| **AgentOps** | [aegisloop-agentops-workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | Mission fleets, FinOps, Langfuse, VAP delegation |
 | **Content automation** | [ai-content-factory](https://github.com/vpeetla-ai/ai-content-factory) | End-to-end pipeline with human approval before publish |
-| **Enterprise RAG** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Access-aware retrieval, evals, guardrails |
-| **AgentOps** | [aegisloop-agentops-workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | Tracing, evals, production agent monitoring |
 
 ### Production Agent Patterns (series)
 
-| # | Pattern | Repository |
-|---|---------|------------|
-| 1 | ReAct | [react-agent-pattern](https://github.com/vpeetla-ai/react-agent-pattern) |
-| 2 | Reflection | [reflection-agent-pattern](https://github.com/vpeetla-ai/reflection-agent-pattern) |
-| 3 | Plan-Execute | [plan-execute-agent-pattern](https://github.com/vpeetla-ai/plan-execute-agent-pattern) |
-| 4 | Multi-Agent | [multi-agent-system-pattern](https://github.com/vpeetla-ai/multi-agent-system-pattern) |
-| 5 | Swarm | [swarm-agent-pattern](https://github.com/vpeetla-ai/swarm-agent-pattern) |
+| # | Pattern | Repository | Live in VAP |
+|---|---------|------------|-------------|
+| 1 | ReAct | [react-agent-pattern](https://github.com/vpeetla-ai/react-agent-pattern) | Deep Research orchestrator |
+| 2 | Reflection | [reflection-agent-pattern](https://github.com/vpeetla-ai/reflection-agent-pattern) | Research + Architecture pipelines |
+| 3 | Plan-Execute | [plan-execute-agent-pattern](https://github.com/vpeetla-ai/plan-execute-agent-pattern) | Architecture Review orchestrator |
+| 4 | Multi-Agent | [multi-agent-system-pattern](https://github.com/vpeetla-ai/multi-agent-system-pattern) | Platform + specialist workers |
+| 5 | Swarm | [swarm-agent-pattern](https://github.com/vpeetla-ai/swarm-agent-pattern) | Parallel asyncio bundles |
 
 ---
 
 ## Currently building
 
-- [ ] OAuth publish adapters for AI Content Factory
+- [x] VAP ↔ AegisAI gateway (notify channels)
+- [x] VAP — 3 orchestrators + 7 RAG strategies + Enterprise RAG adapter
+- [x] Enterprise RAG ↔ AegisAI HITL bridge + Qdrant adapter
+- [x] AegisLoop — FinOps, Langfuse, VAP delegation, gateway ship path
 - [ ] AegisAI agent registry → Postgres migration
-- [ ] Unified learning path across agent pattern repos
+- [ ] Content Factory + cron pipelines through gateway
+- [ ] OAuth publish adapters for AI Content Factory
 
 ---
 
@@ -75,6 +87,7 @@ Patterns layer       →  ReAct · Reflection · Plan-Execute · Multi-Agent · 
 
 - **Substack** — [venkatapeetla.substack.com](https://venkatapeetla.substack.com) — architecture decisions for production AI
 - **Medium** — [@vpeetla.ai](https://medium.com/@vpeetla.ai) — agent patterns & RAG governance
+- **Essay** — [From Multi-Agent OS to Agent Governance](https://github.com/vpeetla-ai/ai-content-factory/blob/main/docs/content/from-multi-agent-os-to-agent-governance.md) (VAP + AegisAI story)
 
 ---
 
