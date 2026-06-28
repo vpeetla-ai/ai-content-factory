@@ -309,9 +309,11 @@ SENTRY_TRACES_SAMPLE_RATE=0.2
    | Region | Same as Neon/Upstash |
    | Branch | `main` |
    | Runtime | **Docker** |
-   | Dockerfile path | `backend/Dockerfile` |
+   | Dockerfile path | `./Dockerfile` |
    | Docker context | `.` (repository root) |
    | Instance type | Free |
+
+   > **Important:** Do not leave Dockerfile path as default only — it must be `./Dockerfile` at repo root (or `backend/Dockerfile` with context `.`). Wrong path causes: `open Dockerfile: no such file or directory`.
 4. Click **Advanced** → Health Check Path: `/health`
 5. Click **Create Web Service**.
 

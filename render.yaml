@@ -5,7 +5,7 @@ services:
   - type: web
     name: acf-api
     runtime: docker
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: ./Dockerfile
     dockerContext: .
     plan: free
     healthCheckPath: /health
