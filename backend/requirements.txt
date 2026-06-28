@@ -10,6 +10,7 @@ alembic>=1.14.0
 langgraph-checkpoint-redis>=0.0.2
 redis>=5.2.0
 celery>=5.4.0
+apscheduler>=3.10.4
 httpx>=0.28.0
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4

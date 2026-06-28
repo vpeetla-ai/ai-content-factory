@@ -102,8 +102,16 @@ async def connect_platform(
     settings = get_settings()
     platform = body.platform.value
     oauth_urls = {
-        "linkedin": f"https://www.linkedin.com/oauth/v2/authorization?client_id={settings.linkedin_client_id}&redirect_uri={settings.frontend_url}/oauth/linkedin&response_type=code&scope=w_member_social",
-        "x": f"https://twitter.com/i/oauth2/authorize?client_id={settings.x_api_key}&redirect_uri={settings.frontend_url}/oauth/x&response_type=code&scope=tweet.read+tweet.write",
+        "linkedin": (
+            f"https://www.linkedin.com/oauth/v2/authorization?client_id={settings.linkedin_client_id}"
+            f"&redirect_uri={settings.api_base_url.rstrip('/')}/oauth/linkedin/callback"
+            "&response_type=code&scope=w_member_social"
+        ),
+        "x": (
+            f"https://twitter.com/i/oauth2/authorize?client_id={settings.x_api_key}"
+            f"&redirect_uri={settings.api_base_url.rstrip('/')}/oauth/x/callback"
+            "&response_type=code&scope=tweet.read+tweet.write"
+        ),
     }
     oauth_url = oauth_urls.get(platform, f"{settings.frontend_url}/settings/platforms?connect={platform}")
     return {"platform": platform, "oauth_url": oauth_url, "status": "pending"}

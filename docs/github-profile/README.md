@@ -77,9 +77,10 @@ What do they produce?        →  AI Content Factory (governed publish pipeline)
 - [x] VAP — 3 orchestrators + 7 RAG strategies + Enterprise RAG adapter
 - [x] Enterprise RAG ↔ AegisAI HITL bridge + Qdrant adapter
 - [x] AegisLoop — FinOps, Langfuse, VAP delegation, gateway ship path
-- [ ] AegisAI agent registry → Postgres migration
-- [ ] Content Factory + cron pipelines through gateway
-- [ ] OAuth publish adapters for AI Content Factory
+- [x] AegisAI agent registry → Postgres migration
+- [x] Content Factory + cron pipelines through gateway
+- [x] OAuth publish adapters for AI Content Factory
+- [x] Enterprise RAG knowledge graph expansion
 
 ---
 

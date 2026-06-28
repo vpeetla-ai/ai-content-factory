@@ -20,7 +20,7 @@ from app.core.database import async_session_factory
 from app.core.pipeline_events import publish_pipeline_event
 from app.core.redis import get_redis
 from app.core.redis_keys import HITL_PENDING, PIPELINE_STATE, PUBLISH_QUEUE
-from app.models import ContentDraft, PipelineRun, PipelineStatus, Platform, PublishedPost
+from app.models import ContentDraft, PipelineRun, PipelineStatus, Platform, PublishedPost, User
 from app.services.publisher import PublisherService
 from app.services.tracing import RunMetrics, apply_run_metrics, record_agent_trace
 from app.websocket import gateway as ws
@@ -352,8 +352,16 @@ class PipelineService:
         publisher = PublisherService()
         redis = get_redis()
         run_id_str = str(run.id)
+        snap = run.state_snapshot or {}
+        gateway_case_id = snap.get("config", {}).get("gateway_case_id") or f"pipeline-{run_id_str}"
 
-        for platform_name, result in published.items():
+        user_tokens: dict = {}
+        result = await self.db.execute(select(User).where(User.id == run.user_id))
+        user = result.scalar_one_or_none()
+        if user and user.platform_tokens:
+            user_tokens = user.platform_tokens
+
+        for platform_name, result_data in published.items():
             try:
                 platform = Platform(platform_name)
             except ValueError:
@@ -375,7 +383,22 @@ class PipelineService:
             if existing.scalar_one_or_none():
                 continue
 
-            post = await publisher.publish_draft(draft)
+            token_data = user_tokens.get(platform_name) or {}
+            access_token = ""
+            if isinstance(token_data, dict):
+                access_token = str(token_data.get("access_token") or "")
+
+            try:
+                post = await publisher.publish_draft(
+                    draft,
+                    access_token=access_token,
+                    case_id=f"{gateway_case_id}-{platform_name}",
+                    skip_gateway=settings.aegisai_gateway_fail_open and not settings.aegisai_api_base_url,
+                )
+            except Exception as exc:
+                logger.warning("Publish blocked or failed for %s: %s", platform_name, exc)
+                continue
+
             self.db.add(post)
 
             post_id = post.external_post_id or ""

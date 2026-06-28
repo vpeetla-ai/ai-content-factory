@@ -13,6 +13,7 @@ import socketio
 from sqlalchemy import text
 
 from app.api.routes.auth import auth_router, users_router
+from app.api.routes.oauth import router as oauth_router
 from app.core.database import async_session_factory
 from app.api.routes.content import router as content_router
 from app.api.routes.hitl import router as hitl_router
@@ -21,6 +22,7 @@ from app.core.checkpointer import is_graph_ready, is_memory_checkpointer, shutdo
 from app.core.config import get_settings
 from app.core.logging import setup_logging, get_logger
 from app.core.observability import flush_observability, init_observability
+from app.services.cron_scheduler import shutdown_cron_scheduler, start_cron_scheduler
 from app.websocket.gateway import sio
 
 setup_logging()
@@ -32,8 +34,10 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     # Keep startup minimal — graph/vector init is lazy (first pipeline request)
     init_observability()
+    start_cron_scheduler()
     logger.info("application_started", app_env=settings.app_env)
     yield
+    shutdown_cron_scheduler()
     await shutdown_graph()
     flush_observability()
     logger.info("application_stopped")
@@ -62,6 +66,7 @@ api.include_router(hitl_router)
 api.include_router(content_router)
 api.include_router(auth_router)
 api.include_router(users_router)
+api.include_router(oauth_router)
 
 app.mount("/api/v1", api)
 
@@ -92,6 +97,8 @@ async def health():
         "vector_backend": settings.vector_backend if settings.vector_enabled else "disabled",
         "langsmith": settings.langsmith_enabled,
         "langfuse": settings.langfuse_configured,
+        "aegisai_gateway": bool(settings.aegisai_api_base_url),
+        "cron_enabled": settings.cron_pipeline_enabled,
     }
 
 

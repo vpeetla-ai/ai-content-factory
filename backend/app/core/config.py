@@ -100,6 +100,35 @@ class Settings(BaseSettings):
     x_access_token: str = ""
     x_access_token_secret: str = ""
 
+    # ── AegisAI governance gateway ───────────────────────
+    aegisai_api_base_url: str = ""
+    aegisai_gateway_enabled: bool = True
+    aegisai_gateway_fail_open: bool = True
+    aegisai_agent_id: str = "ai-content-factory"
+    aegisai_tenant_id: str = "bank-demo"
+    aegisai_principal_id: str = "content-factory-orchestrator"
+    aegisai_auth_bearer: str = ""
+    aegisai_roles: str = "workflow_owner,execution_broker"
+
+    # ── Scheduled pipelines ──────────────────────────────
+    cron_pipeline_enabled: bool = False
+    cron_schedule: str = "0 9 * * 1,4"  # Mon + Thu 09:00 UTC
+    cron_user_email: str = "demo@acf.local"
+    cron_topic: str = "Principal AI architect weekly content radar"
+    cron_platforms: str = "linkedin,substack"
+
+    def cron_platform_list(self) -> list[str]:
+        return [p.strip() for p in self.cron_platforms.split(",") if p.strip()]
+
+    @field_validator("aegisai_gateway_enabled", "aegisai_gateway_fail_open", "cron_pipeline_enabled", mode="before")
+    @classmethod
+    def coerce_bool_flags(cls, value: object) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.strip().lower() in {"1", "true", "yes", "on"}
+        return bool(value)
+
     # ── Redis TTLs (seconds) ─────────────────────────────
     pipeline_state_ttl: int = 86400
     research_cache_ttl: int = 21600
