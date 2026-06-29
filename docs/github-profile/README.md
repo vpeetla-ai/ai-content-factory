@@ -66,6 +66,12 @@ Chief → parallel specialists → Critic → Slack / Telegram / WhatsApp · pai
 
 [▶ Live demo](https://enterprise-rag-platform.vercel.app)
 
+### [vLLM Architecture Lab](https://github.com/vpeetla-ai/vllm-architecture-lab) · **LIVE**
+
+**PagedAttention · Continuous Batching · KV Cache** — interactive 5-tab architecture explorer + Python engine simulator (scheduler, block allocator, memory budget API).
+
+[▶ Live demo](https://vllm-architecture-lab.vercel.app) · [API](https://vllm-architecture-lab-api.onrender.com/health) · FastAPI · Educational simulator
+
 ### [AegisLoop AgentOps Workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench)
 
 **Mission fleets + eval gates** — FinOps estimates, Langfuse spans, VAP delegation, AegisAI human-gated ship, Netlify→FastAPI proxy.
@@ -83,6 +89,7 @@ What knowledge can they use? → Enterprise RAG (access-aware retrieval)
 How do we operate them?    →  AegisLoop (missions, traces, eval gates)
 What do they produce?        →  AI Content Factory (governed publish pipeline)
 How do agents improve?       →  LoopForge (harness · LangGraph · repo fix → PR)
+How do we serve LLMs?        →  vLLM Architecture Lab (PagedAttention · batching · KV budget)
 ```
 
 | Layer | Repository | Live demo |
@@ -93,6 +100,7 @@ How do agents improve?       →  LoopForge (harness · LangGraph · repo fix �
 | **Knowledge** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | [RAG lab](https://enterprise-rag-platform.vercel.app) |
 | **AgentOps** | [aegisloop-agentops-workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | [Mission console](https://aegisloop-agentops-workbench.vercel.app) |
 | **Content automation** | [ai-content-factory](https://github.com/vpeetla-ai/ai-content-factory) | [Content pipeline](https://ai-content-factory-iota.vercel.app) |
+| **LLM inference** | [vllm-architecture-lab](https://github.com/vpeetla-ai/vllm-architecture-lab) | [Architecture lab](https://vllm-architecture-lab.vercel.app) · [API](https://vllm-architecture-lab-api.onrender.com) |
 
 ### Production Agent Patterns (series)
 
