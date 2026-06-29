@@ -19,6 +19,19 @@
 
 ---
 
+## Agent skills (Cursor + Codex)
+
+**[vpeetla-ai-skills](https://github.com/vpeetla-ai/vpeetla-ai-skills)** — org-wide agent skills for every repo: LangGraph, gateway/HITL, loop engineering, TDD, deploy.
+
+```bash
+git clone https://github.com/vpeetla-ai/vpeetla-ai-skills.git
+./vpeetla-ai-skills/scripts/install.sh --cursor --codex --project .
+```
+
+Inspired by [mattpocock/skills](https://github.com/mattpocock/skills) + [Karpathy agentic engineering](https://www.youtube.com/watch?v=96jN2OCOfLs).
+
+---
+
 ## Top projects
 
 ### [LoopForge — Self-Improving Agent Harness](https://github.com/vpeetla-ai/loop-engine-agent-platform) · **LIVE**

@@ -64,6 +64,15 @@ make test               # E2E smoke test
 
 Set `MOCK_LLM=false` and add LLM keys in `.env.local` for real provider calls.
 
+### Agent skills (Cursor + Codex)
+
+Org skills live in [vpeetla-ai-skills](https://github.com/vpeetla-ai/vpeetla-ai-skills). This repo includes `.cursor/skills/`, `AGENTS.md`, and `CONTEXT.md`.
+
+```bash
+git clone https://github.com/vpeetla-ai/vpeetla-ai-skills.git
+./vpeetla-ai-skills/scripts/install.sh --cursor --codex --project .
+```
+
 ---
 
 ## Production deploy (git push → live)
