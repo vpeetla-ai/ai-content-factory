@@ -121,7 +121,9 @@ How do we serve LLMs?        →  vLLM Architecture Lab (PagedAttention · batch
 - [x] VAP — 3 orchestrators + 7 RAG strategies + Enterprise RAG adapter
 - [x] Enterprise RAG ↔ AegisAI HITL bridge + Qdrant adapter
 - [x] AegisLoop — FinOps, Langfuse, VAP delegation, gateway ship path
-- [x] Live demos on Vercel for VAP, AegisLoop, Enterprise RAG, LoopForge, and all 5 agent pattern repos
+- [x] **vLLM Architecture Lab** — PagedAttention simulator live on Vercel + Render
+- [x] **vpeetla-ai-skills** — org-wide agent skills (Cursor + Codex)
+- [x] Live demos on Vercel for VAP, AegisLoop, Enterprise RAG, LoopForge, vLLM Lab, and all 5 agent pattern repos
 
 ---
 
