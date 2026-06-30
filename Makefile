@@ -20,6 +20,7 @@ install:
 	cd frontend && npm install
 
 test:
+	PYTHONPATH=backend:. pytest tests/ -q
 	./scripts/test_pipeline.sh
 
 dev: up

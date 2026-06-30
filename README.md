@@ -236,6 +236,8 @@ flowchart LR
 | Qdrant / Pinecone RAG | ✅ |
 | WebSocket auth | ✅ |
 | CI/CD (GitHub Actions) | ✅ |
+| Pytest (graph + HITL + gateway) | ✅ |
+| MCP tool bridge (in-process) | ✅ | See [docs/MCP.md](docs/MCP.md) |
 | Render + Vercel deploy | ✅ (configure secrets) |
 | Platform publish OAuth | 🟡 Mock adapters (wire tokens next) |
 | Cloudflare R2 media | 🟡 Config ready, upload pending |

@@ -46,6 +46,8 @@ jobs:
         run: python -c "import sys; sys.path.insert(0, 'backend'); sys.path.insert(0, '.'); from agents.graph import build_graph; print('graph ok')"
       - name: Health import smoke
         run: python -c "import sys; sys.path.insert(0, 'backend'); from app.main import app; print('app ok')"
+      - name: Pytest — graph, HITL, gateway
+        run: PYTHONPATH=backend:. pytest tests/ -q
 
   frontend:
     runs-on: ubuntu-latest
