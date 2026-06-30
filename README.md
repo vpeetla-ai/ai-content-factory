@@ -239,6 +239,7 @@ flowchart LR
 | Render + Vercel deploy | ✅ (configure secrets) |
 | Platform publish OAuth | 🟡 Mock adapters (wire tokens next) |
 | Cloudflare R2 media | 🟡 Config ready, upload pending |
+| AegisAI gateway (publish path) | 🟡 Integration code; mock publish adapters today |
 
 ---
 
