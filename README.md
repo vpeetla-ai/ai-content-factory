@@ -26,6 +26,8 @@ This repo is a reference implementation for that stack.
 
 **Product framing:** [docs/PRODUCT.md](docs/PRODUCT.md) — who we serve, trade-offs, success metrics.
 
+**Portfolio:** [Case study](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/ai-content-factory.md) · [Architecture](docs/ARCHITECTURE.md) · [Org README standard](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/README_STANDARD.md)
+
 ---
 
 ## 60-second overview
