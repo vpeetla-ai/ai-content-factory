@@ -24,6 +24,8 @@ Most "AI content tools" are single-prompt generators. Real teams need:
 
 This repo is a reference implementation for that stack.
 
+**Product framing:** [docs/PRODUCT.md](docs/PRODUCT.md) — who we serve, trade-offs, success metrics.
+
 ---
 
 ## 60-second overview
