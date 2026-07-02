@@ -1,9 +1,12 @@
 # AI Content Factory
 
+
+<!-- vpeetla-tech-stack:start -->
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square)]() [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square)]() [![LangGraph](https://img.shields.io/badge/LangGraph-9333EA?style=flat-square)]() [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?style=flat-square)]() [![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square)]() [![Clerk](https://img.shields.io/badge/Clerk-6C47FF?style=flat-square)]() [![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square)]() [![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square)]()
+<!-- vpeetla-tech-stack:end -->
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ai-content-factory-iota.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![LangGraph](https://img.shields.io/badge/LangGraph-Multi--Agent-purple)](https://langchain-ai.github.io/langgraph/)
-[![Stack](https://img.shields.io/badge/stack-free--first-blue)]()
+[![Portfolio](https://img.shields.io/badge/🌐_venkat--ai.com-Portfolio-5eead4?style=flat-square)](https://venkat-ai.com/work)
 
 **Turn one topic into platform-ready content across LinkedIn, Substack, Medium, Instagram & X — with human approval before anything goes live.**
 
