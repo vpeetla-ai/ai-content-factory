@@ -36,3 +36,10 @@ def test_get_recorder_from_context():
     set_recorder(recorder)
     assert get_recorder() is recorder
     set_recorder(None)
+
+
+def test_configure_langfuse_importable_from_app_package():
+    """Regression: production imports app.vpeetla_observability, not top-level vpeetla_observability."""
+    from app.vpeetla_observability.export import configure_langfuse
+
+    configure_langfuse(None)

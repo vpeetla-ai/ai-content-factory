@@ -29,7 +29,7 @@ def init_observability() -> None:
     _init_langsmith(settings)
     _langfuse_client = _init_langfuse(settings)
     if _langfuse_client is not None:
-        from vpeetla_observability.export import configure_langfuse
+        from app.vpeetla_observability.export import configure_langfuse
 
         configure_langfuse(_langfuse_client)
     _init_opentelemetry(settings)
