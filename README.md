@@ -2,7 +2,7 @@
 
 
 <!-- vpeetla-tech-stack:start -->
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square)]() [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square)]() [![LangGraph](https://img.shields.io/badge/LangGraph-9333EA?style=flat-square)]() [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?style=flat-square)]() [![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square)]() [![Clerk](https://img.shields.io/badge/Clerk-6C47FF?style=flat-square)]() [![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square)]() [![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square)]()
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square)]() [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square)]() [![LangGraph](https://img.shields.io/badge/LangGraph-9333EA?style=flat-square)]() [![Langfuse](https://img.shields.io/badge/Langfuse-6366F1?style=flat-square)]() [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?style=flat-square)]() [![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square)]() [![Clerk](https://img.shields.io/badge/Clerk-6C47FF?style=flat-square)]() [![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square)]() [![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square)]()
 <!-- vpeetla-tech-stack:end -->
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ai-content-factory-iota.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -48,7 +48,7 @@ Topic → Research Agent (RAG) → Content Agent (5 platform drafts)
 | **Frontend** | Next.js :3000 | Vercel |
 | **Backend + Agents** | FastAPI + LangGraph :8000 | Render (Docker) |
 | **Auth** | Dev bypass or Clerk | Clerk (required) |
-| **Observability** | Postgres traces | LangSmith + Langfuse + Sentry |
+| **Observability** | Postgres traces + in-process spans | LangSmith + Langfuse + Sentry (trace-linked) |
 
 **Full deployment guide:** [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) — step-by-step setup for Render, Vercel, Clerk, Neon, Upstash, Qdrant, LangSmith, Langfuse, and Sentry.
 
@@ -238,6 +238,7 @@ flowchart LR
 | Redis checkpointer | ✅ |
 | Clerk auth (FE + BE JWT verify) | ✅ |
 | LangSmith tracing | ✅ (set `LANGSMITH_API_KEY`) |
+| Trace-linked spans (system/trace/node) | ✅ | [`vpeetla_observability`](docs/ARCHITECTURE.md#observability) |
 | Langfuse LLM traces | ✅ (set `LANGFUSE_*`) |
 | Sentry error tracking | ✅ (set `SENTRY_DSN`) |
 | Qdrant / Pinecone RAG | ✅ |
