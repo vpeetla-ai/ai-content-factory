@@ -19,6 +19,21 @@ Next.js (Vercel) ──JWT──► FastAPI (Render) ──► LangGraph pipelin
 
 ## LangGraph pipeline
 
+```mermaid
+flowchart LR
+    T[Topic] --> R[research]
+    R --> E[enrich]
+    E --> C[content]
+    C --> S[seo]
+    C --> V[visual]
+    S & V --> H[hitl]
+    H --> P[publish]
+    subgraph Obs["Trace-linked LLMOps"]
+        LF[Langfuse]
+    end
+    R & C & S & V -.-> LF
+```
+
 ```text
 research → enrich → content → [seo ∥ visual] → hitl → publish
 ```

@@ -184,9 +184,10 @@ flowchart TB
         X["𝕏 X API v2"]
     end
 
-    subgraph L8["L8 · Observability"]
+    subgraph L8["L8 · Observability · trace-linked LLMOps"]
         direction LR
-        LF["📊 Langfuse"]
+        LF["📊 Langfuse<br/>system · trace · node"]
+        EVAL["✅ Eval scores<br/>linked to trace_id"]
         GRAF["📈 Grafana + Prometheus"]
         SENTRY["🚨 Sentry"]
         OTEL["🔭 OpenTelemetry"]
