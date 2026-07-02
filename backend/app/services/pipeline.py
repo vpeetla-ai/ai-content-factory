@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from agents.context import set_run_context
+from agents.context import get_root_trace_id, get_run_id, set_run_context
 from agents.llm import register_run_metrics, unregister_run_metrics
 from app.core.cancel_registry import cancel_run as mark_cancelled
 from app.core.cancel_registry import is_cancelled
@@ -22,11 +22,11 @@ from app.core.redis import get_redis
 from app.core.redis_keys import HITL_PENDING, PIPELINE_STATE, PUBLISH_QUEUE
 from app.models import ContentDraft, PipelineRun, PipelineStatus, Platform, PublishedPost, User
 from app.services.publisher import PublisherService
-from app.services.tracing import RunMetrics, apply_run_metrics, record_agent_trace
-from app.websocket import gateway as ws
-
-settings = get_settings()
-logger = logging.getLogger(__name__)
+from app.core.logging import get_logger
+from app.vpeetla_observability.context import bind_trace_context, clear_trace_context
+from app.vpeetla_observability.export import export_trace_summary
+from app.vpeetla_observability.recorder import TraceRecorder, set_recorder
+from app.vpeetla_observability.spans import system_span
 
 GRAPH_NODES = frozenset({"research", "content", "enrich", "hitl", "publish"})
 
@@ -84,6 +84,7 @@ class PipelineService:
 
         thread_id = run.langgraph_run_id or str(run.id)
         run_id_str = str(run.id)
+        trace_id = run_id_str
 
         await ensure_graph_initialized()
         graph = self._graph()
@@ -97,7 +98,11 @@ class PipelineService:
 
         metrics = RunMetrics()
         register_run_metrics(run_id_str, metrics)
-        set_run_context(run_id_str)
+        recorder = TraceRecorder.create(run_id=run_id_str, trace_id=trace_id, service=settings.app_name)
+        set_recorder(recorder)
+        set_run_context(run_id_str, trace_id=trace_id)
+        bind_trace_context(run_id=run_id_str, trace_id=trace_id, root_trace_id=trace_id)
+        recorder.ensure_langfuse_root("content_factory.pipeline", metadata={"topic": run.topic})
 
         redis = get_redis()
         await redis.set(PIPELINE_STATE.format(run_id=run_id_str), "running", ex=settings.pipeline_state_ttl)
@@ -120,81 +125,91 @@ class PipelineService:
                 "platforms": platform_list,
                 "config": config or snap.get("config") or {},
                 "run_id": thread_id,
+                "trace_id": trace_id,
             }
 
         active_nodes: set[str] = set()
 
         try:
-            async for event in graph.astream_events(
-                graph_input,
-                graph_config,
-                version="v2",
-            ):
-                if is_cancelled(run_id_str):
-                    raise asyncio.CancelledError("Pipeline cancelled")
+            with system_span("pipeline.execute", run_id=run_id_str, resume=resume):
+                async for event in graph.astream_events(
+                    graph_input,
+                    graph_config,
+                    version="v2",
+                ):
+                    if is_cancelled(run_id_str):
+                        raise asyncio.CancelledError("Pipeline cancelled")
 
-                kind = event.get("event")
-                meta = event.get("metadata") or {}
-                node_name = meta.get("langgraph_node") or event.get("name", "")
+                    kind = event.get("event")
+                    meta = event.get("metadata") or {}
+                    node_name = meta.get("langgraph_node") or event.get("name", "")
 
-                if kind == "on_chain_start" and node_name in GRAPH_NODES:
-                    active_nodes.add(node_name)
-                    metrics.start_node(node_name)
-                    await ws.emit_agent_start(run_id_str, node_name)
-                    await publish_pipeline_event(
-                        run_id_str, "agent:start", {"agent_name": node_name}
-                    )
-
-                elif kind == "on_chat_model_stream":
-                    chunk = event.get("data", {}).get("chunk")
-                    token = ""
-                    if chunk is not None:
-                        token = getattr(chunk, "content", "") or ""
-                    if token:
-                        agent = get_agent_name_from_active(active_nodes)
-                        await ws.emit_agent_chunk(run_id_str, agent, token)
+                    if kind == "on_chain_start" and node_name in GRAPH_NODES:
+                        active_nodes.add(node_name)
+                        metrics.start_node(node_name)
+                        logger.info("graph_node_started", node=node_name, run_id=run_id_str)
+                        await ws.emit_agent_start(run_id_str, node_name)
                         await publish_pipeline_event(
-                            run_id_str,
-                            "agent:chunk",
-                            {"agent_name": agent, "token": token},
+                            run_id_str, "agent:start", {"agent_name": node_name}
                         )
 
-                elif kind == "on_chain_end" and node_name in GRAPH_NODES:
-                    output_key = NODE_OUTPUT_KEYS.get(node_name, node_name)
-                    latency = metrics.node_latency_ms(node_name)
-                    await self._flush_node_traces(run.id, metrics, node_name, latency)
-                    await ws.emit_agent_done(run_id_str, node_name, output_key)
+                    elif kind == "on_chat_model_stream":
+                        chunk = event.get("data", {}).get("chunk")
+                        token = ""
+                        if chunk is not None:
+                            token = getattr(chunk, "content", "") or ""
+                        if token:
+                            agent = get_agent_name_from_active(active_nodes)
+                            await ws.emit_agent_chunk(run_id_str, agent, token)
+                            await publish_pipeline_event(
+                                run_id_str,
+                                "agent:chunk",
+                                {"agent_name": agent, "token": token},
+                            )
+
+                    elif kind == "on_chain_end" and node_name in GRAPH_NODES:
+                        output_key = NODE_OUTPUT_KEYS.get(node_name, node_name)
+                        latency = metrics.node_latency_ms(node_name)
+                        logger.info(
+                            "graph_node_completed",
+                            node=node_name,
+                            run_id=run_id_str,
+                            latency_ms=latency,
+                        )
+                        await self._flush_node_traces(run.id, metrics, node_name, latency)
+                        await ws.emit_agent_done(run_id_str, node_name, output_key)
+                        await publish_pipeline_event(
+                            run_id_str,
+                            "agent:done",
+                            {"agent_name": node_name, "output_key": output_key},
+                        )
+                        active_nodes.discard(node_name)
+
+                snapshot = await graph.aget_state(graph_config)
+                state = snapshot.values or {}
+                await self._persist_state(run, state)
+                await self._persist_published(run, state)
+
+                if snapshot.next:
+                    run.status = PipelineStatus.hitl_wait
+                    await redis.set(HITL_PENDING.format(run_id=run_id_str), "1", ex=settings.pipeline_state_ttl)
+                    drafts = await self._drafts_payload(run.id)
+                    await ws.emit_hitl_ready(run_id_str, drafts)
                     await publish_pipeline_event(
-                        run_id_str,
-                        "agent:done",
-                        {"agent_name": node_name, "output_key": output_key},
+                        run_id_str, "hitl:ready", {"run_id": run_id_str, "drafts": drafts}
                     )
-                    active_nodes.discard(node_name)
+                else:
+                    run.status = PipelineStatus.done
+                    run.completed_at = datetime.now(UTC)
+                    await redis.delete(HITL_PENDING.format(run_id=run_id_str))
 
-            snapshot = await graph.aget_state(graph_config)
-            state = snapshot.values or {}
-            await self._persist_state(run, state)
-            await self._persist_published(run, state)
-
-            if snapshot.next:
-                run.status = PipelineStatus.hitl_wait
-                await redis.set(HITL_PENDING.format(run_id=run_id_str), "1", ex=settings.pipeline_state_ttl)
-                drafts = await self._drafts_payload(run.id)
-                await ws.emit_hitl_ready(run_id_str, drafts)
+                await apply_run_metrics(self.db, run, metrics)
+                recorder.record_eval("pipeline.completed", run.status.value, total_tokens=run.total_tokens)
                 await publish_pipeline_event(
-                    run_id_str, "hitl:ready", {"run_id": run_id_str, "drafts": drafts}
+                    run_id_str,
+                    "pipeline:status",
+                    {"status": run.status.value, "total_tokens": run.total_tokens},
                 )
-            else:
-                run.status = PipelineStatus.done
-                run.completed_at = datetime.now(UTC)
-                await redis.delete(HITL_PENDING.format(run_id=run_id_str))
-
-            await apply_run_metrics(self.db, run, metrics)
-            await publish_pipeline_event(
-                run_id_str,
-                "pipeline:status",
-                {"status": run.status.value, "total_tokens": run.total_tokens},
-            )
 
         except asyncio.CancelledError:
             run.status = PipelineStatus.error
@@ -213,6 +228,9 @@ class PipelineService:
                 run_id_str, "pipeline:error", {"run_id": run_id_str, "error_msg": str(exc)}
             )
         finally:
+            export_trace_summary(recorder, trace_name="content_factory.pipeline")
+            set_recorder(None)
+            clear_trace_context()
             unregister_run_metrics(run_id_str)
             await redis.delete(PIPELINE_STATE.format(run_id=run_id_str))
             from app.core.cancel_registry import clear_cancelled, unregister_task

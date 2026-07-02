@@ -27,4 +27,5 @@ class ContentFactoryState(TypedDict, total=False):
     # Meta
     error: str | None
     run_id: str
+    trace_id: str | None
     messages: Annotated[list, add_messages]

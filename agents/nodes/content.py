@@ -4,6 +4,7 @@ import json
 
 from agents.context import set_run_context
 from agents.llm import call_llm
+from agents.observability import observe_node
 from agents.state import ContentFactoryState
 
 PLATFORMS = ["linkedin", "substack", "medium", "x", "instagram"]
@@ -20,6 +21,7 @@ Output JSON: {
 Respect platform character limits and tone."""
 
 
+@observe_node("content")
 async def content_agent(state: ContentFactoryState) -> dict:
     set_run_context(state.get("run_id", ""), "content")
     topic = state["topic"]

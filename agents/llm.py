@@ -8,7 +8,7 @@ from typing import Any
 
 from litellm import acompletion
 
-from agents.context import get_agent_name, get_run_id
+from agents.context import get_agent_name, get_root_trace_id, get_run_id
 from app.core.config import get_settings
 from app.core.logging import get_logger
 
@@ -182,9 +182,11 @@ async def call_llm(
 
             langfuse = get_langfuse()
             if langfuse:
+                root_trace_id = get_root_trace_id() or get_run_id()
                 trace = langfuse.trace(
+                    id=root_trace_id,
                     name=f"llm.{agent_name}",
-                    user_id=get_run_id(),
+                    session_id=get_run_id(),
                     metadata={"agent": agent_name, "model": model},
                 )
                 langfuse_trace_id = trace.id

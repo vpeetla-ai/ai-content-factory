@@ -5,6 +5,7 @@ import json
 
 from agents.context import set_run_context
 from agents.llm import call_llm, parse_llm_json
+from agents.observability import observe_node
 from agents.state import ContentFactoryState
 from app.core.config import get_settings
 from app.core.logging import get_logger
@@ -33,6 +34,7 @@ async def _fetch_external_sources(topic: str) -> str:
     return "\n".join(parts)
 
 
+@observe_node("research")
 async def research_agent(state: ContentFactoryState) -> dict:
     topic = state["topic"]
     run_id = state.get("run_id", "")
@@ -43,8 +45,11 @@ async def research_agent(state: ContentFactoryState) -> dict:
     topic_hash = hashlib.sha256(topic.encode()).hexdigest()[:16]
     cache_key = RESEARCH_CACHE.format(topic_hash=topic_hash)
 
+    logger.info("research_started", topic=topic, cache_key=cache_key[:16])
+
     cached = await redis.get(cache_key)
     if cached:
+        logger.info("research_cache_hit", topic=topic)
         return {"research_brief": cached, "error": None}
 
     try:
@@ -69,6 +74,8 @@ async def research_agent(state: ContentFactoryState) -> dict:
         except Exception as exc:
             logger.warning("vector_upsert_failed", error=str(exc))
 
+        logger.info("research_completed", topic=topic, brief_chars=len(str(brief)))
         return {"research_brief": brief, "error": None}
     except Exception as exc:
+        logger.error("research_failed", topic=topic, error=str(exc))
         return {"error": f"Research agent failed: {exc}"}

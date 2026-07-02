@@ -4,6 +4,7 @@ import json
 
 from agents.context import set_run_context
 from agents.llm import call_llm
+from agents.observability import observe_node
 from agents.state import ContentFactoryState
 
 VISUAL_SYSTEM = """You generate image prompts for social content.
@@ -11,6 +12,7 @@ Output JSON: {"prompts": ["prompt1", "prompt2", "prompt3"]}
 Style: modern, professional, platform-ready. No text in images."""
 
 
+@observe_node("visual")
 async def visual_agent(state: ContentFactoryState) -> dict:
     set_run_context(state.get("run_id", ""), "visual")
     topic = state["topic"]

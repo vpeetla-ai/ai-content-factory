@@ -12,6 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import socketio
 from sqlalchemy import text
 
+from app.vpeetla_observability.middleware import TraceRequestMiddleware
+
 from app.api.routes.auth import auth_router, users_router
 from app.api.routes.oauth import router as oauth_router
 from app.core.database import async_session_factory
@@ -59,6 +61,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(TraceRequestMiddleware, service_name=settings.app_name)
 
 api = FastAPI()
 api.include_router(pipelines_router)

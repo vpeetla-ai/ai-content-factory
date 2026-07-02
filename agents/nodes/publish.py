@@ -1,8 +1,10 @@
 """Publisher Agent — platform API adapters."""
 
+from agents.observability import observe_node
 from agents.state import ContentFactoryState
 
 
+@observe_node("publish")
 async def publisher_agent(state: ContentFactoryState) -> dict:
     """Publish approved content to connected platforms.
 
