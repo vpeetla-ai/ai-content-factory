@@ -139,7 +139,13 @@ function DevDashboard() {
       runs={runs || []}
       onSelectRun={setActiveRun}
       onHitlComplete={() => setStatus("running")}
-      headerRight={<span className="text-xs text-muted px-2 py-1 rounded bg-surface border border-border">Local dev</span>}
+      headerRight={
+        <span className="text-xs text-muted px-2 py-1 rounded bg-surface border border-border">
+          {typeof window !== "undefined" && window.location.hostname.includes("vercel.app")
+            ? "Demo — add Clerk keys in Vercel for sign-in"
+            : "Local dev"}
+        </span>
+      }
     />
   );
 }

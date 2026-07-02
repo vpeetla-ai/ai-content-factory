@@ -197,7 +197,7 @@ Production requires Clerk — the smoke test script bypasses Clerk and won't app
 
 1. Clerk Dashboard → **Configure** → **Domains**.
 2. Add your Vercel URL: `https://your-app.vercel.app`
-3. Add Render API if needed for direct calls: `https://acf-api.onrender.com`
+3. Add Render API if needed for direct calls: `https://acf-api-eub4.onrender.com`
 
 ### 6.5 Set environment variables
 
@@ -377,7 +377,7 @@ CORS_ORIGINS=https://your-app.vercel.app
 ### 10.4 Verify Render deploy
 
 ```bash
-curl https://acf-api.onrender.com/health
+curl https://acf-api-eub4.onrender.com/health
 ```
 
 Expected:
@@ -425,8 +425,8 @@ Vercel → Project → **Settings** → **Environment Variables**:
 
 | Variable | Value | Environment |
 |----------|-------|-------------|
-| `NEXT_PUBLIC_API_URL` | `https://acf-api.onrender.com/api/v1` | Production |
-| `NEXT_PUBLIC_WS_URL` | `https://acf-api.onrender.com` | Production |
+| `NEXT_PUBLIC_API_URL` | `https://acf-api-eub4.onrender.com/api/v1` | Production |
+| `NEXT_PUBLIC_WS_URL` | `https://acf-api-eub4.onrender.com` | Production |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | `pk_live_...` | Production |
 | `CLERK_SECRET_KEY` | `sk_live_...` | Production |
 
