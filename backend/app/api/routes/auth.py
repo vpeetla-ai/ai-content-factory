@@ -12,8 +12,8 @@ from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.logging import get_logger
 from app.core.security import create_access_token, get_current_user
-from app.models import User, UserRole
-from app.schemas import PlatformConnectRequest, TokenRequest, TokenResponse, UserProfileResponse
+from app.models import InviteCode, User, UserRole
+from app.schemas import TokenRequest, TokenResponse, UserProfileResponse
 from app.services.clerk_auth import extract_clerk_identity, verify_clerk_token
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -49,6 +49,22 @@ async def exchange_token(
         result = await db.execute(select(User).where(User.email == email))
         user = result.scalar_one_or_none()
         if not user:
+            if settings.require_invite_code:
+                code = (body.invite_code or "").strip()
+                if not code:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="An invite code is required to sign up",
+                    )
+                invite_result = await db.execute(select(InviteCode).where(InviteCode.code == code))
+                invite = invite_result.scalar_one_or_none()
+                if not invite or invite.uses_count >= invite.max_uses:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Invalid or fully-used invite code",
+                    )
+                invite.uses_count += 1
+
             user = User(
                 id=uuid4(),
                 email=email,
@@ -94,30 +110,7 @@ async def get_me(user: Annotated[User, Depends(get_current_user)]):
     )
 
 
-@users_router.post("/platforms/connect")
-async def connect_platform(
-    body: PlatformConnectRequest,
-    user: Annotated[User, Depends(get_current_user)],
-):
-    settings = get_settings()
-    platform = body.platform.value
-    oauth_urls = {
-        "linkedin": (
-            f"https://www.linkedin.com/oauth/v2/authorization?client_id={settings.linkedin_client_id}"
-            f"&redirect_uri={settings.api_base_url.rstrip('/')}/oauth/linkedin/callback"
-            "&response_type=code&scope=w_member_social"
-        ),
-        "x": (
-            f"https://twitter.com/i/oauth2/authorize?client_id={settings.x_api_key}"
-            f"&redirect_uri={settings.api_base_url.rstrip('/')}/oauth/x/callback"
-            "&response_type=code&scope=tweet.read+tweet.write"
-        ),
-    }
-    oauth_url = oauth_urls.get(platform, f"{settings.frontend_url}/settings/platforms?connect={platform}")
-    return {"platform": platform, "oauth_url": oauth_url, "status": "pending"}
 
-
-@users_router.get("/platforms")
-async def list_platforms(user: Annotated[User, Depends(get_current_user)]):
-    tokens = user.platform_tokens or {}
-    return {"connected": list(tokens.keys()), "platforms": tokens}
+# Platform connect/status now lives under /oauth (see api/routes/oauth.py) — that flow
+# generates a real CSRF state + PKCE pair server-side, which this old endpoint never did,
+# and never returns raw access tokens to the client.

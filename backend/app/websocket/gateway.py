@@ -123,9 +123,23 @@ async def emit_hitl_ready(run_id: str, drafts: list):
     await sio.emit("hitl:ready", {"run_id": run_id, "drafts": drafts}, room=run_id)
 
 
-async def emit_publish_result(run_id: str, platform: str, post_id: str, url: str):
+async def emit_publish_result(
+    run_id: str,
+    platform: str,
+    post_id: str,
+    url: str,
+    *,
+    not_supported: bool = False,
+    draft_content: str = "",
+):
     await sio.emit(
         "publish:result",
-        {"platform": platform, "post_id": post_id, "url": url},
+        {
+            "platform": platform,
+            "post_id": post_id,
+            "url": url,
+            "not_supported": not_supported,
+            "draft_content": draft_content,
+        },
         room=run_id,
     )

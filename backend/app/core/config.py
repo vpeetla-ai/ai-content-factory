@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     allow_dev_auth: bool = True  # local dev token bypass when Clerk not configured
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
+    require_invite_code: bool = False  # gate new-user signup behind an invite code
 
     # ── LLM Providers ────────────────────────────────────
     google_api_key: str = ""

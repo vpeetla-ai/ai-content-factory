@@ -32,10 +32,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const api = {
   auth: {
-    token: (clerkToken: string) =>
+    token: (clerkToken: string, inviteCode?: string | null) =>
       request<{ access_token: string }>("/auth/token", {
         method: "POST",
-        body: JSON.stringify({ clerk_token: clerkToken }),
+        body: JSON.stringify({ clerk_token: clerkToken, invite_code: inviteCode || undefined }),
       }),
   },
   pipelines: {
@@ -59,5 +59,10 @@ export const api = {
   },
   content: {
     drafts: (runId: string) => request(`/content/${runId}/drafts`),
+  },
+  oauth: {
+    authorize: (platform: "linkedin" | "x") =>
+      request<{ authorize_url: string }>(`/oauth/${platform}/authorize`),
+    status: () => request<{ connected: string[] }>("/oauth/status"),
   },
 };

@@ -19,17 +19,25 @@ class PublishBlockedError(RuntimeError):
 
 class PlatformAdapter(ABC):
     @abstractmethod
-    async def publish(self, draft: ContentDraft, access_token: str) -> dict:
+    async def publish(self, draft: ContentDraft, token_data: dict) -> dict:
         """Return {external_post_id, post_url}."""
 
 
 class LinkedInAdapter(PlatformAdapter):
-    async def publish(self, draft: ContentDraft, access_token: str) -> dict:
+    async def publish(self, draft: ContentDraft, token_data: dict) -> dict:
         content = draft.edited_content or draft.draft_content
+        access_token = token_data.get("access_token") or ""
+        person_id = token_data.get("person_id") or ""
         if not access_token:
             return {
                 "external_post_id": f"li_mock_{draft.id}",
                 "post_url": "https://linkedin.com/feed/update/mock",
+            }
+        if not person_id:
+            logger.warning("LinkedIn publish skipped: missing person_id for draft %s", draft.id)
+            return {
+                "external_post_id": f"li_error_{draft.id}",
+                "post_url": "https://linkedin.com/feed/update/error",
             }
         async with httpx.AsyncClient(timeout=45.0) as client:
             response = await client.post(
@@ -40,7 +48,7 @@ class LinkedInAdapter(PlatformAdapter):
                     "X-Restli-Protocol-Version": "2.0.0",
                 },
                 json={
-                    "author": "urn:li:person:me",
+                    "author": f"urn:li:person:{person_id}",
                     "lifecycleState": "PUBLISHED",
                     "specificContent": {
                         "com.linkedin.ugc.ShareContent": {
@@ -63,8 +71,9 @@ class LinkedInAdapter(PlatformAdapter):
 
 
 class XAdapter(PlatformAdapter):
-    async def publish(self, draft: ContentDraft, access_token: str) -> dict:
+    async def publish(self, draft: ContentDraft, token_data: dict) -> dict:
         content = (draft.edited_content or draft.draft_content)[:280]
+        access_token = token_data.get("access_token") or ""
         if not access_token:
             return {
                 "external_post_id": f"x_mock_{draft.id}",
@@ -87,28 +96,31 @@ class XAdapter(PlatformAdapter):
             return {"external_post_id": tweet_id, "post_url": f"https://x.com/i/web/status/{tweet_id}"}
 
 
-class MediumAdapter(PlatformAdapter):
-    async def publish(self, draft: ContentDraft, access_token: str) -> dict:
+class NotSupportedAdapter(PlatformAdapter):
+    """Platform has no viable public posting API today — return the draft for manual copy/paste."""
+
+    post_url_hint: str = ""
+
+    async def publish(self, draft: ContentDraft, token_data: dict) -> dict:
+        content = draft.edited_content or draft.draft_content
         return {
-            "external_post_id": f"md_mock_{draft.id}",
-            "post_url": "https://medium.com/@user/mock",
+            "external_post_id": "",
+            "post_url": "",
+            "not_supported": True,
+            "draft_content": content,
         }
 
 
-class SubstackAdapter(PlatformAdapter):
-    async def publish(self, draft: ContentDraft, access_token: str) -> dict:
-        return {
-            "external_post_id": f"ss_mock_{draft.id}",
-            "post_url": "https://substack.com/p/mock",
-        }
+class MediumAdapter(NotSupportedAdapter):
+    pass
 
 
-class InstagramAdapter(PlatformAdapter):
-    async def publish(self, draft: ContentDraft, access_token: str) -> dict:
-        return {
-            "external_post_id": f"ig_mock_{draft.id}",
-            "post_url": "https://instagram.com/p/mock",
-        }
+class SubstackAdapter(NotSupportedAdapter):
+    pass
+
+
+class InstagramAdapter(NotSupportedAdapter):
+    pass
 
 
 ADAPTERS: dict[str, PlatformAdapter] = {
@@ -124,7 +136,7 @@ class PublisherService:
     async def publish_draft(
         self,
         draft: ContentDraft,
-        access_token: str = "",
+        token_data: dict | None = None,
         *,
         case_id: str | None = None,
         skip_gateway: bool = False,
@@ -143,10 +155,12 @@ class PublisherService:
             if authz.requires_approval:
                 raise PublishBlockedError(f"Gateway approval required: {authz.case_id}")
 
-        result = await adapter.publish(draft, access_token)
+        result = await adapter.publish(draft, token_data or {})
+        analytics_data = {"not_supported": True, "draft_content": result["draft_content"]} if result.get("not_supported") else None
         return PublishedPost(
             draft_id=draft.id,
             platform=draft.platform.value,
-            external_post_id=result["external_post_id"],
-            post_url=result["post_url"],
+            external_post_id=result["external_post_id"] or None,
+            post_url=result["post_url"] or None,
+            analytics_data=analytics_data,
         )

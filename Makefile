@@ -1,4 +1,4 @@
-.PHONY: up down migrate api frontend install test dev lint
+.PHONY: up down migrate api frontend install test dev lint invite
 
 up:
 	docker compose up -d postgres redis qdrant
@@ -30,3 +30,6 @@ dev: up
 
 lint:
 	cd backend && python -c "from app.main import app; from agents.graph import build_graph; print('ok')"
+
+invite:
+	source backend/.venv/bin/activate && PYTHONPATH=backend:. python backend/scripts/create_invite_code.py $(ARGS)

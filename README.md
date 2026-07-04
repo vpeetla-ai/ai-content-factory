@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Portfolio](https://img.shields.io/badge/🌐_venkat--ai.com-Portfolio-5eead4?style=flat-square)](https://venkat-ai.com/work)
 
-**Turn one topic into platform-ready content across LinkedIn, Substack, Medium, Instagram & X — with human approval before anything goes live.**
+**Turn one topic into platform-ready content for LinkedIn, Substack, Medium, Instagram & X — with human approval before anything goes live.** Real auto-publish today covers LinkedIn and X; the other three return a copy-ready draft (no public posting API exists for Substack/Medium, and Instagram requires Meta app review — see [docs/PRODUCT.md](docs/PRODUCT.md)).
 
 > Not another ChatGPT wrapper. A production multi-agent pipeline with RAG, human-in-the-loop gates, full observability, and CI/CD to Render + Vercel.
 

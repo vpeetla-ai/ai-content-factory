@@ -103,6 +103,7 @@ class PublishedResponse(BaseModel):
 
 class TokenRequest(BaseModel):
     clerk_token: str
+    invite_code: str | None = None
 
 
 class TokenResponse(BaseModel):
@@ -121,6 +122,3 @@ class UserProfileResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class PlatformConnectRequest(BaseModel):
-    platform: PlatformEnum
-    redirect_uri: str | None = None

@@ -402,14 +402,13 @@ class PipelineService:
                 continue
 
             token_data = user_tokens.get(platform_name) or {}
-            access_token = ""
-            if isinstance(token_data, dict):
-                access_token = str(token_data.get("access_token") or "")
+            if not isinstance(token_data, dict):
+                token_data = {}
 
             try:
                 post = await publisher.publish_draft(
                     draft,
-                    access_token=access_token,
+                    token_data=token_data,
                     case_id=f"{gateway_case_id}-{platform_name}",
                     skip_gateway=settings.aegisai_gateway_fail_open and not settings.aegisai_api_base_url,
                 )
@@ -421,12 +420,27 @@ class PipelineService:
 
             post_id = post.external_post_id or ""
             post_url = post.post_url or ""
+            not_supported = bool(post.analytics_data and post.analytics_data.get("not_supported"))
+            draft_content = str((post.analytics_data or {}).get("draft_content") or "")
 
-            await ws.emit_publish_result(run_id_str, platform_name, post_id, post_url)
+            await ws.emit_publish_result(
+                run_id_str,
+                platform_name,
+                post_id,
+                post_url,
+                not_supported=not_supported,
+                draft_content=draft_content,
+            )
             await publish_pipeline_event(
                 run_id_str,
                 "publish:result",
-                {"platform": platform_name, "post_id": post_id, "url": post_url},
+                {
+                    "platform": platform_name,
+                    "post_id": post_id,
+                    "url": post_url,
+                    "not_supported": not_supported,
+                    "draft_content": draft_content,
+                },
             )
 
             # Enqueue Celery publish job (queue:publish stream key for observability)

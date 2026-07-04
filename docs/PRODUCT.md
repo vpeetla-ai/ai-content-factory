@@ -17,6 +17,10 @@
 - A single ChatGPT prompt wrapper
 - Autonomous social posting without human review
 - A replacement for brand/legal review on regulated industries
+- An auto-publisher for every platform: Substack has no public posting API, Medium deprecated
+  its public integration API for new apps, and Instagram publish requires Meta Business app
+  review. LinkedIn and X are real auto-publish (OAuth + PKCE); the other three produce a
+  copy-ready draft instead of a fake "published" link.
 
 ## Architecture (customer view)
 
@@ -29,7 +33,7 @@ Topic in → Research (RAG) → Drafts (5 platforms) → Human review → Gatewa
 | Choice | Why | Cost |
 |--------|-----|------|
 | HITL before publish | Trust + compliance | Slower than fully autonomous |
-| Mock OAuth adapters (v1) | Free-tier demo without vendor keys | Not production publish until tokens wired |
+| Real OAuth for LinkedIn + X only | Only two platforms have a viable public posting API | Medium/Substack/Instagram are copy-draft export, not auto-publish |
 | In-process MCP bridge | Fast to test; Cursor-ready | Stdio MCP server = Phase 4 |
 | Gateway fail-open in dev | Local velocity | Must fail-closed in prod |
 

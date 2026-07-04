@@ -6,7 +6,7 @@ import { usePipelineStore } from "@/lib/store";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 export function usePipelineSSE(runId: string | null, token: string | null) {
-  const { addLog, setStatus } = usePipelineStore();
+  const { addLog, setStatus, addPublishResult } = usePipelineStore();
 
   useEffect(() => {
     if (!runId || !token) return;
@@ -54,7 +54,18 @@ export function usePipelineSSE(runId: string | null, token: string | null) {
               addLog("✋ HITL review required");
             }
             if (event === "publish:result") {
-              addLog(`🚀 Published to ${parsed.platform}: ${parsed.url}`);
+              addLog(
+                parsed.not_supported
+                  ? `📋 ${parsed.platform}: not auto-published — draft ready to copy`
+                  : `🚀 Published to ${parsed.platform}: ${parsed.url}`
+              );
+              addPublishResult({
+                platform: parsed.platform,
+                postId: parsed.post_id,
+                url: parsed.url,
+                notSupported: !!parsed.not_supported,
+                draftContent: parsed.draft_content || "",
+              });
             }
             if (event === "pipeline:status") setStatus(parsed.status);
             if (event === "pipeline:error") {
@@ -72,5 +83,5 @@ export function usePipelineSSE(runId: string | null, token: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [runId, token, addLog, setStatus]);
+  }, [runId, token, addLog, setStatus, addPublishResult]);
 }

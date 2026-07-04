@@ -4,13 +4,16 @@ import { useState } from "react";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api, getToken, setToken } from "@/lib/api";
-import { usePipelineStore } from "@/lib/store";
+import { getInviteCode, clearInviteCode } from "@/lib/invite";
+import { usePipelineStore, PublishResult } from "@/lib/store";
 import { usePipelineSocket } from "@/hooks/usePipelineSocket";
 import { usePipelineSSE } from "@/hooks/usePipelineSSE";
 import { PipelineForm } from "@/components/pipeline-form";
 import { AgentLog } from "@/components/agent-log";
 import { HITLReview } from "@/components/hitl-review";
 import { RunList } from "@/components/run-list";
+import { PublishResults } from "@/components/publish-results";
+import { ConnectAccounts } from "@/components/connect-accounts";
 import { isClerkEnabled } from "@/components/providers";
 
 const PLATFORMS = ["linkedin", "substack", "medium", "x", "instagram"];
@@ -19,7 +22,7 @@ function ClerkDashboard() {
   const { getToken: getClerkToken, isLoaded, isSignedIn } = useAuth();
   const [topic, setTopic] = useState("");
   const [token, setAuthToken] = useState<string | null>(null);
-  const { activeRunId, status, agentLogs, setActiveRun, setStatus, addLog } = usePipelineStore();
+  const { activeRunId, status, agentLogs, publishResults, setActiveRun, setStatus, addLog } = usePipelineStore();
   const effectiveToken = token || getToken();
   usePipelineSocket(activeRunId, effectiveToken);
   usePipelineSSE(activeRunId, effectiveToken);
@@ -28,11 +31,12 @@ function ClerkDashboard() {
     mutationFn: async () => {
       const clerkToken = await getClerkToken({ skipCache: true });
       if (!clerkToken) throw new Error("Not signed in");
-      return api.auth.token(clerkToken);
+      return api.auth.token(clerkToken, getInviteCode());
     },
     onSuccess: (data) => {
       setToken(data.access_token);
       setAuthToken(data.access_token);
+      clearInviteCode();
       addLog("Authenticated via Clerk");
     },
   });
@@ -80,6 +84,7 @@ function ClerkDashboard() {
       onStart={handleStart}
       loading={runMutation.isPending || authMutation.isPending}
       agentLogs={agentLogs}
+      publishResults={publishResults}
       status={status}
       activeRunId={activeRunId}
       runs={runs || []}
@@ -93,7 +98,7 @@ function ClerkDashboard() {
 function DevDashboard() {
   const [topic, setTopic] = useState("");
   const [token, setAuthToken] = useState<string | null>(null);
-  const { activeRunId, status, agentLogs, setActiveRun, setStatus, addLog } = usePipelineStore();
+  const { activeRunId, status, agentLogs, publishResults, setActiveRun, setStatus, addLog } = usePipelineStore();
   const effectiveToken = token || getToken();
   usePipelineSocket(activeRunId, effectiveToken);
   usePipelineSSE(activeRunId, effectiveToken);
@@ -134,6 +139,7 @@ function DevDashboard() {
       onStart={handleStart}
       loading={runMutation.isPending || authMutation.isPending}
       agentLogs={agentLogs}
+      publishResults={publishResults}
       status={status}
       activeRunId={activeRunId}
       runs={runs || []}
@@ -164,6 +170,7 @@ function DashboardShell({
   onStart,
   loading,
   agentLogs,
+  publishResults,
   status,
   activeRunId,
   runs,
@@ -176,6 +183,7 @@ function DashboardShell({
   onStart: () => void;
   loading: boolean;
   agentLogs: string[];
+  publishResults: PublishResult[];
   status: string | null;
   activeRunId: string | null;
   runs: Array<{ run_id: string; status: string; topic: string }>;
@@ -205,8 +213,10 @@ function DashboardShell({
           {status === "hitl_wait" && activeRunId && (
             <HITLReview runId={activeRunId} onComplete={onHitlComplete} />
           )}
+          <PublishResults results={publishResults} />
         </div>
-        <div>
+        <div className="space-y-6">
+          <ConnectAccounts />
           <RunList runs={runs} onSelect={onSelectRun} />
         </div>
       </div>

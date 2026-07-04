@@ -1,4 +1,4 @@
-"""SQLAlchemy models — 6 tables per architecture schema."""
+"""SQLAlchemy models — 7 tables per architecture schema."""
 
 import enum
 import uuid
@@ -99,6 +99,17 @@ class PublishedPost(Base):
     analytics_data: Mapped[dict | None] = mapped_column(JSONB)
 
     draft: Mapped["ContentDraft"] = relationship(back_populates="published")
+
+
+class InviteCode(Base):
+    __tablename__ = "invite_codes"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    code: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    max_uses: Mapped[int] = mapped_column(Integer, default=1)
+    uses_count: Mapped[int] = mapped_column(Integer, default=0)
+    note: Mapped[str | None] = mapped_column(String(200))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class ApiKey(Base):
