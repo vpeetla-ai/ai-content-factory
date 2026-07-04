@@ -19,6 +19,7 @@ Read [CONTEXT.md](../../CONTEXT.md) for terms.
 | Retrieval, citations, access control | enterprise_rag_platform |
 | Missions, traces, eval gates, FinOps | aegisloop-agentops-workbench |
 | Content pipeline, publish, cron | ai-content-factory |
+| Overnight intelligence brief, governed email | sentinel-brief |
 | Self-improving loops, repo fix, RAG tuning | loop-engine-agent-platform |
 | ADRs, case studies, portfolio copy | ai-architecture-portfolio |
 | Public site, ecosystem wiring | venkat-ai-portfolio |
