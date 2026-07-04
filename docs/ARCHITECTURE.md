@@ -40,9 +40,40 @@ research → enrich → content → [seo ∥ visual] → hitl → publish
 
 - **HITL:** `interrupt_before` on publish node — human approves before side effects
 - **RAG:** Qdrant hybrid retrieval in research node
-- **Gateway:** AegisAI integration on publish path (mock adapters today)
+- **Gateway:** AegisAI integration on publish path
 
 Graph source: `agents/graph.py` · Nodes: `agents/nodes/`
+
+Note: the graph's `publish` node (`agents/nodes/publish.py`) only decides *which* approved
+drafts to attempt per platform. The real per-platform API call happens afterward in
+`PipelineService._persist_published` via `PublisherService` (`backend/app/services/publisher.py`).
+
+---
+
+## OAuth connect + publish (ADR-008)
+
+LinkedIn and X are real auto-publish; Medium, Substack, and Instagram are not (see
+[docs/PRODUCT.md](./PRODUCT.md#what-we-are-not) and
+[ai-architecture-portfolio/adr/ADR-008-real-publish-scope-and-invite-gating.md](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-008-real-publish-scope-and-invite-gating.md)).
+
+```text
+Frontend "Connect" button
+  → GET /oauth/{platform}/authorize (Bearer-authed)
+      generates CSRF state (+ PKCE verifier/challenge for X), stores in Redis (10 min TTL)
+      returns {authorize_url}
+  → browser redirects to LinkedIn/X consent screen
+  → provider redirects to GET /oauth/{platform}/callback?code&state (no auth header — browser nav)
+      looks up state in Redis to recover user_id (+ code_verifier for X), single-use
+      exchanges code for access_token, fetches LinkedIn person URN via /v2/userinfo
+      stores token (+ person_id) on user.platform_tokens
+      redirects back to {frontend_url}/?connected={platform}
+```
+
+`PublisherService.publish_draft` receives the full per-platform token dict (not just a bare
+access token) so `LinkedInAdapter` can build a real `urn:li:person:{id}` author field —
+LinkedIn's UGC API rejects the literal string `"me"`. `MediumAdapter`/`SubstackAdapter`/
+`InstagramAdapter` extend `NotSupportedAdapter`, which returns the draft content for the
+frontend to offer as a "Copy draft" action instead of a fake published URL.
 
 ---
 
