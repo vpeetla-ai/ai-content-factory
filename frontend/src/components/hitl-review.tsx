@@ -48,13 +48,13 @@ export function HITLReview({ runId, onComplete }: Props) {
   });
 
   return (
-    <section className="bg-panel border border-green-500/30 rounded-xl p-6">
+    <section className="bg-panel border border-green-200 rounded-xl p-6 shadow-card">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-green-400 mb-4">
         ✋ Human Review (HITL Gate)
       </h2>
       <div className="space-y-4">
         {(review?.drafts || []).map((draft) => (
-          <div key={draft.id} className="bg-surface rounded-lg p-4 border border-white/5">
+          <div key={draft.id} className="bg-surface rounded-lg p-4 border border-border">
             <div className="flex justify-between mb-2">
               <span className="text-xs font-bold uppercase text-accent">{draft.platform}</span>
               <span className="text-xs text-muted">{draft.char_count} chars</span>
@@ -62,7 +62,7 @@ export function HITLReview({ runId, onComplete }: Props) {
             {draft.hook_variant && (
               <p className="text-xs text-teal mb-2">Hook: {draft.hook_variant}</p>
             )}
-            <p className="text-sm text-white/80 whitespace-pre-wrap">{draft.draft_content}</p>
+            <p className="text-sm text-slate-700 whitespace-pre-wrap">{draft.draft_content}</p>
           </div>
         ))}
       </div>

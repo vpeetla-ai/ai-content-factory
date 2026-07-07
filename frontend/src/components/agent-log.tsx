@@ -13,7 +13,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function AgentLog({ logs, status, runId }: Props) {
   return (
-    <section className="bg-panel border border-white/10 rounded-xl p-6">
+    <section className="bg-panel border border-border rounded-xl p-6 shadow-card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">
           Agent Orchestration
@@ -32,7 +32,7 @@ export function AgentLog({ logs, status, runId }: Props) {
           <p className="text-muted">Waiting for pipeline…</p>
         ) : (
           logs.map((log, i) => (
-            <div key={i} className="text-white/80">
+            <div key={i} className="text-slate-700">
               {log}
             </div>
           ))

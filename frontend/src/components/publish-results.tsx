@@ -10,7 +10,7 @@ export function PublishResults({ results }: Props) {
   if (results.length === 0) return null;
 
   return (
-    <section className="bg-panel border border-white/10 rounded-xl p-6">
+    <section className="bg-panel border border-border rounded-xl p-6 shadow-card">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted mb-4">
         Publish Results
       </h2>
@@ -18,7 +18,7 @@ export function PublishResults({ results }: Props) {
         {results.map((r) => (
           <div
             key={r.platform}
-            className="flex items-center justify-between gap-3 bg-surface border border-white/10 rounded-lg p-3 text-sm"
+            className="flex items-center justify-between gap-3 bg-surface border border-border rounded-lg p-3 text-sm"
           >
             <span className="font-mono text-xs uppercase text-muted w-20 shrink-0">{r.platform}</span>
             {r.notSupported ? (

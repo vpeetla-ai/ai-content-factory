@@ -3,14 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --bg: #070710;
-  --surface: #0e0e1a;
-  --accent: #7c6fff;
-  --teal: #00e5c3;
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --accent: #2563eb;
+  --teal: #0d9488;
 }
 
 body {
   background: var(--bg);
-  color: #e2e4f0;
+  color: #0f172a;
   min-height: 100vh;
+}
+
+@layer components {
+  .card-panel {
+    @apply bg-surface border border-border rounded-xl p-5 shadow-card;
+  }
 }

@@ -192,8 +192,8 @@ function DashboardShell({
   headerRight: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen p-6 max-w-6xl mx-auto">
-      <header className="mb-8 flex items-center justify-between gap-3">
+    <main className="min-h-screen bg-bg p-6 max-w-6xl mx-auto">
+      <header className="mb-8 flex items-center justify-between gap-3 sticky top-0 z-10 bg-bg/90 backdrop-blur py-2 -mx-2 px-2">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-teal flex items-center justify-center font-bold text-white">
             ⚡

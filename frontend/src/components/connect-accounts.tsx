@@ -27,7 +27,7 @@ export function ConnectAccounts() {
   };
 
   return (
-    <section className="bg-panel border border-white/10 rounded-xl p-6">
+    <section className="bg-panel border border-border rounded-xl p-6 shadow-card">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted mb-4">
         Connected Accounts
       </h2>
@@ -42,7 +42,7 @@ export function ConnectAccounts() {
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
                 isConnected
                   ? "bg-green-400/10 border-green-400/30 text-green-400 cursor-default"
-                  : "bg-surface border-white/10 text-muted hover:border-accent hover:text-accent"
+                  : "bg-surface border-border text-muted hover:border-accent hover:text-accent"
               }`}
             >
               {isConnected ? `✓ ${platform} connected` : loading === platform ? "Connecting…" : `Connect ${platform}`}

@@ -11,7 +11,7 @@ interface Props {
 
 export function RunList({ runs, onSelect }: Props) {
   return (
-    <section className="bg-panel border border-white/10 rounded-xl p-6">
+    <section className="bg-panel border border-border rounded-xl p-6 shadow-card">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted mb-4">
         Recent Runs
       </h2>
@@ -23,7 +23,7 @@ export function RunList({ runs, onSelect }: Props) {
             <li key={run.run_id}>
               <button
                 onClick={() => onSelect(run.run_id)}
-                className="w-full text-left p-3 rounded-lg bg-surface border border-white/5 hover:border-accent/50 transition"
+                className="w-full text-left p-3 rounded-lg bg-surface border border-border hover:border-accent/50 transition"
               >
                 <p className="text-sm font-medium truncate">{run.topic}</p>
                 <p className="text-xs text-muted mt-1 font-mono">{run.status}</p>
