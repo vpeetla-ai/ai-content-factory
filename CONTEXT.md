@@ -14,7 +14,7 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 | Governance | What are agents allowed? | aegisai-enterprise-agent-platform | [aegisai-enterprise-agent-platform.vercel.app](https://aegisai-enterprise-agent-platform.vercel.app) | `aegisai-api.onrender.com` |
 | Knowledge | What knowledge can they use? | enterprise_rag_platform | [enterprise-rag-platform-eta.vercel.app](https://enterprise-rag-platform-eta.vercel.app) | `enterprise-rag-api-4el1.onrender.com` |
 | Knowledge + MLOps | How do we adapt models to domain format? | domainforge-rag-peft | [domainforge-rag-peft.vercel.app](https://domainforge-rag-peft.vercel.app) | `domainforge-api.onrender.com` |
-| Voice / Multimodal | How do we run real-time voice triage? | voiceforge-assistant | [voiceforge-assistant.vercel.app](https://voiceforge-assistant.vercel.app) | `voiceforge-api.onrender.com` |
+| Voice / Multimodal | How do we run real-time voice triage? | voiceforge-assistant | [voiceforge-assistant.vercel.app](https://voiceforge-assistant.vercel.app) | `voiceforge-api-eysb.onrender.com` |
 | AgentOps | How do we operate fleets? | aegisloop-agentops-workbench | [aegisloop-agentops-workbench.vercel.app](https://aegisloop-agentops-workbench.vercel.app) | `aegisloop-api.onrender.com` |
 | FinOps | What did agents cost? | agent-finops | — | `agent-finops.onrender.com` |
 | Application | What do they produce? | ai-content-factory | [ai-content-factory-iota.vercel.app](https://ai-content-factory-iota.vercel.app) | `acf-api-eub4.onrender.com` *(active)* |
