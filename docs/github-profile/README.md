@@ -3,7 +3,7 @@
 
 # Hi, I'm Venkata Peetla — Principal AI Architect
 
-> **14 live products** (9 production platforms + 5 pattern products) · **20 open-source repos** · **18 ADRs** — inspect before we talk.
+> **16 live products** (11 production platforms + 5 pattern products) · **22 open-source repos** · **20 ADRs** — inspect before we talk.
 
 [![Website](https://img.shields.io/badge/Website-venkat--ai.com-blue)](https://venkat-ai.com)
 [![Technical review](https://img.shields.io/badge/5--Min_Technical_Review-Start_here-5eead4)](https://venkat-ai.com/technical-review)
@@ -26,16 +26,18 @@
 
 ## Architecture portfolio
 
-**[ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio)** — 18 ADRs, case studies, trade-offs, and stack map.
+**[ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio)** — 20 ADRs, case studies, trade-offs, and stack map.
 
 → [Featured case studies](https://github.com/vpeetla-ai/ai-architecture-portfolio#featured-case-studies) · [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) (CI regression gates)
 
 ---
 
-## Production platforms (9)
+## Production platforms (11)
 
 | Platform | Live URL |
 |----------|----------|
+| **VoiceForge** — real-time voice triage | [voiceforge-assistant.vercel.app](https://voiceforge-assistant.vercel.app) |
+| **DomainForge** — RAG + PEFT triage | [domainforge-rag-peft.vercel.app](https://domainforge-rag-peft.vercel.app) |
 | **AegisAI** — agent governance | [aegisai-enterprise-agent-platform.vercel.app](https://aegisai-enterprise-agent-platform.vercel.app) |
 | **Venkat AI Platform** — multi-agent OS | [venkat-ai-platform.vercel.app](https://venkat-ai-platform.vercel.app) |
 | **Enterprise RAG** — access-aware retrieval | [enterprise-rag-platform-eta.vercel.app](https://enterprise-rag-platform-eta.vercel.app) |
@@ -58,6 +60,8 @@ ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm — [venkat-ai.com/w
 What should agents do?       →  Venkat AI Platform
 What are agents allowed?     →  AegisAI (gateway, policy, HITL, audit)
 What knowledge can they use? →  Enterprise RAG (access-before-ranking)
+How do we adapt domain format? → DomainForge (RAG facts + PEFT behavior)
+How do we run voice triage?     → VoiceForge (ASR → LLM → TTS + latency budgets)
 How do we operate fleets?    →  AegisLoop (missions, traces, eval gates)
 What do they produce?        →  AI Content Factory (governed publish)
 How do agents improve?       →  LoopForge (harness · repo fix → PR)
