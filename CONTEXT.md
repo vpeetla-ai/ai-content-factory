@@ -29,6 +29,23 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 
 **Stale Vercel aliases (do not use):** `enterprise-rag-platform.vercel.app` (old static demo), `sentinel-brief.vercel.app` (wrong project), `acf-api.onrender.com` (suspended — use `acf-api-eub4`).
 
+**Demo access status (Phase 4 verify — Jul 7 2026):**
+
+| Demo | HTTP | Public? | Action needed |
+|------|------|---------|---------------|
+| enterprise-rag-platform-eta | 200 | ✅ | — |
+| vllm-architecture-lab | 200 | ✅ | — |
+| venkat-ai-platform | 200 | ✅ | — |
+| aegisloop-agentops-workbench | 200 | ✅ | — |
+| demo-omega-taupe (LoopForge) | 200 | ✅ | — |
+| sentinel-brief-ruddy | 200 | ✅ | — |
+| aegisai-enterprise-agent-platform | 200 | ✅ | — |
+| domainforge-rag-peft | 302→SSO | ❌ | **Disable Vercel Deployment Protection** (API healthy) |
+| voiceforge-assistant | 302→SSO | ❌ | **Disable Vercel Deployment Protection** (API healthy) |
+| ai-content-factory-iota | 404 at `/`, 200 at `/sign-in` | ⚠️ | Public landing route or link `/sign-in` (Clerk gates root; API healthy) |
+
+> Backends healthy for all three flagged demos (`domainforge-api`, `voiceforge-api-eysb`, `acf-api-eub4` → `/health` 200). Blockers are Vercel/Clerk dashboard settings, not repo code — must be cleared before Weeks 2/4/8 LinkedIn posts.
+
 ---
 
 ## Jul 2026 org-wide changes (summary)
