@@ -111,6 +111,8 @@ Local: `.env.local` overrides `.env`. Production: hosting platform injects env v
 
 ## Architecture
 
+Canonical (implemented path): [`docs/diagrams/canonical-architecture.mmd`](docs/diagrams/canonical-architecture.mmd)
+
 ### High-Level Design (HLD)
 
 Nine-layer architecture — free-first stack, multi-agent orchestration with human-in-the-loop (HITL).

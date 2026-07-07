@@ -1,0 +1,10 @@
+flowchart TB
+  UI["Next.js dashboard<br/>Clerk auth · HITL review"] --> API["FastAPI pipeline API"]
+  API --> LG["LangGraph content pipeline"]
+  LG --> RES["Research agent"]
+  LG --> CONT["Content drafts<br/>LinkedIn · X · Substack…"]
+  LG --> HITL["interrupt_before publish"]
+  HITL --> GW["AegisAI gateway"]
+  GW --> PUB["OAuth publish adapters"]
+  API --> OBS["Langfuse trace-linked evals"]
+  API --> WS["WebSocket / SSE run events"]

@@ -8,6 +8,7 @@
 [![Website](https://img.shields.io/badge/Website-venkat--ai.com-blue)](https://venkat-ai.com)
 [![Technical review](https://img.shields.io/badge/5--Min_Technical_Review-Start_here-5eead4)](https://venkat-ai.com/technical-review)
 [![Architecture portfolio](https://img.shields.io/badge/Architecture_Portfolio-ADRs_%26_Case_Studies-purple)](https://github.com/vpeetla-ai/ai-architecture-portfolio)
+[![LinkedIn launch plan](https://img.shields.io/badge/LinkedIn_Launch_Plan-Phase_tracker-0A66C2)](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/LINKEDIN_LAUNCH_PLAN.md)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2)](https://linkedin.com/in/venkata-peetla)
 [![Substack](https://img.shields.io/badge/Substack-Subscribe-orange)](https://venkatapeetla.substack.com)
 
@@ -26,9 +27,18 @@
 
 ## Architecture portfolio
 
-**[ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio)** — 20 ADRs, case studies, trade-offs, and stack map.
+**[ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio)** — 20+ ADRs, case studies, trade-offs, and stack map.
 
-→ [Featured case studies](https://github.com/vpeetla-ai/ai-architecture-portfolio#featured-case-studies) · [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) (CI regression gates)
+→ [Featured case studies](https://github.com/vpeetla-ai/ai-architecture-portfolio#featured-case-studies) · [LinkedIn launch plan](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/LINKEDIN_LAUNCH_PLAN.md) · [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) (CI regression gates)
+
+### RAG + inference track (flagship quartet)
+
+| Repo | Hook |
+|------|------|
+| [Enterprise RAG](https://github.com/vpeetla-ai/enterprise_rag_platform) | Access-before-ranking · cross-encoder rerank · decline-to-answer |
+| [DomainForge](https://github.com/vpeetla-ai/domainforge-rag-peft) | RAG facts + PEFT behavior · S0→S4 eval · Ollama bench |
+| [vLLM Lab](https://github.com/vpeetla-ai/vllm-architecture-lab) | PagedAttention · multi-LoRA train→serve economics |
+| [VoiceForge](https://github.com/vpeetla-ai/voiceforge-assistant) | ASR → LLM → TTS · P50/P95 latency budgets |
 
 ---
 
