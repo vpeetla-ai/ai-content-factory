@@ -60,6 +60,7 @@ async def collect_ops_metrics(db: AsyncSession) -> dict:
     finished = completed_runs + error_runs
     success_rate = round((completed_runs / finished) * 100, 1) if finished else 100.0
 
+    p95 = int(p95_lat) if p95_lat else None
     return {
         "service": "ai-content-factory",
         "collected_at": now.isoformat(),
@@ -69,15 +70,18 @@ async def collect_ops_metrics(db: AsyncSession) -> dict:
         "hitl_wait_runs": hitl_runs,
         "runs_last_7d": runs_last_7d,
         "invited_users": invited_users,
+        "active_entities": invited_users,
         "invite_codes_issued": invite_codes_issued,
         "success_rate_pct": success_rate,
         "avg_pipeline_cost_usd": round(total_cost_usd / total_runs, 4) if total_runs else 0.0,
         "total_cost_usd": round(total_cost_usd, 4),
         "avg_node_latency_ms": int(avg_lat) if avg_lat else None,
         "p50_node_latency_ms": int(p50_lat) if p50_lat else None,
-        "p95_node_latency_ms": int(p95_lat) if p95_lat else None,
+        "p95_node_latency_ms": p95,
+        "p95_latency_ms": p95,
         "slo": {
             "target_uptime_pct": SLO_TARGET_UPTIME_PCT,
+            "success_target_pct": SLO_PIPELINE_SUCCESS_TARGET_PCT,
             "pipeline_success_target_pct": SLO_PIPELINE_SUCCESS_TARGET_PCT,
             "pipeline_success_meets_slo": success_rate >= SLO_PIPELINE_SUCCESS_TARGET_PCT,
         },
