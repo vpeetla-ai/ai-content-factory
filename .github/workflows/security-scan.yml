@@ -1,0 +1,54 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  devsecops:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Semgrep SAST
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: p/python p/secrets p/owasp-top-ten
+        continue-on-error: true
+
+      - name: Save Semgrep results
+        if: always()
+        run: |
+          mkdir -p security-reports
+          if [ -f semgrep.json ]; then cp semgrep.json security-reports/; else echo '{"results":[]}' > security-reports/semgrep.json; fi
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: json
+          output: security-reports/trivy.json
+          severity: CRITICAL,HIGH,MEDIUM
+        continue-on-error: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: LLM risk synthesis
+        run: python scripts/security_risk_report.py security-reports
+
+      - name: Upload risk assessment
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-risk-assessment
+          path: security-reports/risk-assessment.json
+
+      - name: PR comment (summary)
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## Security risk assessment" >> "$GITHUB_STEP_SUMMARY"
+          cat security-reports/risk-assessment.json >> "$GITHUB_STEP_SUMMARY"

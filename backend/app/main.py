@@ -15,6 +15,7 @@ from sqlalchemy import text
 from app.vpeetla_observability.middleware import TraceRequestMiddleware
 
 from app.api.routes.auth import auth_router, users_router
+from app.api.routes.ops import router as ops_router
 from app.api.routes.oauth import router as oauth_router
 from app.core.database import async_session_factory
 from app.api.routes.content import router as content_router
@@ -70,6 +71,7 @@ api.include_router(content_router)
 api.include_router(auth_router)
 api.include_router(users_router)
 api.include_router(oauth_router)
+api.include_router(ops_router)
 
 app.mount("/api/v1", api)
 

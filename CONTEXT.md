@@ -42,7 +42,7 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 | aegisai-enterprise-agent-platform | 200 | ✅ | — |
 | domainforge-rag-peft | 302→SSO | ❌ | **Disable Vercel Deployment Protection** (API healthy) |
 | voiceforge-assistant | 302→SSO | ❌ | **Disable Vercel Deployment Protection** (API healthy) |
-| ai-content-factory-iota | 404 at `/`, 200 at `/sign-in` | ⚠️ | Public landing route or link `/sign-in` (Clerk gates root; API healthy) |
+| ai-content-factory-iota | 200 at `/` (public landing), `/dashboard` app | ✅ | Public landing + Clerk dashboard |
 
 > Backends healthy for all three flagged demos (`domainforge-api`, `voiceforge-api-eysb`, `acf-api-eub4` → `/health` 200). Blockers are Vercel/Clerk dashboard settings, not repo code — must be cleared before Weeks 2/4/8 LinkedIn posts.
 
@@ -52,7 +52,7 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 
 1. **API-key gates** on production write paths: VAP (`VAP_API_KEY`), Enterprise RAG ingest/answer, LoopForge repo-fix/HITL, Sentinel `POST /runs`, AegisLoop mission run/stream.
 2. **Trace-linked LLMOps** — Langfuse spans documented across VAP, ACF, Sentinel, LoopForge, Enterprise RAG; spec in `ai-architecture-portfolio/docs/TRACE_LINKED_OBSERVABILITY.md`.
-3. **Golden eval CI** — `golden-eval-registry` scorer runner; **2/6** suites wired as real CI gates (`enterprise_rag_platform`, `aegisloop-agentops-workbench`).
+3. **Golden eval CI** — `golden-eval-registry` scorer runner; **3/6** suites wired as real CI gates (`enterprise_rag_platform`, `aegisloop-agentops-workbench`, `ai-content-factory` graph_hitl).
 4. **Real FinOps** — new `agent-finops` service; AegisLoop meters via agent-finops (not character-count heuristics).
 5. **Real IaC paths** — AegisAI AWS ECS+Fargate+RDS Terraform; agent-finops GCP Cloud Run+Cloud SQL Terraform (ADR PaaS vs IaC trade-offs).
 6. **ACF publish** — real LinkedIn/X OAuth publish; invite-only signup; Medium/Substack/Instagram honestly gated.

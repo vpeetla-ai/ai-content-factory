@@ -1,229 +1,143 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth, UserButton } from "@clerk/nextjs";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { api, getToken, setToken } from "@/lib/api";
-import { getInviteCode, clearInviteCode } from "@/lib/invite";
-import { usePipelineStore, PublishResult } from "@/lib/store";
-import { usePipelineSocket } from "@/hooks/usePipelineSocket";
-import { usePipelineSSE } from "@/hooks/usePipelineSSE";
-import { PipelineForm } from "@/components/pipeline-form";
-import { AgentLog } from "@/components/agent-log";
-import { HITLReview } from "@/components/hitl-review";
-import { RunList } from "@/components/run-list";
-import { PublishResults } from "@/components/publish-results";
-import { ConnectAccounts } from "@/components/connect-accounts";
-import { isClerkEnabled } from "@/components/providers";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
-const PLATFORMS = ["linkedin", "substack", "medium", "x", "instagram"];
+type OpsMetrics = {
+  service: string;
+  total_runs: number;
+  completed_runs: number;
+  success_rate_pct: number;
+  invited_users: number;
+  avg_pipeline_latency_ms: number | null;
+  p95_node_latency_ms: number | null;
+  total_cost_usd: number;
+  slo: { target_uptime_pct: number; pipeline_success_target_pct: number };
+};
 
-function ClerkDashboard() {
-  const { getToken: getClerkToken, isLoaded, isSignedIn } = useAuth();
-  const [topic, setTopic] = useState("");
-  const [token, setAuthToken] = useState<string | null>(null);
-  const { activeRunId, status, agentLogs, publishResults, setActiveRun, setStatus, addLog } = usePipelineStore();
-  const effectiveToken = token || getToken();
-  usePipelineSocket(activeRunId, effectiveToken);
-  usePipelineSSE(activeRunId, effectiveToken);
-
-  const authMutation = useMutation({
-    mutationFn: async () => {
-      const clerkToken = await getClerkToken({ skipCache: true });
-      if (!clerkToken) throw new Error("Not signed in");
-      return api.auth.token(clerkToken, getInviteCode());
-    },
-    onSuccess: (data) => {
-      setToken(data.access_token);
-      setAuthToken(data.access_token);
-      clearInviteCode();
-      addLog("Authenticated via Clerk");
-    },
-  });
-
-  const runMutation = useMutation({
-    mutationFn: () => api.pipelines.run(topic, PLATFORMS),
-    onSuccess: (data) => {
-      setActiveRun(data.run_id);
-      setStatus(data.status);
-      addLog(`Pipeline started: ${data.run_id}`);
-    },
-  });
-
-  const { data: runs } = useQuery({
-    queryKey: ["pipelines"],
-    queryFn: () => api.pipelines.list(),
-    enabled: !!getToken(),
-  });
-
-  const handleStart = async () => {
-    if (!getToken()) await authMutation.mutateAsync();
-    await runMutation.mutateAsync();
-  };
-
-  if (!isLoaded) {
-    return <LoadingScreen />;
+async function fetchOpsMetrics(): Promise<OpsMetrics | null> {
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1$/, "") || "http://localhost:8000";
+  try {
+    const res = await fetch(`${base}/api/v1/ops/metrics`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
   }
-
-  if (!isSignedIn) {
-    return (
-      <main className="min-h-screen p-6 flex flex-col items-center justify-center gap-4">
-        <h1 className="text-xl font-bold">AI Content Factory</h1>
-        <p className="text-muted">Sign in to start the content pipeline.</p>
-        <a href="/sign-in" className="px-4 py-2 rounded-lg bg-accent text-white">
-          Sign in
-        </a>
-      </main>
-    );
-  }
-
-  return (
-    <DashboardShell
-      topic={topic}
-      onTopicChange={setTopic}
-      onStart={handleStart}
-      loading={runMutation.isPending || authMutation.isPending}
-      agentLogs={agentLogs}
-      publishResults={publishResults}
-      status={status}
-      activeRunId={activeRunId}
-      runs={runs || []}
-      onSelectRun={setActiveRun}
-      onHitlComplete={() => setStatus("running")}
-      headerRight={<UserButton afterSignOutUrl="/sign-in" />}
-    />
-  );
 }
 
-function DevDashboard() {
-  const [topic, setTopic] = useState("");
-  const [token, setAuthToken] = useState<string | null>(null);
-  const { activeRunId, status, agentLogs, publishResults, setActiveRun, setStatus, addLog } = usePipelineStore();
-  const effectiveToken = token || getToken();
-  usePipelineSocket(activeRunId, effectiveToken);
-  usePipelineSSE(activeRunId, effectiveToken);
-
-  const authMutation = useMutation({
-    mutationFn: () => api.auth.token("dev@acf.local"),
-    onSuccess: (data) => {
-      setToken(data.access_token);
-      setAuthToken(data.access_token);
-      addLog("Authenticated (local dev mode)");
-    },
+export default function LandingPage() {
+  const { data: metrics } = useQuery({
+    queryKey: ["ops-metrics"],
+    queryFn: fetchOpsMetrics,
+    staleTime: 60_000,
   });
 
-  const runMutation = useMutation({
-    mutationFn: () => api.pipelines.run(topic, PLATFORMS),
-    onSuccess: (data) => {
-      setActiveRun(data.run_id);
-      setStatus(data.status);
-      addLog(`Pipeline started: ${data.run_id}`);
-    },
-  });
-
-  const { data: runs } = useQuery({
-    queryKey: ["pipelines"],
-    queryFn: () => api.pipelines.list(),
-    enabled: !!getToken(),
-  });
-
-  const handleStart = async () => {
-    if (!getToken()) await authMutation.mutateAsync();
-    await runMutation.mutateAsync();
-  };
-
   return (
-    <DashboardShell
-      topic={topic}
-      onTopicChange={setTopic}
-      onStart={handleStart}
-      loading={runMutation.isPending || authMutation.isPending}
-      agentLogs={agentLogs}
-      publishResults={publishResults}
-      status={status}
-      activeRunId={activeRunId}
-      runs={runs || []}
-      onSelectRun={setActiveRun}
-      onHitlComplete={() => setStatus("running")}
-      headerRight={
-        <span className="text-xs text-muted px-2 py-1 rounded bg-surface border border-border">
-          {typeof window !== "undefined" && window.location.hostname.includes("vercel.app")
-            ? "Demo — add Clerk keys in Vercel for sign-in"
-            : "Local dev"}
-        </span>
-      }
-    />
-  );
-}
-
-function LoadingScreen() {
-  return (
-    <main className="min-h-screen p-6 flex items-center justify-center">
-      <p className="text-muted">Loading...</p>
-    </main>
-  );
-}
-
-function DashboardShell({
-  topic,
-  onTopicChange,
-  onStart,
-  loading,
-  agentLogs,
-  publishResults,
-  status,
-  activeRunId,
-  runs,
-  onSelectRun,
-  onHitlComplete,
-  headerRight,
-}: {
-  topic: string;
-  onTopicChange: (v: string) => void;
-  onStart: () => void;
-  loading: boolean;
-  agentLogs: string[];
-  publishResults: PublishResult[];
-  status: string | null;
-  activeRunId: string | null;
-  runs: Array<{ run_id: string; status: string; topic: string }>;
-  onSelectRun: (id: string) => void;
-  onHitlComplete: () => void;
-  headerRight: React.ReactNode;
-}) {
-  return (
-    <main className="min-h-screen bg-bg p-6 max-w-6xl mx-auto">
-      <header className="mb-8 flex items-center justify-between gap-3 sticky top-0 z-10 bg-bg/90 backdrop-blur py-2 -mx-2 px-2">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-teal flex items-center justify-center font-bold text-white">
-            ⚡
+    <main className="min-h-screen bg-bg text-fg">
+      <header className="border-b border-border">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-accent to-teal flex items-center justify-center font-bold text-white text-sm">
+              ⚡
+            </div>
+            <span className="font-semibold">AI Content Factory</span>
           </div>
-          <div>
-            <h1 className="text-xl font-bold">AI Content Factory</h1>
-            <p className="text-sm text-muted">Multi-Agent · HITL · Production</p>
-          </div>
+          <nav className="flex items-center gap-4 text-sm">
+            <a
+              href="https://github.com/vpeetla-ai/ai-content-factory"
+              className="text-muted hover:text-fg"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            <Link href="/sign-in" className="px-3 py-1.5 rounded-lg bg-accent text-white font-medium">
+              Sign in
+            </Link>
+          </nav>
         </div>
-        {headerRight}
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <PipelineForm topic={topic} onTopicChange={onTopicChange} onStart={onStart} loading={loading} />
-          <AgentLog logs={agentLogs} status={status} runId={activeRunId} />
-          {status === "hitl_wait" && activeRunId && (
-            <HITLReview runId={activeRunId} onComplete={onHitlComplete} />
-          )}
-          <PublishResults results={publishResults} />
+      <section className="max-w-5xl mx-auto px-6 py-16">
+        <p className="text-accent text-sm font-medium mb-3">Governed multi-agent content pipeline</p>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 max-w-3xl">
+          One topic → five platform drafts → human approval → governed publish
+        </h1>
+        <p className="text-lg text-muted max-w-2xl mb-8">
+          LangGraph orchestration, RAG research, HITL gates, AegisAI gateway, and trace-linked
+          observability — not a single-prompt wrapper.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/sign-in" className="px-5 py-2.5 rounded-lg bg-accent text-white font-medium">
+            Try the demo
+          </Link>
+          <Link href="/dashboard" className="px-5 py-2.5 rounded-lg border border-border hover:bg-surface">
+            Open dashboard
+          </Link>
+          <a
+            href="https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/ai-content-factory.md"
+            className="px-5 py-2.5 rounded-lg border border-border hover:bg-surface"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Case study
+          </a>
         </div>
-        <div className="space-y-6">
-          <ConnectAccounts />
-          <RunList runs={runs} onSelect={onSelectRun} />
+      </section>
+
+      <section className="max-w-5xl mx-auto px-6 pb-12">
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { title: "Research + RAG", body: "Hybrid retrieval grounds drafts before generation." },
+            { title: "HITL before publish", body: "interrupt_before gate — humans approve every platform." },
+            { title: "Trace-linked LLMOps", body: "Langfuse spans at system, trace, and node levels." },
+          ].map((card) => (
+            <div key={card.title} className="p-5 rounded-xl border border-border bg-surface">
+              <h3 className="font-semibold mb-2">{card.title}</h3>
+              <p className="text-sm text-muted">{card.body}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
+
+      {metrics && (
+        <section className="max-w-5xl mx-auto px-6 pb-16">
+          <h2 className="text-sm font-medium text-muted uppercase tracking-wide mb-4">Production metrics</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <MetricCard label="Pipeline runs" value={String(metrics.total_runs)} />
+            <MetricCard label="Success rate" value={`${metrics.success_rate_pct}%`} />
+            <MetricCard
+              label="P95 node latency"
+              value={metrics.p95_node_latency_ms != null ? `${metrics.p95_node_latency_ms}ms` : "—"}
+            />
+            <MetricCard label="Invited users" value={String(metrics.invited_users)} />
+          </div>
+          <p className="text-xs text-muted mt-3">
+            Live from <code className="text-accent">/api/v1/ops/metrics</code> · SLO target{" "}
+            {metrics.slo.pipeline_success_target_pct}% pipeline success
+          </p>
+        </section>
+      )}
+
+      <footer className="border-t border-border py-8">
+        <div className="max-w-5xl mx-auto px-6 flex flex-wrap gap-4 text-sm text-muted">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <a href="https://venkat-ai.com/work" target="_blank" rel="noopener noreferrer">
+            Portfolio
+          </a>
+        </div>
+      </footer>
     </main>
   );
 }
 
-export default function DashboardPage() {
-  return isClerkEnabled ? <ClerkDashboard /> : <DevDashboard />;
+function MetricCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="p-4 rounded-xl border border-border bg-surface">
+      <p className="text-xs text-muted mb-1">{label}</p>
+      <p className="text-2xl font-bold">{value}</p>
+    </div>
+  );
 }

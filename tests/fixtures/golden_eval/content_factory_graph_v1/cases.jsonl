@@ -1,0 +1,2 @@
+{"id":"acf-hitl-001","kind":"graph_hitl","fixture_ref":"states/hitl_approved.json","input":{"state_ref":"states/hitl_approved.json"},"expect":{"published_platforms":["linkedin","x"],"skipped_platforms":[],"requires_hitl_before_publish":true}}
+{"id":"acf-hitl-002","kind":"graph_hitl","fixture_ref":"states/hitl_skip_x.json","input":{"state_ref":"states/hitl_skip_x.json"},"expect":{"published_platforms":["linkedin"],"skipped_platforms":["x"],"requires_hitl_before_publish":true}}

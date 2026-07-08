@@ -250,9 +250,14 @@ flowchart LR
 | Pytest (graph + HITL + gateway) | ✅ |
 | MCP tool bridge (in-process) | ✅ | See [docs/MCP.md](docs/MCP.md) |
 | Render + Vercel deploy | ✅ (configure secrets) |
-| Platform publish OAuth | 🟡 Mock adapters (wire tokens next) |
+| Platform publish OAuth | 🟡 LinkedIn/X real; Medium/Substack/IG copy-draft |
 | Cloudflare R2 media | 🟡 Config ready, upload pending |
 | AegisAI gateway (publish path) | 🟡 Integration code; mock publish adapters today |
+| Public ops metrics API | ✅ | `GET /api/v1/ops/metrics` |
+| Golden eval CI gate (graph_hitl) | ✅ | `scripts/run_golden_eval_graph.py` |
+| DevSecOps pipeline (Semgrep+Trivy) | ✅ | `.github/workflows/security-scan.yml` |
+| AWS reference architectures (×6) | ✅ | `docs/reference-architectures/` + `infra/aws/` |
+| Public landing page | ✅ | `/` marketing · `/dashboard` app |
 
 ---
 
@@ -287,6 +292,9 @@ Base URL: `/api/v1`
 | GET | `/hitl/{id}/review` | HITL drafts |
 | POST | `/hitl/{id}/approve` | Approve + resume |
 | GET | `/content/{id}/drafts` | Content drafts |
+| GET | `/ops/metrics` | Public anonymized ops metrics (SLO dashboard) |
+
+**Ops & architecture:** [SLO](docs/SLO.md) · [SCALE](docs/SCALE.md) · [DevSecOps](docs/DEVSECOPS.md) · [FinOps](docs/FINOPS.md) · [Reference architectures](docs/reference-architectures/) · [Grade A tracker](docs/PORTFOLIO_GRADE_A.md)
 
 Interactive docs (local only): http://localhost:8000/docs
 
