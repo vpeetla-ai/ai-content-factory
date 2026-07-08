@@ -52,7 +52,7 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 
 1. **API-key gates** on production write paths: VAP (`VAP_API_KEY`), Enterprise RAG ingest/answer, LoopForge repo-fix/HITL, Sentinel `POST /runs`, AegisLoop mission run/stream.
 2. **Trace-linked LLMOps** — Langfuse spans documented across VAP, ACF, Sentinel, LoopForge, Enterprise RAG; spec in `ai-architecture-portfolio/docs/TRACE_LINKED_OBSERVABILITY.md`.
-3. **Golden eval CI** — `golden-eval-registry` scorer runner; **3/6** suites wired as real CI gates (`enterprise_rag_platform`, `aegisloop-agentops-workbench`, `ai-content-factory` graph_hitl).
+3. **Golden eval CI** — `golden-eval-registry` scorer runner; **6/6** suites wired as real CI gates (all suite kinds).
 4. **Real FinOps** — new `agent-finops` service; AegisLoop meters via agent-finops (not character-count heuristics).
 5. **Real IaC paths** — AegisAI AWS ECS+Fargate+RDS Terraform; agent-finops GCP Cloud Run+Cloud SQL Terraform (ADR PaaS vs IaC trade-offs).
 6. **ACF publish** — real LinkedIn/X OAuth publish; invite-only signup; Medium/Substack/Instagram honestly gated.

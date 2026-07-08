@@ -29,7 +29,7 @@ Maps [Principal AI Architect evaluation dimensions](./content/portfolio-grade-ev
 |------|-------|--------|
 | DomainForge/VoiceForge Vercel SSO off | Vercel dashboard | Manual |
 | `venkat-ai-portfolio/data/metrics.ts` sync | venkat-ai-portfolio | Manual |
-| Wire remaining 4/6 golden suites in other repos | Per-repo CI | Roadmap |
+| Wire remaining 4/6 golden suites in other repos | Per-repo CI | ✅ Done locally — commit + push needed |
 | GitHub Deploy workflow | This repo | ✅ Fixed — no `secrets` in `if:` |
 
 ## Verify locally
