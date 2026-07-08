@@ -8,6 +8,9 @@ concurrency:
   group: production-deploy
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   ci-gate:
     uses: ./.github/workflows/ci.yml
@@ -19,18 +22,16 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Trigger Render deploy
-        if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
-          curl -fsS -X POST "$RENDER_DEPLOY_HOOK"
+          if [ -z "${RENDER_DEPLOY_HOOK}" ]; then
+            echo "::warning::RENDER_DEPLOY_HOOK secret not set — configure in GitHub repo secrets"
+            echo "See docs/DEPLOYMENT.md for setup instructions"
+            exit 0
+          fi
+          curl -fsS -X POST "${RENDER_DEPLOY_HOOK}"
           echo "Render deploy triggered"
-
-      - name: Skip Render (no hook configured)
-        if: ${{ secrets.RENDER_DEPLOY_HOOK == '' }}
-        run: |
-          echo "::warning::RENDER_DEPLOY_HOOK secret not set — configure in GitHub repo secrets"
-          echo "See docs/DEPLOYMENT.md for setup instructions"
 
   deploy-frontend:
     name: Deploy Frontend (Vercel)
@@ -40,18 +41,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Vercel
-        if: ${{ secrets.VERCEL_TOKEN != '' }}
-        uses: amondnet/vercel-action@v25
+      - uses: actions/setup-node@v4
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: frontend
-          vercel-args: "--prod"
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
-      - name: Skip Vercel (no token configured)
-        if: ${{ secrets.VERCEL_TOKEN == '' }}
+      - name: Deploy to Vercel
+        working-directory: frontend
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          echo "::warning::VERCEL_TOKEN secret not set — configure in GitHub repo secrets"
-          echo "See docs/DEPLOYMENT.md for setup instructions"
+          if [ -z "${VERCEL_TOKEN}" ] || [ -z "${VERCEL_ORG_ID}" ] || [ -z "${VERCEL_PROJECT_ID}" ]; then
+            echo "::warning::VERCEL_TOKEN / VERCEL_ORG_ID / VERCEL_PROJECT_ID not fully configured"
+            echo "See docs/DEPLOYMENT.md for setup instructions"
+            exit 0
+          fi
+          npm ci
+          npx vercel@latest deploy --prod --token "${VERCEL_TOKEN}" --yes
