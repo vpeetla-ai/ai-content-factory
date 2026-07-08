@@ -24,15 +24,16 @@ jobs:
           mkdir -p security-reports
           if [ -f semgrep.json ]; then cp semgrep.json security-reports/; else echo '{"results":[]}' > security-reports/semgrep.json; fi
 
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          trivy --version
+
       - name: Trivy filesystem scan
-        uses: aquasecurity/trivy-action@0.24.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: json
-          output: security-reports/trivy.json
-          severity: CRITICAL,HIGH,MEDIUM
         continue-on-error: true
+        run: |
+          mkdir -p security-reports
+          trivy fs --format json --output security-reports/trivy.json --severity CRITICAL,HIGH,MEDIUM . || echo '{"Results":[]}' > security-reports/trivy.json
 
       - uses: actions/setup-python@v5
         with:
