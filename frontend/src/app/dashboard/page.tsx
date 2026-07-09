@@ -16,6 +16,9 @@ import { PublishResults } from "@/components/publish-results";
 import { ConnectAccounts } from "@/components/connect-accounts";
 import { isClerkEnabled } from "@/components/providers";
 import Link from "next/link";
+import { ArchitectOverview } from "@/components/ArchitectOverview";
+import { ProductWorkbench } from "@/components/ProductWorkbench";
+import { ACF_ARCHITECTURE_PROPS } from "@/lib/workbench-config";
 
 const PLATFORMS = ["linkedin", "substack", "medium", "x", "instagram"];
 
@@ -193,35 +196,29 @@ function DashboardShell({
   headerRight: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-bg p-6 max-w-6xl mx-auto">
-      <header className="mb-8 flex items-center justify-between gap-3 sticky top-0 z-10 bg-bg/90 backdrop-blur py-2 -mx-2 px-2">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-teal flex items-center justify-center font-bold text-white">
-            ⚡
-          </Link>
-          <div>
-            <h1 className="text-xl font-bold">AI Content Factory</h1>
-            <p className="text-sm text-muted">Multi-Agent · HITL · Production</p>
+    <ProductWorkbench
+      eyebrow="Governed multi-agent content pipeline"
+      productName="AI Content Factory"
+      subtitle="Run the pipeline, review HITL gates, and publish through AegisAI — architecture and live metrics on the second tab."
+      headerActions={headerRight}
+      productPanel={
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <PipelineForm topic={topic} onTopicChange={onTopicChange} onStart={onStart} loading={loading} />
+            <AgentLog logs={agentLogs} status={status} runId={activeRunId} />
+            {status === "hitl_wait" && activeRunId && (
+              <HITLReview runId={activeRunId} onComplete={onHitlComplete} />
+            )}
+            <PublishResults results={publishResults} />
+          </div>
+          <div className="space-y-6">
+            <ConnectAccounts />
+            <RunList runs={runs} onSelect={onSelectRun} />
           </div>
         </div>
-        {headerRight}
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <PipelineForm topic={topic} onTopicChange={onTopicChange} onStart={onStart} loading={loading} />
-          <AgentLog logs={agentLogs} status={status} runId={activeRunId} />
-          {status === "hitl_wait" && activeRunId && (
-            <HITLReview runId={activeRunId} onComplete={onHitlComplete} />
-          )}
-          <PublishResults results={publishResults} />
-        </div>
-        <div className="space-y-6">
-          <ConnectAccounts />
-          <RunList runs={runs} onSelect={onSelectRun} />
-        </div>
-      </div>
-    </main>
+      }
+      architecturePanel={<ArchitectOverview {...ACF_ARCHITECTURE_PROPS} />}
+    />
   );
 }
 

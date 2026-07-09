@@ -26,6 +26,11 @@ export type Tradeoff = {
   trade: string;
 };
 
+export type AdrLink = {
+  title: string;
+  href: string;
+};
+
 type MetricLabels = {
   runs?: string;
   entities?: string;
@@ -39,6 +44,8 @@ type Props = {
   metricsUrl: string;
   metricLabels?: MetricLabels;
   eagleEyeNote?: string;
+  adrLinks?: AdrLink[];
+  docsLinks?: AdrLink[];
 };
 
 export function ArchitectOverview({
@@ -48,6 +55,8 @@ export function ArchitectOverview({
   metricsUrl,
   metricLabels,
   eagleEyeNote,
+  adrLinks,
+  docsLinks,
 }: Props) {
   const [metrics, setMetrics] = useState<OpsMetrics | null>(null);
 
@@ -114,6 +123,39 @@ export function ArchitectOverview({
           ))}
         </div>
       </section>
+
+      {adrLinks?.length || docsLinks?.length ? (
+        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <SectionLabel>Architecture record</SectionLabel>
+          <h2 className="text-lg font-semibold text-slate-900">ADRs, case studies, and SLOs</h2>
+          <ul className="mt-4 space-y-2">
+            {adrLinks?.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                >
+                  {link.title} →
+                </a>
+              </li>
+            ))}
+            {docsLinks?.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-slate-600 hover:text-slate-900"
+                >
+                  {link.title} →
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <SectionLabel>Production metrics</SectionLabel>
