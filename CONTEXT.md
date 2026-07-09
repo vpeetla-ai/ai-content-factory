@@ -40,11 +40,13 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 | demo-omega-taupe (LoopForge) | 200 | ✅ | — |
 | sentinel-brief-ruddy | 200 | ✅ | — |
 | aegisai-enterprise-agent-platform | 200 | ✅ | — |
-| domainforge-rag-peft | 200 | ✅ | Canonical `domainforge-rag-peft.vercel.app` live (Jul 8 2026) |
+| domainforge-rag-peft | 200 | ✅ | Canonical `domainforge-rag-peft.vercel.app` live (Jul 8 2026); `/bench` 200 |
 | voiceforge-assistant | 200 | ✅ | Canonical `voiceforge-assistant.vercel.app` live (Jul 8 2026) |
+| agent-finops | 200 UI | ⚠️ | UI live; **Render API `agent-finops.onrender.com` 404** — redeploy Blueprint |
+| demo-omega-taupe (LoopForge) | 200 | ✅ | Architect workbench redeployed (Jul 8 2026) |
 | ai-content-factory-iota | 200 at `/` (public landing), `/dashboard` app | ✅ | Public landing + Clerk dashboard |
 
-> DomainForge + VoiceForge public again after Vercel domain remapping. Remaining optional: Agent FinOps Vercel project if still 404; LoopForge `demo-omega-taupe` asset redeploy if needed.
+> DomainForge + VoiceForge + LoopForge UIs public. **Remaining blocker:** Agent FinOps Render API — import Blueprint from `vpeetla-ai/agent-finops` (service name `agent-finops-api`) and confirm `https://agent-finops.onrender.com/health` → 200.
 
 ---
 
