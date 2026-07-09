@@ -5,14 +5,24 @@
 :root {
   --bg: #f4f6fb;
   --surface: #ffffff;
-  --accent: #2563eb;
+  --accent: #0d9488;
   --teal: #0d9488;
 }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse 90% 55% at 8% -10%, rgb(13 148 136 / 0.12), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 92% 0%, rgb(37 99 235 / 0.06), transparent 50%),
+    var(--bg);
   color: #0f172a;
   min-height: 100vh;
+}
+
+.workbench-shell {
+  background:
+    radial-gradient(ellipse 90% 55% at 8% -10%, rgb(13 148 136 / 0.12), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 92% 0%, rgb(37 99 235 / 0.06), transparent 50%),
+    #f4f6fb;
 }
 
 @layer components {
