@@ -40,11 +40,11 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 | demo-omega-taupe (LoopForge) | 200 | ✅ | — |
 | sentinel-brief-ruddy | 200 | ✅ | — |
 | aegisai-enterprise-agent-platform | 200 | ✅ | — |
-| domainforge-rag-peft | 302→SSO | ❌ | **Disable Vercel Deployment Protection** (API healthy) |
-| voiceforge-assistant | 302→SSO | ❌ | **Disable Vercel Deployment Protection** (API healthy) |
+| domainforge-rag-peft | 200 | ✅ | Canonical `domainforge-rag-peft.vercel.app` live (Jul 8 2026) |
+| voiceforge-assistant | 200 | ✅ | Canonical `voiceforge-assistant.vercel.app` live (Jul 8 2026) |
 | ai-content-factory-iota | 200 at `/` (public landing), `/dashboard` app | ✅ | Public landing + Clerk dashboard |
 
-> Backends healthy for all three flagged demos (`domainforge-api`, `voiceforge-api-eysb`, `acf-api-eub4` → `/health` 200). Blockers are Vercel/Clerk dashboard settings, not repo code — must be cleared before Weeks 2/4/8 LinkedIn posts.
+> DomainForge + VoiceForge public again after Vercel domain remapping. Remaining optional: Agent FinOps Vercel project if still 404; LoopForge `demo-omega-taupe` asset redeploy if needed.
 
 ---
 
