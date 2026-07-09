@@ -65,26 +65,29 @@ export function ArchitectOverview({
   };
 
   return (
-    <div className="space-y-12">
-      <section>
-        <p className="text-xs font-medium uppercase tracking-widest text-muted mb-2">Eagle-eye view</p>
-        <h2 className="text-2xl font-bold mb-2">Architecture at a glance</h2>
-        <p className="text-muted max-w-3xl mb-6">{tagline}</p>
-        {eagleEyeNote && <p className="text-sm text-accent mb-6">{eagleEyeNote}</p>}
-        <div className="grid gap-3">
+    <div className="space-y-10">
+      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <SectionLabel>Eagle-eye architecture</SectionLabel>
+        <h2 className="text-lg font-semibold text-slate-900">How the system is wired</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">{tagline}</p>
+        {eagleEyeNote ? <p className="mt-3 text-sm font-medium text-blue-700">{eagleEyeNote}</p> : null}
+        <div className="mt-6 grid gap-3">
           {layers.map((layer) => (
             <div
               key={layer.name}
-              className="grid md:grid-cols-[88px_140px_1fr] gap-3 p-4 rounded-xl border border-border bg-surface items-start"
+              className="grid items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/80 p-4 md:grid-cols-[72px_160px_1fr]"
             >
-              <span className="text-xs font-semibold uppercase tracking-wide text-accent">{layer.tier}</span>
+              <span className="text-[0.65rem] font-bold uppercase tracking-wider text-blue-700">{layer.tier}</span>
               <div>
-                <p className="font-semibold">{layer.name}</p>
-                <p className="text-xs text-muted mt-0.5">{layer.role}</p>
+                <p className="font-semibold text-slate-900">{layer.name}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{layer.role}</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {layer.components.map((c) => (
-                  <span key={c} className="text-xs px-2 py-0.5 rounded-md bg-bg border border-border text-muted">
+                  <span
+                    key={c}
+                    className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-600"
+                  >
                     {c}
                   </span>
                 ))}
@@ -94,52 +97,62 @@ export function ArchitectOverview({
         </div>
       </section>
 
-      <section>
-        <p className="text-xs font-medium uppercase tracking-widest text-muted mb-2">Principal tradeoffs</p>
-        <h2 className="text-2xl font-bold mb-4">Decisions, not defaults</h2>
-        <div className="grid md:grid-cols-2 gap-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <SectionLabel>Principal tradeoffs</SectionLabel>
+        <h2 className="text-lg font-semibold text-slate-900">Decisions with explicit costs</h2>
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
           {tradeoffs.map((t) => (
-            <div key={t.decision} className="p-5 rounded-xl border border-border bg-surface">
-              <p className="font-semibold mb-2">{t.decision}</p>
-              <p className="text-sm text-muted">
-                <span className="text-teal font-medium">Gain:</span> {t.gain}
+            <div key={t.decision} className="rounded-lg border border-slate-100 bg-slate-50/50 p-4">
+              <p className="font-semibold text-slate-900">{t.decision}</p>
+              <p className="mt-2 text-sm text-slate-600">
+                <span className="font-semibold text-emerald-700">Gain</span> — {t.gain}
               </p>
-              <p className="text-sm text-muted mt-1">
-                <span className="text-amber-400/90 font-medium">Trade:</span> {t.trade}
+              <p className="mt-1 text-sm text-slate-600">
+                <span className="font-semibold text-amber-700">Trade</span> — {t.trade}
               </p>
             </div>
           ))}
         </div>
       </section>
 
-      {metrics && (
-        <section>
-          <p className="text-xs font-medium uppercase tracking-widest text-muted mb-2">Production metrics</p>
-          <h2 className="text-2xl font-bold mb-4">Live from the API — not slide-deck numbers</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <MetricCard label={labels.runs} value={String(metrics.total_runs)} />
-            <MetricCard label="Success rate" value={`${metrics.success_rate_pct}%`} />
-            <MetricCard
-              label={labels.latency}
-              value={metrics.p95_latency_ms != null ? `${metrics.p95_latency_ms}ms` : "—"}
-            />
-            <MetricCard label={labels.entities} value={String(metrics.active_entities)} />
-          </div>
-          <p className="text-xs text-muted mt-3">
-            Live from <code className="text-accent">{metricsUrl.replace(/^https?:\/\/[^/]+/, "")}</code> · SLO target{" "}
-            {metrics.slo.success_target_pct}% success · {metrics.slo.target_uptime_pct}% uptime
-          </p>
-        </section>
-      )}
+      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <SectionLabel>Production metrics</SectionLabel>
+        <h2 className="text-lg font-semibold text-slate-900">Live operational proof</h2>
+        {metrics ? (
+          <>
+            <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
+              <MetricCard label={labels.runs} value={String(metrics.total_runs)} />
+              <MetricCard label="Success rate" value={`${metrics.success_rate_pct}%`} />
+              <MetricCard
+                label={labels.latency}
+                value={metrics.p95_latency_ms != null ? `${metrics.p95_latency_ms}ms` : "—"}
+              />
+              <MetricCard label={labels.entities} value={String(metrics.active_entities)} />
+            </div>
+            <p className="mt-4 font-mono text-xs text-slate-500">
+              {metricsUrl.replace(/^https?:\/\/[^/]+/, "")} · SLO {metrics.slo.success_target_pct}% success ·{" "}
+              {metrics.slo.target_uptime_pct}% uptime target
+            </p>
+          </>
+        ) : (
+          <p className="mt-4 text-sm text-slate-500">Loading metrics or API is waking from idle…</p>
+        )}
+      </section>
     </div>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mb-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-slate-500">{children}</p>
   );
 }
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="p-4 rounded-xl border border-border bg-surface">
-      <p className="text-xs text-muted mb-1">{label}</p>
-      <p className="text-2xl font-bold">{value}</p>
+    <div className="rounded-lg border border-slate-100 bg-slate-50 p-4">
+      <p className="text-xs font-medium text-slate-500">{label}</p>
+      <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{value}</p>
     </div>
   );
 }
@@ -155,17 +168,13 @@ function normalizeMetrics(data: Record<string, unknown>): OpsMetrics {
     service: String(data.service ?? "unknown"),
     collected_at: data.collected_at as string | undefined,
     total_runs: Number(data.total_runs ?? data.sample_size ?? data.total ?? 0),
-    success_rate_pct: Number(
-      data.success_rate_pct ?? (100 - Number(data.failure_rate_pct ?? 0))
-    ),
+    success_rate_pct: Number(data.success_rate_pct ?? 100 - Number(data.failure_rate_pct ?? 0)),
     p95_latency_ms:
       (data.p95_latency_ms as number | null) ??
       (data.p95_node_latency_ms as number | null) ??
       (data.p95_ms as number | null) ??
       null,
-    active_entities: Number(
-      data.active_entities ?? data.invited_users ?? data.active_users ?? 0
-    ),
+    active_entities: Number(data.active_entities ?? data.invited_users ?? data.active_users ?? 0),
     slo: {
       target_uptime_pct: Number(sloRaw.target_uptime_pct ?? 99.5),
       success_target_pct: successTarget,
