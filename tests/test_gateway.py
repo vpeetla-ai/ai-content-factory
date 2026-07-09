@@ -22,6 +22,22 @@ async def test_authorize_publish_fail_open_when_disabled():
 
 
 @pytest.mark.asyncio
+async def test_production_strict_blocks_when_gateway_disabled():
+    """ADR-024: PRODUCTION_STRICT requires a configured gateway for publish."""
+    with patch("app.integrations.aegis_gateway.get_settings") as mock_settings:
+        settings = mock_settings.return_value
+        settings.aegisai_api_base_url = ""
+        settings.aegisai_gateway_enabled = True
+        settings.aegisai_gateway_fail_open = True
+        settings.production_strict = True
+        with patch("app.integrations.aegis_gateway.gateway_enabled", return_value=False):
+            authz = await authorize_publish("linkedin", case_id="case-strict")
+    assert authz.allowed is False
+    assert authz.blocked is True
+    assert authz.reason == "production_strict_gateway_required"
+
+
+@pytest.mark.asyncio
 async def test_authorize_publish_blocks_on_gateway_deny():
     with patch("app.integrations.aegis_gateway.gateway_enabled", return_value=True):
         with patch("app.integrations.aegis_gateway.get_settings") as mock_settings:

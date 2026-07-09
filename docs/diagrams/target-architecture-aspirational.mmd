@@ -1,0 +1,90 @@
+%% Aspirational / target topology — NOT the deployed demo stack.
+%% Kept for scale planning. Implemented path: canonical-architecture.mmd
+flowchart TB
+    subgraph L0["L0 · Client"]
+        direction LR
+        NEXT["Next.js App Router"]
+        SPA["React SPA"]
+        MOB["Mobile"]
+    end
+
+    subgraph L1["L1 · Edge / CDN"]
+        direction LR
+        CF["Cloudflare CDN"]
+        VERCEL["Vercel Edge"]
+        AUTH_FE["Clerk · JWT"]
+    end
+
+    subgraph L2["L2 · API Gateway"]
+        direction LR
+        NGINX["NGINX / Traefik"]
+        RATE["Rate Limiter"]
+        LITELLM_GW["LiteLLM Router"]
+        WS_GW["WS Gateway"]
+    end
+
+    subgraph L3["L3 · Backend Services"]
+        direction LR
+        API_SVC["API Service"]
+        PIPE_SVC["Pipeline Service"]
+        HITL_SVC["HITL Service"]
+        PUB_SVC["Publisher Service"]
+        AUTH_SVC["Auth Service"]
+    end
+
+    subgraph L4["L4 · Agent Layer"]
+        direction LR
+        LG["LangGraph Engine"]
+        RES["Research"]
+        CONT["Content"]
+        SEO["SEO"]
+        VIS["Visual"]
+    end
+
+    subgraph L5["L5 · LLM Providers"]
+        direction LR
+        GEM["Gemini"]
+        GROQ["Groq"]
+        CER["Cerebras"]
+        HAIKU["Haiku"]
+        OLL["Ollama"]
+    end
+
+    subgraph L6["L6 · Data Layer"]
+        direction LR
+        PG["PostgreSQL"]
+        REDIS["Redis"]
+        VEC["Pinecone / Qdrant"]
+        R2["Object storage"]
+        LS["LangSmith"]
+    end
+
+    subgraph L7["L7 · Publish Targets"]
+        direction LR
+        LI["LinkedIn"]
+        SS["Substack"]
+        MD["Medium"]
+        IG["Instagram"]
+        X["X"]
+    end
+
+    subgraph L8["L8 · Observability"]
+        direction LR
+        LF["Langfuse"]
+        EVAL["Eval scores"]
+        GRAF["Grafana"]
+        SENTRY["Sentry"]
+        OTEL["OpenTelemetry"]
+    end
+
+    L0 --> L1
+    L1 --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L5
+    L4 --> L6
+    L3 --> L6
+    L3 --> L7
+    L3 -.-> L8
+    L4 -.-> L8
+    L5 -.-> L8

@@ -37,6 +37,13 @@ def gateway_enabled() -> bool:
     return bool(settings.aegisai_api_base_url and settings.aegisai_gateway_enabled)
 
 
+def _fail_open_allowed(settings) -> bool:
+    """ADR-024: PRODUCTION_STRICT ignores fail-open and denies on gateway errors."""
+    if getattr(settings, "production_strict", False):
+        return False
+    return bool(settings.aegisai_gateway_fail_open)
+
+
 async def authorize_tool(
     *,
     tool_name: str,
@@ -47,6 +54,14 @@ async def authorize_tool(
 ) -> GatewayAuthz:
     settings = get_settings()
     if not gateway_enabled():
+        if getattr(settings, "production_strict", False):
+            return GatewayAuthz(
+                allowed=False,
+                requires_approval=False,
+                blocked=True,
+                decision="block",
+                reason="production_strict_gateway_required",
+            )
         return GatewayAuthz(
             allowed=True,
             requires_approval=False,
@@ -87,7 +102,7 @@ async def authorize_tool(
             data = response.json()
     except Exception as exc:  # noqa: BLE001
         logger.warning("AegisAI gateway unreachable: %s", exc)
-        if settings.aegisai_gateway_fail_open:
+        if _fail_open_allowed(settings):
             return GatewayAuthz(
                 allowed=True,
                 requires_approval=False,

@@ -127,6 +127,7 @@ Tracker: [ai-architecture-portfolio/docs/LINKEDIN_LAUNCH_PLAN.md](https://github
 - LoopForge **improves** configs/prompts; does not replace orchestration
 - AegisLoop **meters** via agent-finops; **delegates** to VAP via A2A when configured
 - Side effects (notify, publish, deploy, git push to protected branch) → **gateway or HITL** unless explicitly in local stub mode
+- **`PRODUCTION_STRICT=true`** (ADR-024) → fail-closed: gateway required, fail-open ignored; Enterprise RAG requires JWT Principal (ADR-0006)
 
 ---
 

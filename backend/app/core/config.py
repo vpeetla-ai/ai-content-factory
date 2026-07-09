@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # ── Environment ──────────────────────────────────────
     app_env: Literal["development", "production", "test"] = "development"
     app_name: str = "ai-content-factory"
+    # Org PRODUCTION_STRICT (ADR-024): fail-closed side effects when true.
+    production_strict: bool = False
     mock_llm: bool = True
     app_secret_key: str = "dev-secret-change-me"
     api_base_url: str = "http://localhost:8000/api/v1"
@@ -121,7 +123,13 @@ class Settings(BaseSettings):
     def cron_platform_list(self) -> list[str]:
         return [p.strip() for p in self.cron_platforms.split(",") if p.strip()]
 
-    @field_validator("aegisai_gateway_enabled", "aegisai_gateway_fail_open", "cron_pipeline_enabled", mode="before")
+    @field_validator(
+        "production_strict",
+        "aegisai_gateway_enabled",
+        "aegisai_gateway_fail_open",
+        "cron_pipeline_enabled",
+        mode="before",
+    )
     @classmethod
     def coerce_bool_flags(cls, value: object) -> bool:
         if isinstance(value, bool):
@@ -129,6 +137,13 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return value.strip().lower() in {"1", "true", "yes", "on"}
         return bool(value)
+
+    @model_validator(mode="after")
+    def enforce_production_strict(self) -> "Settings":
+        """ADR-024: PRODUCTION_STRICT forces fail-closed gateway on publish."""
+        if self.production_strict:
+            object.__setattr__(self, "aegisai_gateway_fail_open", False)
+        return self
 
     # ── Redis TTLs (seconds) ─────────────────────────────
     pipeline_state_ttl: int = 86400
