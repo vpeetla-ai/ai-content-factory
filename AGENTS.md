@@ -9,6 +9,11 @@ Read [CONTEXT.md](CONTEXT.md) for shared vocabulary.
 3. **Surgical changes** — match existing style; no drive-by refactors
 4. **Goal-driven execution** — tests/evals define done; iterate until pass
 
+## Principal UX (demos)
+
+When designing or polishing any demo UI, follow `.cursor/skills/principal-ux-architect/SKILL.md`:
+one primary CTA, no button soup, brand → home, Architecture skim &lt;30s with metrics Retry.
+
 ## Stack awareness
 
 This org builds **governed agent systems**, not chat demos:

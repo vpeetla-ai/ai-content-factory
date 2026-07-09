@@ -74,9 +74,14 @@ function ClerkDashboard() {
       <main className="min-h-screen p-6 flex flex-col items-center justify-center gap-4">
         <h1 className="text-xl font-bold">AI Content Factory</h1>
         <p className="text-muted">Sign in to start the content pipeline.</p>
-        <a href="/sign-in" className="px-4 py-2 rounded-lg bg-accent text-white">
-          Sign in
-        </a>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <a href="/sign-in?redirect_url=/dashboard" className="px-4 py-2 rounded-lg bg-accent text-white">
+            Sign in
+          </a>
+          <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+            ← Back to overview
+          </Link>
+        </div>
       </main>
     );
   }
@@ -94,7 +99,14 @@ function ClerkDashboard() {
       runs={runs || []}
       onSelectRun={setActiveRun}
       onHitlComplete={() => setStatus("running")}
-      headerRight={<UserButton afterSignOutUrl="/" />}
+      headerRight={
+        <div className="flex items-center gap-3">
+          <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+            ← Overview
+          </Link>
+          <UserButton afterSignOutUrl="/" />
+        </div>
+      }
     />
   );
 }
@@ -150,11 +162,16 @@ function DevDashboard() {
       onSelectRun={setActiveRun}
       onHitlComplete={() => setStatus("running")}
       headerRight={
-        <span className="text-xs text-muted px-2 py-1 rounded bg-surface border border-border">
-          {typeof window !== "undefined" && window.location.hostname.includes("vercel.app")
-            ? "Demo — add Clerk keys in Vercel for sign-in"
-            : "Local dev"}
-        </span>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+            ← Overview
+          </Link>
+          <span className="text-xs text-muted px-2 py-1 rounded bg-surface border border-border">
+            {typeof window !== "undefined" && window.location.hostname.includes("vercel.app")
+              ? "Demo — add Clerk keys in Vercel for sign-in"
+              : "Local dev"}
+          </span>
+        </div>
       }
     />
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type OpsMetrics = {
   service: string;
@@ -48,6 +48,8 @@ type Props = {
   docsLinks?: AdrLink[];
 };
 
+type MetricsState = "loading" | "live" | "failed";
+
 export function ArchitectOverview({
   tagline,
   layers,
@@ -59,13 +61,25 @@ export function ArchitectOverview({
   docsLinks,
 }: Props) {
   const [metrics, setMetrics] = useState<OpsMetrics | null>(null);
+  const [metricsState, setMetricsState] = useState<MetricsState>("loading");
+
+  const loadMetrics = useCallback(() => {
+    setMetricsState("loading");
+    fetch(metricsUrl, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((data) => {
+        setMetrics(normalizeMetrics(data));
+        setMetricsState("live");
+      })
+      .catch(() => {
+        setMetrics(null);
+        setMetricsState("failed");
+      });
+  }, [metricsUrl]);
 
   useEffect(() => {
-    fetch(metricsUrl, { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => data && setMetrics(normalizeMetrics(data)))
-      .catch(() => null);
-  }, [metricsUrl]);
+    loadMetrics();
+  }, [loadMetrics]);
 
   const labels = {
     runs: metricLabels?.runs ?? "Total runs",
@@ -73,20 +87,42 @@ export function ArchitectOverview({
     latency: metricLabels?.latency ?? "P95 latency",
   };
 
+  const hasDocs = Boolean(adrLinks?.length || docsLinks?.length);
+
   return (
-    <div className="space-y-10">
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="space-y-8">
+      <nav
+        className="sticky top-0 z-10 -mx-1 flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur"
+        aria-label="Architecture sections"
+      >
+        {[
+          { href: "#ao-stack", label: "Stack" },
+          { href: "#ao-tradeoffs", label: "Tradeoffs" },
+          ...(hasDocs ? [{ href: "#ao-adrs", label: "ADRs" }] : []),
+          { href: "#ao-metrics", label: "Metrics" },
+        ].map((item) => (
+          <a
+            key={item.href}
+            href={item.href}
+            className="rounded-md px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+
+      <section id="ao-stack" className="scroll-mt-16 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <SectionLabel>Eagle-eye architecture</SectionLabel>
         <h2 className="text-lg font-semibold text-slate-900">How the system is wired</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">{tagline}</p>
-        {eagleEyeNote ? <p className="mt-3 text-sm font-medium text-blue-700">{eagleEyeNote}</p> : null}
+        {eagleEyeNote ? <p className="mt-3 text-sm font-medium text-teal-700">{eagleEyeNote}</p> : null}
         <div className="mt-6 grid gap-3">
           {layers.map((layer) => (
             <div
               key={layer.name}
               className="grid items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/80 p-4 md:grid-cols-[72px_160px_1fr]"
             >
-              <span className="text-[0.65rem] font-bold uppercase tracking-wider text-blue-700">{layer.tier}</span>
+              <span className="text-[0.65rem] font-bold uppercase tracking-wider text-teal-700">{layer.tier}</span>
               <div>
                 <p className="font-semibold text-slate-900">{layer.name}</p>
                 <p className="mt-0.5 text-xs text-slate-500">{layer.role}</p>
@@ -106,7 +142,7 @@ export function ArchitectOverview({
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section id="ao-tradeoffs" className="scroll-mt-16 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <SectionLabel>Principal tradeoffs</SectionLabel>
         <h2 className="text-lg font-semibold text-slate-900">Decisions with explicit costs</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -124,8 +160,8 @@ export function ArchitectOverview({
         </div>
       </section>
 
-      {adrLinks?.length || docsLinks?.length ? (
-        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      {hasDocs ? (
+        <section id="ao-adrs" className="scroll-mt-16 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <SectionLabel>Architecture record</SectionLabel>
           <h2 className="text-lg font-semibold text-slate-900">ADRs, case studies, and SLOs</h2>
           <ul className="mt-4 space-y-2">
@@ -135,7 +171,7 @@ export function ArchitectOverview({
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                  className="text-sm font-medium text-teal-700 hover:text-teal-800"
                 >
                   {link.title} →
                 </a>
@@ -157,10 +193,10 @@ export function ArchitectOverview({
         </section>
       ) : null}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section id="ao-metrics" className="scroll-mt-16 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <SectionLabel>Production metrics</SectionLabel>
         <h2 className="text-lg font-semibold text-slate-900">Live operational proof</h2>
-        {metrics ? (
+        {metricsState === "live" && metrics ? (
           <>
             <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
               <MetricCard label={labels.runs} value={String(metrics.total_runs)} />
@@ -176,8 +212,21 @@ export function ArchitectOverview({
               {metrics.slo.target_uptime_pct}% uptime target
             </p>
           </>
+        ) : metricsState === "loading" ? (
+          <p className="mt-4 text-sm text-slate-500">Loading live metrics…</p>
         ) : (
-          <p className="mt-4 text-sm text-slate-500">Loading metrics or API is waking from idle…</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <p className="text-sm text-slate-600">
+              Metrics unavailable — API may be waking from idle (~30s on free tier).
+            </p>
+            <button
+              type="button"
+              onClick={loadMetrics}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Retry
+            </button>
+          </div>
         )}
       </section>
     </div>
