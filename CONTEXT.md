@@ -16,7 +16,7 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 | Knowledge + MLOps | How do we adapt models to domain format? | domainforge-rag-peft | [domainforge-rag-peft.vercel.app](https://domainforge-rag-peft.vercel.app) | `domainforge-api.onrender.com` |
 | Voice / Multimodal | How do we run real-time voice triage? | voiceforge-assistant | [voiceforge-assistant.vercel.app](https://voiceforge-assistant.vercel.app) | `voiceforge-api-eysb.onrender.com` |
 | AgentOps | How do we operate fleets? | aegisloop-agentops-workbench | [aegisloop-agentops-workbench.vercel.app](https://aegisloop-agentops-workbench.vercel.app) | `aegisloop-api.onrender.com` |
-| FinOps | What did agents cost? | agent-finops | [agent-finops.vercel.app](https://agent-finops.vercel.app) | `agent-finops.onrender.com` |
+| FinOps | What did agents cost? | agent-finops | [agent-finops.vercel.app](https://agent-finops.vercel.app) | `agent-finops-api.onrender.com` |
 | Application | What do they produce? | ai-content-factory | [ai-content-factory-iota.vercel.app](https://ai-content-factory-iota.vercel.app) | `acf-api-eub4.onrender.com` *(active)* |
 | Self-improvement | How do agents improve? | loop-engine-agent-platform | [demo-omega-taupe.vercel.app](https://demo-omega-taupe.vercel.app) | `loopforge-api.onrender.com` |
 | Inference education | How do we serve LLMs? | vllm-architecture-lab | [vllm-architecture-lab.vercel.app](https://vllm-architecture-lab.vercel.app) | `vllm-architecture-lab-api.onrender.com` |
@@ -42,11 +42,11 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 | aegisai-enterprise-agent-platform | 200 | ✅ | — |
 | domainforge-rag-peft | 200 | ✅ | Canonical `domainforge-rag-peft.vercel.app` live (Jul 8 2026); `/bench` 200 |
 | voiceforge-assistant | 200 | ✅ | Canonical `voiceforge-assistant.vercel.app` live (Jul 8 2026) |
-| agent-finops | 200 UI | ⚠️ | UI live; **Render API `agent-finops.onrender.com` 404** — redeploy Blueprint |
+| agent-finops | 200 | ✅ | UI + API live at `agent-finops-api.onrender.com` (Jul 8 2026) |
 | demo-omega-taupe (LoopForge) | 200 | ✅ | Architect workbench redeployed (Jul 8 2026) |
 | ai-content-factory-iota | 200 at `/` (public landing), `/dashboard` app | ✅ | Public landing + Clerk dashboard |
 
-> DomainForge + VoiceForge + LoopForge UIs public. **Remaining blocker:** Agent FinOps Render API — import Blueprint from `vpeetla-ai/agent-finops` (service name `agent-finops-api`) and confirm `https://agent-finops.onrender.com/health` → 200.
+> All core demos public (DomainForge, VoiceForge, LoopForge, Agent FinOps). Canonical FinOps API host is `agent-finops-api.onrender.com` (not `agent-finops.onrender.com`).
 
 ---
 
