@@ -219,7 +219,7 @@ Interactive docs (local only): http://localhost:8000/docs
 | [AegisAI](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | Agent governance control plane — gateway + HITL |
 | [Venkat AI Platform](https://github.com/vpeetla-ai/venkat-ai-platform) | Multi-agent personal OS — Chief orchestrator |
 | [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Governed RAG reference |
-| [Production Agent Patterns](https://github.com/vpeetla-ai/react-agent-pattern) | ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm |
+| [Curriculum Agent Patterns](https://github.com/vpeetla-ai/react-agent-pattern) | Teaching stubs — ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm |
 
 Built by [Venkata Peetla](https://github.com/vpeetla-ai) — [venkat-ai.com](https://venkat-ai.com) · [Substack](https://venkatapeetla.substack.com) · [Medium](https://medium.com/@vpeetla.ai)
 
