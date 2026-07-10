@@ -217,15 +217,15 @@ Interactive docs (local only): http://localhost:8000/docs
 
 **Business function:** Multi-agent content pipeline — research → drafts → HITL → publish (LinkedIn/X live).
 
-Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-interview-playbook) · [study UI](https://ai-architect-interview-playbook-9xs.vercel.app) · [Practice Arena](https://ai-architect-practice-arena.vercel.app) · [org matrix](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/REPO_INTERVIEW_MAP.md). Only entries this repo honestly exercises.
+Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-interview-playbook) · [study UI](https://ai-architect-interview-playbook.vercel.app) · [Practice Arena](https://ai-architect-practice-arena.vercel.app) · [org matrix](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/REPO_INTERVIEW_MAP.md). Only entries this repo honestly exercises.
 
 | Category | Entry | Fit |
 |----------|-------|-----|
-| System design | [Agent tool-use / orchestration](https://ai-architect-interview-playbook-9xs.vercel.app/q/ai-system-design/03-agent-tool-use-orchestration-platform) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/03-agent-tool-use-orchestration-platform.md)) | LangGraph pipeline + gateway publish |
-| General SD | [Job scheduler / task queue](https://ai-architect-interview-playbook-9xs.vercel.app/q/general-system-design/04-distributed-job-scheduler-task-queue) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/04-distributed-job-scheduler-task-queue.md)) | Partial — cron / pipeline runs |
-| General SD | [Notification system](https://ai-architect-interview-playbook-9xs.vercel.app/q/general-system-design/08-notification-system) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/08-notification-system.md)) | Partial — post-publish / ops signals |
-| Trade-offs | [Cost vs latency vs safety](https://ai-architect-interview-playbook-9xs.vercel.app/q/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety.md)) | HITL vs autonomy; model cost per run |
-| Behavioral | [Leading a 0→1 AI product](https://ai-architect-interview-playbook-9xs.vercel.app/q/behavioral/05-leading-a-0-to-1-ai-product-build) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/behavioral/05-leading-a-0-to-1-ai-product-build.md)) | Shipped application-layer product story |
+| System design | [Agent tool-use / orchestration](https://ai-architect-interview-playbook.vercel.app/q/ai-system-design/03-agent-tool-use-orchestration-platform/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/03-agent-tool-use-orchestration-platform.md)) | LangGraph pipeline + gateway publish |
+| General SD | [Job scheduler / task queue](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/04-distributed-job-scheduler-task-queue/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/04-distributed-job-scheduler-task-queue.md)) | Partial — cron / pipeline runs |
+| General SD | [Notification system](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/08-notification-system/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/08-notification-system.md)) | Partial — post-publish / ops signals |
+| Trade-offs | [Cost vs latency vs safety](https://ai-architect-interview-playbook.vercel.app/q/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety.md)) | HITL vs autonomy; model cost per run |
+| Behavioral | [Leading a 0→1 AI product](https://ai-architect-interview-playbook.vercel.app/q/behavioral/05-leading-a-0-to-1-ai-product-build/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/behavioral/05-leading-a-0-to-1-ai-product-build.md)) | Shipped application-layer product story |
 
 ## Related projects
 
