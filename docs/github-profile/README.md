@@ -3,7 +3,7 @@
 
 # Hi, I'm Venkata Peetla — Principal AI Architect
 
-> **16 live products** (11 production platforms + 5 curriculum pattern products) · **22 open-source repos** · **26 ADRs** — inspect before we talk.
+> **17 live products** (12 production platforms + 5 curriculum pattern products) · **23 open-source repos** · **27 ADRs** — inspect before we talk.
 
 [![Website](https://img.shields.io/badge/Website-venkat--ai.com-blue)](https://venkat-ai.com)
 [![Technical review](https://img.shields.io/badge/5--Min_Technical_Review-Start_here-5eead4)](https://venkat-ai.com/technical-review)
@@ -27,7 +27,7 @@
 
 ## Architecture portfolio
 
-**[ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio)** — **26 ADRs**, case studies, trade-offs, and stack map (incl. `PRODUCTION_STRICT`, NIST AI RMF, multi-tenant isolation).
+**[ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio)** — **27 ADRs**, case studies, trade-offs, and stack map (incl. `PRODUCTION_STRICT`, NIST AI RMF, multi-tenant isolation).
 
 → [Featured case studies](https://github.com/vpeetla-ai/ai-architecture-portfolio#featured-case-studies) · [LinkedIn launch plan](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/LINKEDIN_LAUNCH_PLAN.md) · [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) (CI regression gates) · [Top-1% 90-day backlog](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/TOP1PCT_90DAY_BACKLOG.md)
 
@@ -56,6 +56,12 @@ Inspired by [mattpocock/skills](https://github.com/mattpocock/skills) + [Karpath
 ---
 
 ## Top projects
+
+### [OmniForge — Multimodal Multi-LLM Ask](https://github.com/vpeetla-ai/omniforge) · **LIVE**
+
+**Ask anything. Right agents. Right models.** — text / image / voice fan out across agents + MCP tools; task-class Multi-LLM Brain with a live model waterfall + A/B proof. Self-contained monorepo (no sibling runtime deps).
+
+[▶ Live demo](https://omniforge-flame.vercel.app) · [API](https://omniforge-api.onrender.com/health) · [Architecture](https://github.com/vpeetla-ai/omniforge/blob/main/docs/ARCHITECTURE.md) · [ADR-027](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-027-omniforge-self-contained-multimodal-multi-llm.md)
 
 ### [VoiceForge — Real-Time Voice Triage](https://github.com/vpeetla-ai/voiceforge-assistant) · **LIVE**
 
@@ -141,11 +147,13 @@ What do they produce?        →  AI Content Factory (governed publish)
 How do agents improve?       →  LoopForge (harness · repo fix → PR)
 How do we serve LLMs?        →  vLLM Architecture Lab (educational multi-LoRA Path B)
 How do we prove quality?     →  Golden Eval Registry (versioned eval contracts)
+Right model for this step?   →  OmniForge (multimodal multi-LLM waterfall)
 Overnight signal?            →  Sentinel Brief
 ```
 
 | Layer | Repository | Live demo |
 |-------|------------|-----------|
+| **Multimodal multi-LLM** | [omniforge](https://github.com/vpeetla-ai/omniforge) | [OmniForge UI](https://omniforge-flame.vercel.app) · [API](https://omniforge-api.onrender.com) |
 | **Knowledge + MLOps** | [domainforge-rag-peft](https://github.com/vpeetla-ai/domainforge-rag-peft) | [DomainForge UI](https://domainforge-rag-peft.vercel.app) · [API](https://domainforge-api.onrender.com) |
 | **Voice / Multimodal** | [voiceforge-assistant](https://github.com/vpeetla-ai/voiceforge-assistant) | [VoiceForge UI](https://voiceforge-assistant.vercel.app) · [API](https://voiceforge-api-eysb.onrender.com) |
 | **Self-improvement** | [loop-engine-agent-platform](https://github.com/vpeetla-ai/loop-engine-agent-platform) | [LoopForge UI](https://demo-omega-taupe.vercel.app) · [API](https://loopforge-api.onrender.com) |
