@@ -164,7 +164,8 @@ flowchart LR
 | Render + Vercel deploy | ✅ (configure secrets) |
 | Platform publish OAuth | 🟡 LinkedIn/X real; Medium/Substack/IG copy-draft |
 | Cloudflare R2 media | 🟡 Config ready, upload pending |
-| AegisAI gateway (publish path) | 🟡 Integration code; mock publish adapters today |
+| AegisAI gateway (publish path) | ✅ Wired — `integrations/aegis_gateway.py` |
+| `PRODUCTION_STRICT` fail-closed publish | ✅ Denies publish when gateway unreachable (ADR-024) |
 | Public ops metrics API | ✅ | `GET /api/v1/ops/metrics` |
 | Golden eval CI gate (graph_hitl) | ✅ | `scripts/run_golden_eval_graph.py` |
 | DevSecOps pipeline (Semgrep+Trivy) | ✅ | `.github/workflows/security-scan.yml` |
