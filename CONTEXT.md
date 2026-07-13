@@ -17,6 +17,8 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 | Voice / Multimodal | How do we run real-time voice triage? | voiceforge-assistant | [voiceforge-assistant.vercel.app](https://voiceforge-assistant.vercel.app) | `voiceforge-api-eysb.onrender.com` |
 | AgentOps | How do we operate fleets? | aegisloop-agentops-workbench | [aegisloop-agentops-workbench.vercel.app](https://aegisloop-agentops-workbench.vercel.app) | `aegisloop-api.onrender.com` |
 | FinOps | What did agents cost? | agent-finops | [agent-finops.vercel.app](https://agent-finops.vercel.app) | `agent-finops-api.onrender.com` |
+| LLM gateway | How do we route/cache model calls? | aegis-llm-gateway | — | `aegis-llm-gateway-api` (Render TBD) |
+| Semantic cache | How do we reuse similar prompts? | aegis-semantic-cache | — | `aegis-semantic-cache-api` (Render TBD) |
 | Application | What do they produce? | ai-content-factory | [ai-content-factory-iota.vercel.app](https://ai-content-factory-iota.vercel.app) | `acf-api-eub4.onrender.com` *(active)* |
 | Self-improvement | How do agents improve? | loop-engine-agent-platform | [demo-omega-taupe.vercel.app](https://demo-omega-taupe.vercel.app) | `loopforge-api.onrender.com` |
 | Inference education | How do we serve LLMs? | vllm-architecture-lab | [vllm-architecture-lab.vercel.app](https://vllm-architecture-lab.vercel.app) | `vllm-architecture-lab-api.onrender.com` |
