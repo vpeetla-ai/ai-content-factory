@@ -21,3 +21,5 @@ async def test_ops_metrics_returns_aggregate_shape():
     assert "success_rate_pct" in data
     assert "slo" in data
     assert data["slo"]["pipeline_success_target_pct"] == 95.0
+    assert "llm_gateway" in data["extra"]
+    assert data["extra"]["llm_gateway"]["plane"] == "aegis-llm-gateway"

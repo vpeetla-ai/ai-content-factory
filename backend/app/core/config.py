@@ -61,6 +61,10 @@ class Settings(BaseSettings):
     litellm_proxy_url: str = "http://localhost:4000"
     litellm_master_key: str = "sk-acf-dev"
     use_litellm_proxy: bool = False
+    # Federated LLM gateway plane (aegis-llm-gateway) — preferred when set
+    llm_gateway_url: str = ""  # e.g. http://127.0.0.1:8100/v1
+    llm_gateway_api_key: str = ""
+    llm_gateway_tenant_id: str = "ai-content-factory"
 
     # ── Vector DB ────────────────────────────────────────
     vector_backend: Literal["qdrant", "pinecone", "none"] = "qdrant"

@@ -29,7 +29,21 @@ DIRECT_MODELS = {
     "seo": "groq/llama-3.3-70b-versatile",
 }
 
+# OpenAI-compatible ids for aegis-llm-gateway (stub accepts any model name)
+GATEWAY_MODELS = {
+    "research": "openai/stub-small",
+    "content": "openai/stub-small",
+    "visual": "openai/stub-small",
+    "seo": "openai/stub-small",
+}
+
 _run_metrics: dict[str, object] = {}
+
+
+def llm_gateway_enabled() -> bool:
+    """True when LLM_GATEWAY_URL is set (federated aegis-llm-gateway plane)."""
+    s = get_settings()
+    return bool((s.llm_gateway_url or "").strip())
 
 
 def register_run_metrics(run_id: str, metrics: object) -> None:
@@ -160,8 +174,14 @@ async def call_llm(
     *,
     temperature: float = 0.7,
 ) -> str:
-    use_proxy = _use_litellm_proxy()
-    models = PROXY_MODELS if use_proxy else DIRECT_MODELS
+    use_gateway = llm_gateway_enabled()
+    use_proxy = False if use_gateway else _use_litellm_proxy()
+    if use_gateway:
+        models = GATEWAY_MODELS
+    elif use_proxy:
+        models = PROXY_MODELS
+    else:
+        models = DIRECT_MODELS
     model = models.get(agent_name, models["research"])
     started = time.monotonic()
 
@@ -207,7 +227,12 @@ async def call_llm(
         "temperature": temperature,
         "timeout": 90,
     }
-    if use_proxy:
+    if use_gateway:
+        s = get_settings()
+        kwargs["api_base"] = s.llm_gateway_url.rstrip("/")
+        kwargs["api_key"] = s.llm_gateway_api_key or "acf-gateway"
+        kwargs["extra_headers"] = {"X-Tenant-Id": s.llm_gateway_tenant_id or "ai-content-factory"}
+    elif use_proxy:
         kwargs["api_base"] = settings.litellm_proxy_url
         kwargs["api_key"] = settings.litellm_master_key or os.environ.get("LITELLM_MASTER_KEY", "sk-acf-dev")
     else:
