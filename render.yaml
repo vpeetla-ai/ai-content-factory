@@ -12,6 +12,16 @@ services:
     autoDeploy: true
     branch: main
     envVars:
+      - key: AGENTFINOPS_API_KEY
+        sync: false
+      - key: AGENTFINOPS_URL
+        value: https://agent-finops-api.onrender.com
+      - key: LLM_GATEWAY_TENANT_ID
+        value: ai-content-factory
+      - key: LLM_GATEWAY_API_KEY
+        sync: false
+      - key: LLM_GATEWAY_URL
+        value: https://aegis-llm-gateway-api.onrender.com/v1
       - key: APP_ENV
         value: production
       - key: RUN_MIGRATIONS_ON_STARTUP

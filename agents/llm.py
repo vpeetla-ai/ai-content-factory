@@ -258,6 +258,8 @@ async def call_llm(
         if _thesis == "verifier":
             kwargs["extra_headers"]["X-Generator-Provider"] = "stub"
             kwargs["extra_headers"]["X-Cache-Bypass"] = "true"
+        if getattr(s, "llm_gateway_principal_id", ""):
+            kwargs["extra_headers"]["X-Principal-Id"] = s.llm_gateway_principal_id
     elif use_proxy:
         kwargs["api_base"] = settings.litellm_proxy_url
         kwargs["api_key"] = settings.litellm_master_key or os.environ.get("LITELLM_MASTER_KEY", "sk-acf-dev")
