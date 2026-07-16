@@ -21,6 +21,7 @@ from app.core.pipeline_events import publish_pipeline_event
 from app.core.redis import get_redis
 from app.core.redis_keys import HITL_PENDING, PIPELINE_STATE, PUBLISH_QUEUE
 from app.models import ContentDraft, PipelineRun, PipelineStatus, Platform, PublishedPost, User
+from app.services.finops_outcomes import record_pipeline_outcome
 from app.services.publisher import PublisherService
 from app.core.logging import get_logger
 from app.vpeetla_observability.context import bind_trace_context, clear_trace_context
@@ -205,6 +206,14 @@ class PipelineService:
 
                 await apply_run_metrics(self.db, run, metrics)
                 recorder.record_eval("pipeline.completed", run.status.value, total_tokens=run.total_tokens)
+                if run.status == PipelineStatus.done:
+                    await record_pipeline_outcome(
+                        workflow_id=run_id_str,
+                        status=run.status.value,
+                        total_cost_usd=float(getattr(run, "total_cost_usd", 0) or 0),
+                        hitl_was_required=bool(resume),
+                        hitl_approved=True,
+                    )
                 await publish_pipeline_event(
                     run_id_str,
                     "pipeline:status",

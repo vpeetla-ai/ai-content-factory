@@ -66,6 +66,10 @@ class Settings(BaseSettings):
     llm_gateway_api_key: str = ""
     llm_gateway_tenant_id: str = "ai-content-factory"
 
+    # ADR-029 outcome KPI (optional)
+    agentfinops_url: str = ""
+    agentfinops_api_key: str = ""
+
     # ── Vector DB ────────────────────────────────────────
     vector_backend: Literal["qdrant", "pinecone", "none"] = "qdrant"
     pinecone_api_key: str = ""
