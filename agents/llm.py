@@ -231,7 +231,33 @@ async def call_llm(
         s = get_settings()
         kwargs["api_base"] = s.llm_gateway_url.rstrip("/")
         kwargs["api_key"] = s.llm_gateway_api_key or "acf-gateway"
-        kwargs["extra_headers"] = {"X-Tenant-Id": s.llm_gateway_tenant_id or "ai-content-factory"}
+        # ADR-029: app selects; gateway enforces+records via role headers
+        _thesis = {
+            "research": "retriever",
+            "content": "executor",
+            "visual": "executor",
+            "seo": "summarizer",
+            "editor": "verifier",
+        }.get(agent_name, "executor")
+        _tier = {
+            "research": "fast",
+            "content": "high_reasoning",
+            "visual": "specialized",
+            "seo": "fast",
+            "editor": "high_reasoning",
+        }.get(agent_name, "fast")
+        _selected = "gemini" if _thesis == "verifier" else "stub"
+        kwargs["extra_headers"] = {
+            "X-Tenant-Id": s.llm_gateway_tenant_id or "ai-content-factory",
+            "X-Agent-Role": agent_name,
+            "X-Thesis-Role": _thesis,
+            "X-Data-Class": "internal",
+            "X-Selected-Provider": _selected,
+            "X-Model-Tier": _tier,
+        }
+        if _thesis == "verifier":
+            kwargs["extra_headers"]["X-Generator-Provider"] = "stub"
+            kwargs["extra_headers"]["X-Cache-Bypass"] = "true"
     elif use_proxy:
         kwargs["api_base"] = settings.litellm_proxy_url
         kwargs["api_key"] = settings.litellm_master_key or os.environ.get("LITELLM_MASTER_KEY", "sk-acf-dev")
