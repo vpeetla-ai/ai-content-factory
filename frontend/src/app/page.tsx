@@ -1,16 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { ArchitectOverview } from "@/components/ArchitectOverview";
-import { ProductWorkbench } from "@/components/ProductWorkbench";
-import { ACF_ARCHITECTURE_PROPS } from "@/lib/workbench-config";
+import { GlassboxWorkbench } from "@/components/GlassboxWorkbench";
+import {
+  ACF_ARCHITECTURE_PROPS,
+  ACF_LAYERS,
+  ACF_TRADEOFFS,
+  ACF_ADR_LINKS,
+  ACF_DOCS_LINKS,
+} from "@/lib/workbench-config";
 
 export default function LandingPage() {
   return (
-    <ProductWorkbench
+    <GlassboxWorkbench
       eyebrow="Governed multi-agent content pipeline"
-      productName="AI Content Factory"
-      subtitle="One topic → five platform drafts → human approval → governed publish. Sign in to run the full pipeline."
+      title="AI Content Factory — glass-box"
+      subtitle="One topic → five platform drafts → human approval → governed publish. Architecture and live SLOs on the left · honest phase map in the center · sign in on the right to run."
       headerActions={
         <a
           href="https://github.com/vpeetla-ai/ai-content-factory"
@@ -21,52 +26,63 @@ export default function LandingPage() {
           GitHub
         </a>
       }
+      preview
+      traceSource="preview"
+      architect={{
+        layers: [...ACF_LAYERS],
+        tradeoffs: [...ACF_TRADEOFFS],
+        metricsUrl: ACF_ARCHITECTURE_PROPS.metricsUrl,
+        metricLabels: ACF_ARCHITECTURE_PROPS.metricLabels,
+        adrLinks: [...ACF_ADR_LINKS],
+        docsLinks: [...ACF_DOCS_LINKS],
+      }}
       productPanel={
-        <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">Run the content pipeline</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-            Research with RAG, generate drafts for LinkedIn, X, Substack, Medium, and blog — then approve each
-            platform before AegisAI allows publish.
+        <>
+          <p className="gb-guided">
+            <strong>1.</strong> Sign in (invite-only) → <strong>2.</strong> enter a topic and start the
+            pipeline → <strong>3.</strong> approve each platform at the HITL gate.
           </p>
-          <ol className="mt-5 list-decimal space-y-1 pl-5 text-sm text-slate-600">
-            <li>Sign in (invite-only)</li>
-            <li>Enter a topic and start the pipeline</li>
-            <li>Approve each platform at the HITL gate</li>
-          </ol>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+
+          <div className="gb-product-card">
+            <h2>Run the content pipeline</h2>
+            <p>
+              Research with RAG, generate drafts for LinkedIn, X, Substack, Medium, and blog — then
+              approve each platform before AegisAI allows publish.
+            </p>
+            <div className="gb-run-row">
+              <Link href="/sign-in?redirect_url=/dashboard" className="gb-primary-cta">
+                Sign in to run pipeline
+              </Link>
+            </div>
+            <p className="gb-hint">
+              After sign-in you land on the dashboard glass-box with live SSE phase replay. Click the
+              CF brand anytime to return here.
+            </p>
+          </div>
+
+          <div className="gb-feature-list">
             {[
               { title: "Research + RAG", body: "Hybrid retrieval grounds drafts before generation." },
               { title: "HITL before publish", body: "interrupt_before — humans approve every platform." },
-              { title: "Trace-linked LLMOps", body: "Langfuse spans at system, trace, and node levels." },
-            ].map((card) => (
-              <div key={card.title} className="rounded-lg border border-slate-100 bg-slate-50 p-4">
-                <h3 className="font-semibold text-slate-900">{card.title}</h3>
-                <p className="mt-1 text-sm text-slate-600">{card.body}</p>
+              { title: "Trace-linked LLMOps", body: "Langfuse spans; live agent:done includes latency_ms." },
+            ].map((item) => (
+              <div key={item.title} className="gb-feature">
+                <strong>{item.title}</strong>
+                <span>{item.body}</span>
               </div>
             ))}
           </div>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/sign-in?redirect_url=/dashboard"
-              className="rounded-lg bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-800"
-            >
-              Sign in to run pipeline
-            </Link>
-            <a
-              href={ACF_ARCHITECTURE_PROPS.adrLinks![0].href}
-              className="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read ADR-008 →
-            </a>
-          </div>
-          <p className="mt-4 text-xs text-slate-500">
-            After sign-in you land on the dashboard. Click the CF brand anytime to return here.
-          </p>
-        </div>
+
+          <a
+            href={ACF_ADR_LINKS[0].href}
+            className="gb-adr-inline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read ADR-008 →
+          </a>
+        </>
       }
-      architecturePanel={<ArchitectOverview {...ACF_ARCHITECTURE_PROPS} />}
     />
   );
 }

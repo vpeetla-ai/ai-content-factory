@@ -115,8 +115,16 @@ async def emit_agent_start(run_id: str, agent_name: str):
     await sio.emit("agent:start", {"agent_name": agent_name}, room=run_id)
 
 
-async def emit_agent_done(run_id: str, agent_name: str, output_key: str):
-    await sio.emit("agent:done", {"agent_name": agent_name, "output_key": output_key}, room=run_id)
+async def emit_agent_done(
+    run_id: str,
+    agent_name: str,
+    output_key: str,
+    latency_ms: int | None = None,
+):
+    payload: dict = {"agent_name": agent_name, "output_key": output_key}
+    if latency_ms is not None:
+        payload["latency_ms"] = latency_ms
+    await sio.emit("agent:done", payload, room=run_id)
 
 
 async def emit_hitl_ready(run_id: str, drafts: list):

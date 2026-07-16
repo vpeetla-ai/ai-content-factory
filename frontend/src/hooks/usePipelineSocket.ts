@@ -2,13 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { usePipelineStore } from "@/lib/store";
+import { asPhase, usePipelineStore } from "@/lib/store";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:8000";
 
 export function usePipelineSocket(runId: string | null, authToken: string | null) {
   const socketRef = useRef<Socket | null>(null);
-  const { addLog, setStatus, addPublishResult } = usePipelineStore();
+  const { addLog, setStatus, addPublishResult, setPhaseActive, setPhaseDone } = usePipelineStore();
 
   useEffect(() => {
     if (!runId) return;
@@ -25,14 +25,27 @@ export function usePipelineSocket(runId: string | null, authToken: string | null
       addLog("Connected to pipeline stream");
     });
 
-    socket.on("agent:start", (data) => addLog(`▶ ${data.agent_name} started`));
+    socket.on("agent:start", (data) => {
+      const phase = asPhase(data.agent_name);
+      if (phase) setPhaseActive(phase);
+      addLog(`▶ ${data.agent_name} started`);
+    });
     socket.on("agent:chunk", (data) => addLog(`${data.agent_name}: ${data.token}`));
-    socket.on("agent:done", (data) => addLog(`✓ ${data.agent_name} → ${data.output_key}`));
+    socket.on("agent:done", (data) => {
+      const phase = asPhase(data.agent_name);
+      if (phase) {
+        setPhaseDone(phase, typeof data.latency_ms === "number" ? data.latency_ms : undefined);
+      }
+      const ms = typeof data.latency_ms === "number" ? ` (${data.latency_ms}ms)` : "";
+      addLog(`✓ ${data.agent_name} → ${data.output_key}${ms}`);
+    });
     socket.on("hitl:ready", () => {
       setStatus("hitl_wait");
+      setPhaseActive("hitl");
       addLog("✋ HITL review required");
     });
     socket.on("publish:result", (data) => {
+      setPhaseDone("publish");
       addLog(
         data.not_supported
           ? `📋 ${data.platform}: not auto-published — draft ready to copy`
@@ -54,7 +67,7 @@ export function usePipelineSocket(runId: string | null, authToken: string | null
     return () => {
       socket.disconnect();
     };
-  }, [runId, authToken, addLog, setStatus, addPublishResult]);
+  }, [runId, authToken, addLog, setStatus, addPublishResult, setPhaseActive, setPhaseDone]);
 
   return socketRef;
 }

@@ -1,20 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePipelineStore } from "@/lib/store";
+import { asPhase, usePipelineStore } from "@/lib/store";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 export function usePipelineSSE(runId: string | null, token: string | null) {
-  const { addLog, setStatus, addPublishResult } = usePipelineStore();
+  const { addLog, setStatus, addPublishResult, setPhaseActive, setPhaseDone } = usePipelineStore();
 
   useEffect(() => {
     if (!runId || !token) return;
 
     const url = `${API_URL}/pipelines/${runId}/stream`;
     const source = new EventSource(url, { withCredentials: false });
-
-    // EventSource cannot set Authorization header — use fetch-based SSE fallback via polling
     source.close();
 
     let cancelled = false;
@@ -46,14 +44,31 @@ export function usePipelineSSE(runId: string | null, token: string | null) {
           if (!data) continue;
           try {
             const parsed = JSON.parse(data);
-            if (event === "agent:start") addLog(`▶ ${parsed.agent_name} started`);
+            if (event === "agent:start") {
+              const phase = asPhase(parsed.agent_name);
+              if (phase) setPhaseActive(phase);
+              addLog(`▶ ${parsed.agent_name} started`);
+            }
             if (event === "agent:chunk") addLog(`${parsed.agent_name}: ${parsed.token}`);
-            if (event === "agent:done") addLog(`✓ ${parsed.agent_name} → ${parsed.output_key}`);
+            if (event === "agent:done") {
+              const phase = asPhase(parsed.agent_name);
+              if (phase) {
+                setPhaseDone(
+                  phase,
+                  typeof parsed.latency_ms === "number" ? parsed.latency_ms : undefined
+                );
+              }
+              const ms =
+                typeof parsed.latency_ms === "number" ? ` (${parsed.latency_ms}ms)` : "";
+              addLog(`✓ ${parsed.agent_name} → ${parsed.output_key}${ms}`);
+            }
             if (event === "hitl:ready") {
               setStatus("hitl_wait");
+              setPhaseActive("hitl");
               addLog("✋ HITL review required");
             }
             if (event === "publish:result") {
+              setPhaseDone("publish");
               addLog(
                 parsed.not_supported
                   ? `📋 ${parsed.platform}: not auto-published — draft ready to copy`
@@ -83,5 +98,5 @@ export function usePipelineSSE(runId: string | null, token: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [runId, token, addLog, setStatus, addPublishResult]);
+  }, [runId, token, addLog, setStatus, addPublishResult, setPhaseActive, setPhaseDone]);
 }

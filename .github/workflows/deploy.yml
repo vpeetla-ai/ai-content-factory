@@ -56,6 +56,7 @@ jobs:
         run: |
           if [ -z "${VERCEL_TOKEN}" ] || [ -z "${VERCEL_ORG_ID}" ] || [ -z "${VERCEL_PROJECT_ID}" ]; then
             echo "::warning::VERCEL_TOKEN / VERCEL_ORG_ID / VERCEL_PROJECT_ID not fully configured"
+            echo "Manual fallback: cd frontend && npx vercel link --project ai-content-factory && npx vercel --prod"
             echo "See docs/DEPLOYMENT.md for setup instructions"
             exit 0
           fi

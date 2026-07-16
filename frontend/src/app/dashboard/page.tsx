@@ -16,9 +16,14 @@ import { PublishResults } from "@/components/publish-results";
 import { ConnectAccounts } from "@/components/connect-accounts";
 import { isClerkEnabled } from "@/components/providers";
 import Link from "next/link";
-import { ArchitectOverview } from "@/components/ArchitectOverview";
-import { ProductWorkbench } from "@/components/ProductWorkbench";
-import { ACF_ARCHITECTURE_PROPS } from "@/lib/workbench-config";
+import { GlassboxWorkbench } from "@/components/GlassboxWorkbench";
+import {
+  ACF_ARCHITECTURE_PROPS,
+  ACF_LAYERS,
+  ACF_TRADEOFFS,
+  ACF_ADR_LINKS,
+  ACF_DOCS_LINKS,
+} from "@/lib/workbench-config";
 
 const PLATFORMS = ["linkedin", "substack", "medium", "x", "instagram"];
 
@@ -98,7 +103,11 @@ function ClerkDashboard() {
       activeRunId={activeRunId}
       runs={runs || []}
       onSelectRun={setActiveRun}
-      onHitlComplete={() => setStatus("running")}
+      onHitlComplete={() => {
+        usePipelineStore.getState().setPhaseDone("hitl");
+        usePipelineStore.getState().setPhaseActive("publish");
+        setStatus("running");
+      }}
       headerRight={
         <div className="flex items-center gap-3">
           <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
@@ -160,7 +169,11 @@ function DevDashboard() {
       activeRunId={activeRunId}
       runs={runs || []}
       onSelectRun={setActiveRun}
-      onHitlComplete={() => setStatus("running")}
+      onHitlComplete={() => {
+        usePipelineStore.getState().setPhaseDone("hitl");
+        usePipelineStore.getState().setPhaseActive("publish");
+        setStatus("running");
+      }}
       headerRight={
         <div className="flex items-center gap-3">
           <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
@@ -212,29 +225,47 @@ function DashboardShell({
   onHitlComplete: () => void;
   headerRight: React.ReactNode;
 }) {
+  const { phaseStatus, phaseLatencyMs } = usePipelineStore();
+
   return (
-    <ProductWorkbench
+    <GlassboxWorkbench
       eyebrow="Governed multi-agent content pipeline"
-      productName="AI Content Factory"
-      subtitle="Run the pipeline, review HITL gates, and publish through AegisAI — architecture and live metrics on the second tab."
+      title="AI Content Factory — glass-box"
+      subtitle="Run the pipeline, review HITL gates, and publish through AegisAI. Live agent:start / agent:done phases stream in the center — including real latency_ms when the API sends them."
       headerActions={headerRight}
+      homeHref="/"
+      traceSource={activeRunId ? "live" : "idle"}
+      phaseStatus={phaseStatus}
+      phaseLatencyMs={phaseLatencyMs}
+      status={status}
+      runId={activeRunId}
+      eventLog={agentLogs}
+      architect={{
+        layers: [...ACF_LAYERS],
+        tradeoffs: [...ACF_TRADEOFFS],
+        metricsUrl: ACF_ARCHITECTURE_PROPS.metricsUrl,
+        metricLabels: ACF_ARCHITECTURE_PROPS.metricLabels,
+        adrLinks: [...ACF_ADR_LINKS],
+        docsLinks: [...ACF_DOCS_LINKS],
+      }}
       productPanel={
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <PipelineForm topic={topic} onTopicChange={onTopicChange} onStart={onStart} loading={loading} />
-            <AgentLog logs={agentLogs} status={status} runId={activeRunId} />
-            {status === "hitl_wait" && activeRunId && (
-              <HITLReview runId={activeRunId} onComplete={onHitlComplete} />
-            )}
-            <PublishResults results={publishResults} />
-          </div>
-          <div className="space-y-6">
+        <>
+          <p className="gb-guided">
+            <strong>1.</strong> Enter a topic → <strong>2.</strong> Start Pipeline →{" "}
+            <strong>3.</strong> approve each platform at HITL, then publish.
+          </p>
+          <PipelineForm topic={topic} onTopicChange={onTopicChange} onStart={onStart} loading={loading} />
+          <AgentLog logs={agentLogs} status={status} runId={activeRunId} />
+          {status === "hitl_wait" && activeRunId && (
+            <HITLReview runId={activeRunId} onComplete={onHitlComplete} />
+          )}
+          <PublishResults results={publishResults} />
+          <div className="gb-side-stack">
             <ConnectAccounts />
             <RunList runs={runs} onSelect={onSelectRun} />
           </div>
-        </div>
+        </>
       }
-      architecturePanel={<ArchitectOverview {...ACF_ARCHITECTURE_PROPS} />}
     />
   );
 }

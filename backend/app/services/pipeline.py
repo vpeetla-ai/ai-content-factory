@@ -178,11 +178,15 @@ class PipelineService:
                             latency_ms=latency,
                         )
                         await self._flush_node_traces(run.id, metrics, node_name, latency)
-                        await ws.emit_agent_done(run_id_str, node_name, output_key)
+                        await ws.emit_agent_done(run_id_str, node_name, output_key, latency)
                         await publish_pipeline_event(
                             run_id_str,
                             "agent:done",
-                            {"agent_name": node_name, "output_key": output_key},
+                            {
+                                "agent_name": node_name,
+                                "output_key": output_key,
+                                "latency_ms": latency,
+                            },
                         )
                         active_nodes.discard(node_name)
 

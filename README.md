@@ -171,7 +171,8 @@ flowchart LR
 | Golden eval CI gate (graph_hitl) | ✅ | `scripts/run_golden_eval_graph.py` |
 | DevSecOps pipeline (Semgrep+Trivy) | ✅ | `.github/workflows/security-scan.yml` |
 | AWS reference architectures (×6) | ✅ | `docs/reference-architectures/` + `infra/aws/` |
-| Public landing page | ✅ | `/` marketing · `/dashboard` app |
+| Public landing page | ✅ | `/` glass-box · `/dashboard` live SSE glass-box |
+| Glass-box workbench UX | ✅ | 3-column: arch/SLOs · research→publish phase replay · product |
 
 ---
 
