@@ -14,11 +14,25 @@ Content Factory records per-run cost in `pipeline_runs.total_cost_usd` via `RunM
 ## Agent cost flow
 
 ```text
-LangGraph node → agents/llm.py → RunMetrics → pipeline_runs.total_cost_usd
-                                              → agent-finops (org-wide, via AegisLoop pattern)
+LangGraph node → agents/llm.py → (optional) aegis-llm-gateway → RunMetrics → pipeline_runs.total_cost_usd
+                                      ↓
+                              agent-finops POST /v1/usage when AGENTFINOPS_URL set
 ```
 
+When the LLM gateway is configured, ACF **selects** agent→thesis/tier headers; the gateway meters usage (ADR-028/029).
+
 Public aggregate: `GET /api/v1/ops/metrics` → `total_cost_usd`, `avg_pipeline_cost_usd`
+
+### Cost per compliant outcome (ADR-029)
+
+Optional plane KPI:
+
+```bash
+POST {AGENTFINOPS_URL}/v1/outcomes
+GET  {AGENTFINOPS_URL}/v1/kpi/cost-per-compliant-outcome?tenant_id=ai-content-factory
+```
+
+Compliant = eval pass + no policy deny + HITL when required + budget OK.
 
 ## Cloud cost snapshot
 
@@ -51,4 +65,5 @@ Output: JSON with daily spend, service breakdown, anomaly flags (spike > 20% WoW
 ## Related
 
 - [ADR-011 Agent FinOps standalone](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-011-agent-finops-standalone-service.md)
+- [ADR-029 App-owned role-aware routing + cost-per-compliant-outcome](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-029-app-owned-role-aware-routing-contract.md)
 - [SCALE.md](./SCALE.md)

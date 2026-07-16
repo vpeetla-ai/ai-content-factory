@@ -165,7 +165,7 @@ flowchart LR
 | Platform publish OAuth | 🟡 LinkedIn/X real; Medium/Substack/IG copy-draft |
 | Cloudflare R2 media | 🟡 Config ready, upload pending |
 | AegisAI gateway (publish path) | ✅ Wired — `integrations/aegis_gateway.py` |
-| LLM gateway plane | ✅ When `LLM_GATEWAY_URL` set — routes via [aegis-llm-gateway](https://github.com/vpeetla-ai/aegis-llm-gateway) (ADR-028); HITL/publish gateway unchanged |
+| LLM gateway plane | ✅ When `LLM_GATEWAY_URL` set — ACF **selects** agent→thesis/tier; [aegis-llm-gateway](https://github.com/vpeetla-ai/aegis-llm-gateway) **enforces+records** (ADR-028/029); HITL/publish gateway unchanged |
 | `PRODUCTION_STRICT` fail-closed publish | ✅ Denies publish when gateway unreachable (ADR-024) |
 | Public ops metrics API | ✅ | `GET /api/v1/ops/metrics` |
 | Golden eval CI gate (graph_hitl) | ✅ | `scripts/run_golden_eval_graph.py` |
@@ -226,7 +226,7 @@ Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-
 | General SD | [Job scheduler / task queue](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/04-distributed-job-scheduler-task-queue/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/04-distributed-job-scheduler-task-queue.md)) | Partial — cron / pipeline runs |
 | General SD | [Notification system](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/08-notification-system/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/08-notification-system.md)) | Partial — post-publish / ops signals |
 | Trade-offs | [Cost vs latency vs safety](https://ai-architect-interview-playbook.vercel.app/q/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety.md)) | HITL vs autonomy; model cost per run |
-| Cloud | [LLM gateway / model routing](https://ai-architect-interview-playbook.vercel.app/q/cloud-architecture/07-llm-gateway-semantic-cache-model-router/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/cloud-architecture/07-llm-gateway-semantic-cache-model-router.md)) | `LLM_GATEWAY_URL` → aegis-llm-gateway; publish still via AegisAI |
+| Cloud | [LLM gateway / model routing](https://ai-architect-interview-playbook.vercel.app/q/cloud-architecture/07-llm-gateway-semantic-cache-model-router/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/cloud-architecture/07-llm-gateway-semantic-cache-model-router.md)) | Apps select; gateway enforces (ADR-029); publish still via AegisAI |
 | Behavioral | [Leading a 0→1 AI product](https://ai-architect-interview-playbook.vercel.app/q/behavioral/05-leading-a-0-to-1-ai-product-build/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/behavioral/05-leading-a-0-to-1-ai-product-build.md)) | Shipped application-layer product story |
 
 ## Related projects
