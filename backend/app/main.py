@@ -93,6 +93,8 @@ async def health():
         "environment": settings.app_env,
         "database": "ok" if db_ok else "error",
         "mock_llm": settings.mock_llm,
+        "production_strict": settings.production_strict,
+        "review_mode": "strict" if settings.production_strict else "demo",
         "graph_ready": is_graph_ready(),
         "checkpointer": "memory" if is_memory_checkpointer() else ("redis" if is_graph_ready() else "pending"),
         "llm_keys_configured": bool(
