@@ -21,6 +21,8 @@ So I open-sourced two projects:
 
 Both are on GitHub. AegisAI has a [live control plane](https://aegisai-enterprise-agent-platform.vercel.app). This post explains why I split the problem in two — and what I'd do differently if I started today.
 
+**Inspect before we talk:** [15-min technical review](https://venkat-ai.com/technical-review) · [spine health](https://venkat-ai.com/spine-health) · [golden path artifact](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/GOLDEN_PATH.md) · [golden-eval CI](https://github.com/vpeetla-ai/golden-eval-registry/actions/workflows/ci.yml)
+
 ---
 
 ## The arc every agent team hits
@@ -191,6 +193,8 @@ The agent wave produced thousands of demos. The next wave is **governed agent fl
 
 **[Venkat AI Platform](https://github.com/vpeetla-ai/venkat-ai-platform)** is how I build agents.  
 **[AegisAI](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform)** is how I trust them in production.
+
+Hiring managers / panels: start at [venkat-ai.com/hire](https://venkat-ai.com/hire) or the [technical review](https://venkat-ai.com/technical-review).
 
 If this helps your work, a star on GitHub helps other architects find the repos:
 
