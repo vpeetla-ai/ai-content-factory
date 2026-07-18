@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArchitectRail, type ArchitectRailProps } from "./ArchitectRail";
 import { ContentPipelineGlassbox, type TraceSource } from "./ContentPipelineGlassbox";
+import { ReviewModeBanner } from "./ReviewModeBanner";
 import type { PhaseId, PhaseStatus } from "@/lib/store";
 
 type Props = {
@@ -46,7 +47,7 @@ export function GlassboxWorkbench({
 }: Props) {
   return (
     <div className="gb-page workbench-shell min-h-screen text-slate-900">
-      <header className="border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-6 py-4">
           <Link href={homeHref} className="flex min-w-0 items-center gap-3 no-underline text-inherit">
             <div
@@ -66,6 +67,7 @@ export function GlassboxWorkbench({
           </Link>
           {headerActions ? <div className="flex shrink-0 items-center gap-3">{headerActions}</div> : null}
         </div>
+        <ReviewModeBanner />
       </header>
 
       <main className="gb-shell">
