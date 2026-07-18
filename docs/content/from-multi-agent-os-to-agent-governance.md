@@ -25,6 +25,13 @@ This article explains why I split the problem into two repos, how they connect, 
 - [aegisai-enterprise-agent-platform](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) — governance control plane
 - [Live AegisAI UI](https://aegisai-enterprise-agent-platform.vercel.app) · [AI Content Factory demo](https://ai-content-factory-iota.vercel.app)
 
+**Live proof for reviewers (2026):**
+
+- [15-minute technical review](https://venkat-ai.com/technical-review) — 5-spine path (Demo vs Strict labeled)
+- [Spine API health](https://venkat-ai.com/spine-health)
+- [Golden path E2E](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/GOLDEN_PATH.md) — stranger-replayable artifact (gateway `approval_required` + FinOps meter)
+- [Golden eval CI](https://github.com/vpeetla-ai/golden-eval-registry/actions/workflows/ci.yml)
+
 ---
 
 ## The problem: orchestration without governance
@@ -369,8 +376,9 @@ Live UI: https://aegisai-enterprise-agent-platform.vercel.app
 
 ## Publishing checklist
 
-- [ ] Publish on Substack (canonical URL)
+- [ ] Publish on Substack (canonical URL) — use [substack variant](./from-multi-agent-os-to-agent-governance-substack.md) + proof links above
 - [ ] Cross-post to Medium with canonical link to Substack
-- [ ] LinkedIn post with architecture snippet
+- [ ] LinkedIn post with architecture snippet (ADR-001 draft in [S5 calendar](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/S5_ADR_POST_CALENDAR.md))
 - [ ] Link from [github.com/vpeetla-ai](https://github.com/vpeetla-ai) profile README
 - [ ] Add link in both repo READMEs under "Writing"
+- [ ] Point hire funnel CTA to https://venkat-ai.com/hire
