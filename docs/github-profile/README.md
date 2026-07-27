@@ -35,7 +35,7 @@
 
 | Repo | Hook |
 |------|------|
-| [Enterprise RAG](https://github.com/vpeetla-ai/enterprise_rag_platform) | Access-before-ranking · cross-encoder rerank · decline-to-answer · JWT Principal under `PRODUCTION_STRICT` |
+| [Enterprise RAG](https://github.com/vpeetla-ai/enterprise_rag_platform) | Access-before-ranking · page-aware PDF Q&A · BM25+dense RRF · CE rerank · decline · JWT Principal under `PRODUCTION_STRICT` |
 | [DomainForge](https://github.com/vpeetla-ai/domainforge-rag-peft) | RAG facts + PEFT behavior · S0→S4 eval · educational vLLM Path B (ADR-022) |
 | [vLLM Lab](https://github.com/vpeetla-ai/vllm-architecture-lab) | PagedAttention · continuous batching · educational multi-LoRA chat `/v1/adapters` |
 | [VoiceForge](https://github.com/vpeetla-ai/voiceforge-assistant) | ASR → LLM → TTS · P50/P95 latency budgets |
@@ -97,9 +97,9 @@ Chief → parallel specialists → Critic → Slack / Telegram / WhatsApp · pai
 
 ### [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform)
 
-**Governed knowledge layer** — access-before-ranking, hybrid retrieval, cross-encoder rerank, decline-to-answer, AegisAI HITL bridge, Qdrant adapter.
+**Governed knowledge layer** — access-before-ranking, page-aware PDF ingest (`/v1/ingest/pdf`), BM25+dense RRF, cross-encoder rerank, faithfulness + decline, Demo/Strict Principal, AegisAI HITL bridge.
 
-[▶ Live demo](https://enterprise-rag-platform-eta.vercel.app)
+[▶ Live demo](https://enterprise-rag-platform-eta.vercel.app) · [Top-1% program](https://github.com/vpeetla-ai/enterprise_rag_platform/blob/main/docs/TOP1PCT_ERAG_PROGRAM.md)
 
 ### [AI Content Factory](https://github.com/vpeetla-ai/ai-content-factory)
 
