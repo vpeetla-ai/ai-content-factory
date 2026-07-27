@@ -237,7 +237,7 @@ Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-
 | [AegisAI](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | Agent governance control plane — gateway + HITL |
 | [aegis-llm-gateway](https://github.com/vpeetla-ai/aegis-llm-gateway) | Shared LLM completions — set `LLM_GATEWAY_URL` |
 | [Venkat AI Platform](https://github.com/vpeetla-ai/venkat-ai-platform) | Multi-agent personal OS — Chief orchestrator |
-| [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Governed RAG reference |
+| [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | Governed RAG — page cites · hybrid RRF · decline |
 | [Curriculum Agent Patterns](https://github.com/vpeetla-ai/react-agent-pattern) | Teaching stubs — ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm |
 
 Built by [Venkata Peetla](https://github.com/vpeetla-ai) — [venkat-ai.com](https://venkat-ai.com) · [Substack](https://venkatapeetla.substack.com) · [Medium](https://medium.com/@vpeetla.ai)

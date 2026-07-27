@@ -61,7 +61,7 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 4. **Real FinOps** — new `agent-finops` service; AegisLoop meters via agent-finops (not character-count heuristics).
 5. **Real IaC paths** — AegisAI AWS ECS+Fargate+RDS Terraform; agent-finops GCP Cloud Run+Cloud SQL Terraform (ADR PaaS vs IaC trade-offs).
 6. **ACF publish** — real LinkedIn/X OAuth publish; invite-only signup; Medium/Substack/Instagram honestly gated.
-7. **Enterprise RAG** — upload demo, retrieval ranking fixes, ingestion lineage ADR; cross-encoder rerank + decline-to-answer ([ADR-023](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-023-enterprise-rag-rerank-decline.md)); Langfuse-only (no OTLP collector).
+7. **Enterprise RAG** — page-aware PDF Q&A (`/v1/ingest/pdf`), BM25+dense RRF, cross-encoder rerank, faithfulness + decline ([ADR-023](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-023-enterprise-rag-rerank-decline.md) · ERAG ADR-0007/0008); Demo/Strict Principal; Langfuse-only (no OTLP collector).
 8. **Sentinel Brief** — real LLM executive summary; logging fix for `POST /runs`.
 9. **AegisLoop** — real VAP A2A delegation before mission invoke.
 10. **Interview layer** — playbook 35/35 coverage; Practice Arena live with BYOK judges.
@@ -74,7 +74,7 @@ Shared vocabulary for all org repos. Agents should use these terms consistently.
 
 | Week | Repo | Architectural hook |
 |------|------|-------------------|
-| 1 | Enterprise RAG | Access-before-ranking · cross-encoder rerank · decline-to-answer ([ADR-023](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-023-enterprise-rag-rerank-decline.md)) |
+| 1 | Enterprise RAG | Access-before-ranking · page-aware PDF Q&A · BM25+dense RRF · CE rerank · decline ([ADR-023](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-023-enterprise-rag-rerank-decline.md)) |
 | 2 | DomainForge | RAG for facts · PEFT for behavior · S0→S4 eval ladder ([ADR-019](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-019-rag-facts-peft-behavior.md)) |
 | 3 | vLLM Lab | PagedAttention · multi-LoRA economics ([ADR-022](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-022-domainforge-vllm-multi-lora-serving.md)) |
 | 4 | VoiceForge | ASR → LLM → TTS latency budgets ([ADR-021](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-021-voiceforge-multimodal-pipeline.md)) |
