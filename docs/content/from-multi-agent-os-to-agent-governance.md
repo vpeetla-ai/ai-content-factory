@@ -13,11 +13,11 @@ Most teams building with AI agents follow the same arc:
 3. Realize nothing is monitored, governed, or auditable
 4. Panic
 
-I hit step 3 while building **[Venkat AI Platform (VAP)](https://github.com/vpeetla-ai/venkat-ai-platform)** — a LangGraph multi-agent operating system with 15+ specialist agents, RAG, and notification fan-out. The orchestration worked. The **governance** did not.
+I hit step 3 while building **[Venkat AI Platform (VAP)](https://github.com/vpeetla-ai/venkat-ai-platform)** — a LangGraph multi-agent OS with specialist agents, RAG, and notification fan-out. The orchestration worked. The **governance** did not: I couldn't answer *who is this agent, what is it allowed to do, and can we prove what happened?*
 
-So I built **[AegisAI](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform)** — an enterprise agent governance control plane. Not another agent builder. A layer that sits *in front of* production agents and answers: *who is this agent, what is it allowed to do, and can we prove what happened?*
+So I built **[AegisAI](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform)** — a governance control plane that sits *in front of* agents. Not another agent builder. Policy, HITL, signed audit, FinOps — before side effects fire.
 
-This article explains why I split the problem into two repos, how they connect, and what I'd do differently if starting today.
+This essay is why I split the problem into two repos, how they connect, and what I'd refuse if I started again tomorrow.
 
 **Repos (open source):**
 
@@ -27,9 +27,9 @@ This article explains why I split the problem into two repos, how they connect, 
 
 **Live proof for reviewers (2026):**
 
-- [15-minute technical review](https://venkat-ai.com/technical-review) — 5-spine path (Demo vs Strict labeled)
+- [15-minute technical review](https://venkat-ai.com/technical-review) — 5-spine path (**Demo vs Strict** labeled)
 - [Spine API health](https://venkat-ai.com/spine-health)
-- [Golden path E2E](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/GOLDEN_PATH.md) — stranger-replayable artifact (gateway `approval_required` + FinOps meter)
+- [Golden path E2E](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/GOLDEN_PATH.md) — stranger-replayable (gateway `approval_required` + FinOps meter)
 - [Golden eval CI](https://github.com/vpeetla-ai/golden-eval-registry/actions/workflows/ci.yml)
 
 ---
@@ -118,7 +118,7 @@ Why: portfolio repos should read like architecture reviews, not homework assignm
 - Multi-intent routing with explainable plans
 - RAG + live web research in one graph
 - Notification fan-out across channels
-- Demonstrating LangGraph at portfolio quality
+- A place to practice LangGraph without pretending it's the constitution
 
 ### What VAP is not
 
@@ -180,7 +180,7 @@ That single design choice would have prevented my biggest VAP-era fear: an agent
 
 ### Managed orchestrators (governance in practice)
 
-AegisAI does not just theorize governance — it runs orchestrators through the same gateway:
+AegisAI also runs orchestrators through the same gateway — not a separate ungoverned path:
 
 | Orchestrator | Trigger | Output |
 |--------------|---------|--------|
@@ -200,9 +200,9 @@ requirements_analyst → ui_design → fe_engineer → be_engineer → review_de
 
 FE and BE agents do not deploy directly. They **request** deploy through the gateway. Humans approve. Audit packets get signed.
 
-### Layered backend (why this is enterprise-grade)
+### Layered backend (why the gateway stays thin)
 
-AegisAI follows clean architecture:
+AegisAI follows clean architecture on purpose — so enforcement doesn't leak into UI `if`s:
 
 ```text
 Experience (Next.js UI)
@@ -234,14 +234,14 @@ They are **complementary**, not duplicates.
 └─────────────────────────────────────────────────────────┘
 ```
 
-In a full production stack:
+When they're wired (Demo may run either alone):
 
 1. **VAP** (or any LangGraph app) plans and executes cognitive work
-2. **AegisAI gateway** intercepts every tool call with side effects
+2. **AegisAI gateway** intercepts tool calls with side effects — when `AEGISAI_API_BASE_URL` is set
 3. **HITL queue** approves deploys, financial actions, external publishes
-4. **Audit + FinOps** record what happened and what it cost
+4. **Audit + FinOps** record what happened and what it cost (FinOps is real for wired paths; free-tier Demo doesn't invent fleet SLOs)
 
-My **[AI Content Factory](https://github.com/vpeetla-ai/ai-content-factory)** sits in the application layer — content automation with its own HITL gate before publish. AegisAI is where fleet-wide governance lives when you have *many* agents and *many* tools.
+**[AI Content Factory](https://github.com/vpeetla-ai/ai-content-factory)** sits in the application layer — content automation with its own HITL gate before publish. AegisAI is where fleet-wide governance lives when you have *many* agents and *many* tools.
 
 ---
 
@@ -255,13 +255,13 @@ I built VAP first. That was correct for learning LangGraph deeply. But I should 
 
 ### 2. HITL is not a UI nice-to-have
 
-Human-in-the-loop is the difference between a demo and production. VAP uses a critic agent. AegisAI uses policy-forced HITL on deploy tools. AI Content Factory uses LangGraph `interrupt_before` before publish.
+HITL is the line between a demo and something I'd put in front of irreversible tools. VAP uses a critic agent. AegisAI forces HITL on deploy tools via OPA. Content Factory uses LangGraph `interrupt_before` before publish.
 
-Three different mechanisms. Same principle: **nothing irreversible ships without a human.**
+Three mechanisms. Same refusal: **nothing irreversible ships without a human.**
 
 ### 3. Observability ≠ governance
 
-Langfuse and LangSmith traces tell you what happened. They do not stop bad actions mid-flight. You need both:
+Langfuse and LangSmith tell you what happened. They do not stop a bad tool call mid-flight. You need both:
 
 | Layer | Tooling |
 |-------|---------|
@@ -270,11 +270,11 @@ Langfuse and LangSmith traces tell you what happened. They do not stop bad actio
 
 ### 4. Free-tier deployability matters for open source
 
-Both repos deploy on free-tier stacks (Vercel + Render + Supabase / Neon). If people cannot run your portfolio projects, they will not star them.
+Both repos deploy on free-tier stacks (Vercel + Render + Supabase / Neon). Sleep and cold starts are real — labeled Demo, not sold as 99.9% enterprise SLOs. If people cannot run the projects, they will not review them.
 
-### 5. Documentation is a credibility multiplier
+### 5. ADRs beat badges
 
-VAP's principal design doc and AegisAI's north-star architecture file do more for my portfolio than any badge. Architects hire architects who write ADRs.
+VAP's principal design doc and AegisAI's north-star architecture do more for a panel than any shield. Architects hire people who write down what they refused.
 
 ---
 
@@ -329,19 +329,19 @@ Open http://localhost:3000 or the [live control plane](https://aegisai-enterpris
 
 ## What is next
 
-- Wire VAP tool calls through AegisAI gateway (full stack integration)
-- Postgres migration for AegisAI agent registry
-- OAuth publish adapters for AI Content Factory
-- Unified learning path linking pattern repos → VAP → AegisAI
+- Deeper VAP tool coverage through the AegisAI gateway (notify is wired when configured; not every tool path yet)
+- Default-on auth enforcement for public demos (still opt-in today — labeled)
+- OAuth publish adapters where platforms allow it for Content Factory
+- Keep golden-eval-registry suites honest as consumers evolve
 
 ---
 
 ## Closing thought
 
-The AI agent wave produced thousands of demos. The next wave is **governed agent fleets** — systems where orchestration and authority are separate, policy is explicit, and audit is not an afterthought.
+The agent wave produced a lot of demos. The interesting work is **governed fleets** — orchestration and authority as separate layers, policy explicit, audit not an afterthought. Demo vs Strict stays labeled; free-tier sleep is not an enterprise SLO.
 
 **[Venkat AI Platform](https://github.com/vpeetla-ai/venkat-ai-platform)** is how I think about building agents.  
-**[AegisAI](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform)** is how I think about trusting them in production.
+**[AegisAI](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform)** is how I think about trusting them when tools can hurt.
 
 If this architecture helps your work, star the repos — it helps other builders find them.
 

@@ -8,6 +8,16 @@ description: >-
 
 # Portfolio & ADR Writing
 
+## Voice (required)
+
+Same bar as the interview playbook: **Principal peer who shipped this**, not brochure/template bot.
+Canonical guide: `ai-architecture-portfolio/docs/HUMAN_VOICE_PASS.md` (also mirrored in this skills pack when present).
+
+- Decision first · scar second · proof third
+- Add `## In one breath (panel)` — one spoken sentence
+- Refuse demo theater; label Demo vs Strict / P vs O
+- Ban: leverage, comprehensive, seamless, cutting-edge, utilize, holistic, synergies
+
 ## ADR template
 
 ```markdown
@@ -16,14 +26,17 @@ description: >-
 ## Status
 Proposed | Accepted | Superseded
 
+## In one breath (panel)
+I'd … (one spoken sentence)
+
 ## Context
-What problem and constraints?
+What failed / scared us into deciding — human, not “this document outlines”.
 
 ## Decision
-What we chose.
+What we chose (plain English, then bullets if needed).
 
 ## Consequences
-Trade-offs, what we gave up.
+Trade-offs, what we gave up, what we'd reverse on.
 
 ## Links
 Live demo, repo, related ADR
@@ -31,16 +44,17 @@ Live demo, repo, related ADR
 
 ## Case study structure
 
-1. Problem (1 paragraph)
+1. Problem (1 paragraph with a scar)
 2. Architecture diagram (mermaid or link)
 3. Key decisions (3–5 bullets with ADR links)
 4. Live demo URL (must work)
-5. What we'd do differently
+5. What we'd do differently / limitations
 
 ## Honesty rules
 
 - **Implemented** vs **Planned** vs **Demo-only** — separate columns in README tables
 - No fake metrics; cite eval gates and test counts instead
+- Never imply Lucid production ran public repo binaries
 
 ## Sync targets
 
