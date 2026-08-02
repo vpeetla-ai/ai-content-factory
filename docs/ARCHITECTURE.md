@@ -22,10 +22,10 @@ Next.js (Vercel) ──JWT──► FastAPI (Render) ──► LangGraph pipelin
 ```mermaid
 flowchart LR
     T[Topic] --> R[research]
-    R --> E[enrich]
-    E --> C[content]
-    C --> S[seo]
-    C --> V[visual]
+    R --> C[content]
+    C --> E[enrich]
+    E --> S[seo]
+    E --> V[visual]
     S & V --> H[hitl]
     H --> P[publish]
     subgraph Obs["Trace-linked LLMOps"]
@@ -35,17 +35,18 @@ flowchart LR
 ```
 
 ```text
-research → enrich → content → [seo ∥ visual] → hitl → publish
+research → content → enrich [seo ∥ visual] → hitl → publish
 ```
 
-- **HITL:** `interrupt_before` on publish node — human approves before side effects
-- **RAG:** Qdrant hybrid retrieval in research node
-- **Gateway:** AegisAI integration on publish path
+- **HITL:** `interrupt_before` on the **hitl** node — human approves before side effects
+- **RAG:** local Qdrant/Pinecone similarity + optional Enterprise RAG compose (`ENTERPRISE_RAG_API_URL`)
+- **Gateway:** AegisAI authorization on the real `PublisherService` path (not the graph node)
 
 Graph source: `agents/graph.py` · Nodes: `agents/nodes/`
 
-Note: the graph's `publish` node (`agents/nodes/publish.py`) only decides *which* approved
-drafts to attempt per platform. The real per-platform API call happens afterward in
+Note: the graph's `publish` node (`agents/nodes/publish.py`) only **selects** approved
+platforms (`pending_adapter: true`, content preview — no fake post URLs). The real
+per-platform API call / copy-draft export happens afterward in
 `PipelineService._persist_published` via `PublisherService` (`backend/app/services/publisher.py`).
 
 ---

@@ -76,6 +76,7 @@ async def get_pipeline(
         topic=run.topic,
         research_brief=state.get("research_brief"),
         platform_drafts=state.get("platform_drafts"),
+        quality_scores=state.get("quality_scores"),
         seo_data=state.get("seo_data"),
         image_prompts=state.get("image_prompts"),
         hitl_approved=state.get("hitl_approved"),

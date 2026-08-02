@@ -14,6 +14,7 @@ class ContentFactoryState(TypedDict, total=False):
     # Agent outputs
     research_brief: str | None
     platform_drafts: dict | None  # {linkedin, substack, medium, x, instagram}
+    quality_scores: dict | None  # per-platform rubric results from agents.quality
     image_prompts: list[str] | None
     seo_data: dict | None  # {keywords, hooks, hashtags}
 
@@ -22,7 +23,8 @@ class ContentFactoryState(TypedDict, total=False):
     hitl_edits: dict | None
 
     # Publish
-    published_results: dict | None  # {platform: post_id}
+    # Selected platforms for PublisherService (pending_adapter) — not live post URLs
+    published_results: dict | None
 
     # Meta
     error: str | None
