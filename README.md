@@ -171,6 +171,7 @@ flowchart LR
 | LLM gateway plane | ✅ When `LLM_GATEWAY_URL` set — ACF **selects** agent→thesis/tier; [aegis-llm-gateway](https://github.com/vpeetla-ai/aegis-llm-gateway) **enforces+records** (ADR-028/029); HITL/publish gateway unchanged |
 | `PRODUCTION_STRICT` fail-closed publish | ✅ Denies publish when gateway unreachable (ADR-024) |
 | Public ops metrics API | ✅ | `GET /api/v1/ops/metrics` |
+| Observability status | ✅ | `GET /api/v1/ops/observability/status` — LLM/RAG/AegisAI compose planes |
 | Golden eval CI gate (graph_hitl) | ✅ | `scripts/run_golden_eval_graph.py` |
 | DevSecOps pipeline (Semgrep+Trivy) | ✅ | `.github/workflows/security-scan.yml` |
 | AWS reference architectures (×6) | ✅ | `docs/reference-architectures/` + `infra/aws/` |
@@ -212,6 +213,7 @@ Base URL: `/api/v1`
 | POST | `/hitl/{id}/approve` | Approve + resume |
 | GET | `/content/{id}/drafts` | Content drafts |
 | GET | `/ops/metrics` | Public anonymized ops metrics (SLO dashboard) |
+| GET | `/ops/observability/status` | Compose-plane honesty (LLM gateway / ERAG / AegisAI / schedule) |
 
 **Ops & architecture:** [SLO](docs/SLO.md) · [SCALE](docs/SCALE.md) · [DevSecOps](docs/DEVSECOPS.md) · [FinOps](docs/FINOPS.md) · [Reference architectures](docs/reference-architectures/) · [Grade A tracker](docs/PORTFOLIO_GRADE_A.md)
 

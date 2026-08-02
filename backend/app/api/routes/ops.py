@@ -65,3 +65,55 @@ async def ops_schedule():
         "mutation": "env_only",
         "note": "Enable via CRON_PIPELINE_ENABLED; gateway authorizes schedule_pipeline.",
     }
+
+
+@router.get("/observability/status")
+async def observability_status():
+    """Compose-plane honesty for ACF — publish path vs LLM/RAG planes."""
+    settings = get_settings()
+    gateway_on = bool((settings.llm_gateway_url or "").strip())
+    return {
+        "source_of_truth": (
+            "ACF Postgres pipeline/trace tables for content runs; "
+            "AegisAI authorizes publish side effects when wired"
+        ),
+        "exporters": [
+            {
+                "name": "OpsMetrics",
+                "state": "live",
+                "detail": "GET /api/v1/ops/metrics — anonymized aggregates + compose planes",
+            },
+            {
+                "name": "Langfuse",
+                "state": "configured" if settings.langfuse_configured else "unconfigured",
+                "detail": "Optional trace export — not the publish/HITL ledger",
+            },
+        ],
+        "planes": {
+            "llm_gateway": {
+                "enabled": gateway_on,
+                "plane": "aegis-llm-gateway",
+            },
+            "enterprise_rag": {
+                "configured": bool((settings.enterprise_rag_api_url or "").strip()),
+                "compose": "research_node",
+                "fail_soft": True,
+            },
+            "aegisai_gateway": {
+                "configured": bool(settings.aegisai_api_base_url),
+                "plane": "publish_side_effects",
+            },
+            "langfuse": {"configured": settings.langfuse_configured},
+            "langsmith": {"enabled": settings.langsmith_enabled},
+            "schedule": {
+                "enabled": settings.cron_pipeline_enabled,
+                "mutation": "env_only",
+            },
+            "production_strict": settings.production_strict,
+            "mock_llm": settings.mock_llm,
+        },
+        "recommendation": (
+            "Unauthenticated golden path stops at /health for ACF. "
+            "Live publish requires Clerk + gateway/HITL — Medium/Substack/IG stay copy-draft."
+        ),
+    }
