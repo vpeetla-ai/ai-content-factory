@@ -1,11 +1,11 @@
-"""Upload SVG cards for visual prompts when R2 is configured."""
+"""Upload PNG cards for visual prompts when R2 is configured."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from app.services.media_cards import card_object_key, render_prompt_card_svg
+from app.services.media_cards import card_object_key, render_prompt_card_png
 from app.services.media_store import r2_configured, upload_bytes
 
 logger = logging.getLogger(__name__)
@@ -25,9 +25,9 @@ async def materialize_media_assets(
     for i, prompt in enumerate(list(prompts or [])[:limit]):
         if not str(prompt).strip():
             continue
-        key = card_object_key(run_id or "local", str(prompt), i)
-        body = render_prompt_card_svg(topic=topic, prompt=str(prompt), index=i)
-        obj = await upload_bytes(key, body, content_type="image/svg+xml")
+        key = card_object_key(run_id or "local", str(prompt), i, ext="png")
+        body = render_prompt_card_png(topic=topic, prompt=str(prompt), index=i)
+        obj = await upload_bytes(key, body, content_type="image/png")
         if obj is None:
             logger.info("media_card_skipped index=%s (upload failed or unset)", i)
             continue

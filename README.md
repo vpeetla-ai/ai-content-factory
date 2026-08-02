@@ -166,7 +166,7 @@ flowchart LR
 | MCP tool bridge (in-process) | ✅ | See [docs/MCP.md](docs/MCP.md) |
 | Render + Vercel deploy | ✅ (configure secrets) |
 | Platform publish OAuth | 🟡 LinkedIn/X real; Medium/Substack/IG copy-draft |
-| Cloudflare R2 media | ✅ When `R2_*` + `R2_PUBLIC_URL` set — visual uploads SVG cards; HITL shows cards + copy URL; LinkedIn/X append public URL (native binary attach not yet) |
+| Cloudflare R2 media | ✅ When `R2_*` + `R2_PUBLIC_URL` set — visual uploads PNG cards; HITL shows cards + copy URL; LinkedIn/X try native image attach (Assets API / media upload), fail-soft to URL-in-text |
 | AegisAI gateway (publish path) | ✅ Wired — `integrations/aegis_gateway.py` |
 | LLM gateway plane | ✅ When `LLM_GATEWAY_URL` set — ACF **selects** agent→thesis/tier; [aegis-llm-gateway](https://github.com/vpeetla-ai/aegis-llm-gateway) **enforces+records** (ADR-028/029); HITL/publish gateway unchanged |
 | `PRODUCTION_STRICT` fail-closed publish | ✅ Denies publish when gateway unreachable (ADR-024) |
