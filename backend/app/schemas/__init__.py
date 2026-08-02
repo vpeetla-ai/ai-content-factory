@@ -76,6 +76,7 @@ class HITLReviewResponse(BaseModel):
     media_assets: list[dict] | None = None
     image_prompts: list[str] | None = None
     quality_scores: dict | None = None
+    research_meta: dict | None = None
 
 
 # ── Content ────────────────────────────────────────────

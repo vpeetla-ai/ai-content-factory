@@ -21,6 +21,10 @@ async def test_get_review_includes_media_and_quality():
         "media_assets": [{"url": "https://cdn.example/card.svg", "prompt": "navy diagram"}],
         "image_prompts": ["navy diagram"],
         "quality_scores": {"linkedin": {"pass": True, "score": 1.0, "issues": []}},
+        "research_meta": {
+            "cache_hit": False,
+            "enterprise_rag": {"configured": True, "used": True, "cite_count": 2},
+        },
     }
 
     draft = MagicMock()
@@ -47,4 +51,5 @@ async def test_get_review_includes_media_and_quality():
     assert review["media_assets"][0]["url"].endswith("card.svg")
     assert review["image_prompts"] == ["navy diagram"]
     assert review["quality_scores"]["linkedin"]["pass"] is True
+    assert review["research_meta"]["enterprise_rag"]["used"] is True
     assert review["drafts"][0]["platform"] == "linkedin"

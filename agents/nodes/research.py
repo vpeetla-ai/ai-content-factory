@@ -22,12 +22,22 @@ Produce a structured research brief with: key facts, trends, audience angles, an
 Output JSON only: {"brief": "...", "sources": ["..."], "angles": ["..."]}"""
 
 
-async def _fetch_enterprise_rag(topic: str) -> list[str]:
-    """Optional compose to Enterprise RAG (access-before-ranking). Fail soft."""
+async def _fetch_enterprise_rag(topic: str) -> tuple[list[str], dict]:
+    """Optional compose to Enterprise RAG (access-before-ranking). Fail soft.
+
+    Returns (context_parts, meta) so HITL/ops can show honest compose status.
+    """
     settings = get_settings()
     base = (settings.enterprise_rag_api_url or "").rstrip("/")
+    meta: dict = {
+        "configured": bool(base),
+        "used": False,
+        "cite_count": 0,
+        "declined": False,
+        "error": None,
+    }
     if not base:
-        return []
+        return [], meta
     headers: dict[str, str] = {"Content-Type": "application/json"}
     if settings.enterprise_rag_api_key:
         headers["X-API-Key"] = settings.enterprise_rag_api_key
@@ -52,18 +62,22 @@ async def _fetch_enterprise_rag(topic: str) -> list[str]:
                     status=response.status_code,
                     body=response.text[:200],
                 )
-                return []
+                meta["error"] = f"http_{response.status_code}"
+                return [], meta
             data = response.json()
     except Exception as exc:
         logger.warning("enterprise_rag_error", error=str(exc))
-        return []
+        meta["error"] = "request_failed"
+        return [], meta
 
     parts: list[str] = []
     answer = data.get("answer") or data.get("text") or ""
     if answer:
         parts.append(f"[enterprise_rag_answer] {str(answer)[:1500]}")
     citations = data.get("citations") or data.get("sources") or []
+    cite_count = 0
     for i, cite in enumerate(citations[:5], 1):
+        cite_count += 1
         if isinstance(cite, dict):
             snippet = cite.get("text") or cite.get("snippet") or cite.get("uri") or str(cite)
             page = cite.get("page")
@@ -71,19 +85,25 @@ async def _fetch_enterprise_rag(topic: str) -> list[str]:
             parts.append(f"[enterprise_rag_cite_{i}{page_s}] {str(snippet)[:400]}")
         else:
             parts.append(f"[enterprise_rag_cite_{i}] {str(cite)[:400]}")
-    if data.get("declined"):
+    declined = bool(data.get("declined"))
+    if declined:
         parts.append("[enterprise_rag] declined_to_answer")
-    return parts
+    meta["used"] = bool(parts)
+    meta["cite_count"] = cite_count
+    meta["declined"] = declined
+    return parts, meta
 
 
-async def _fetch_external_sources(topic: str) -> str:
+async def _fetch_external_sources(topic: str) -> tuple[str, dict]:
     """Augment with Enterprise RAG (optional) + local vector hits from prior research."""
     parts = [f"[topic] {topic}"]
-    erag_parts = await _fetch_enterprise_rag(topic)
+    erag_parts, erag_meta = await _fetch_enterprise_rag(topic)
     parts.extend(erag_parts)
+    local_hits = 0
     try:
         similar = await search_similar(topic, limit=5)
         for i, hit in enumerate(similar, 1):
+            local_hits += 1
             parts.append(
                 f"[rag_{i}] (score={hit.get('score', 0):.2f}) "
                 f"{hit.get('topic')}: {hit.get('brief', '')[:500]}"
@@ -92,7 +112,10 @@ async def _fetch_external_sources(topic: str) -> str:
         logger.warning("rag_search_failed", error=str(exc))
     if len(parts) == 1:
         parts.append(f"[web_search] Recent articles on '{topic}'")
-    return "\n".join(parts)
+    return "\n".join(parts), {
+        "enterprise_rag": erag_meta,
+        "local_rag_hits": local_hits,
+    }
 
 
 @observe_node("research")
@@ -111,10 +134,23 @@ async def research_agent(state: ContentFactoryState) -> dict:
     cached = await redis.get(cache_key)
     if cached:
         logger.info("research_cache_hit", topic=topic)
-        return {"research_brief": cached, "error": None}
+        return {
+            "research_brief": cached,
+            "research_meta": {
+                "cache_hit": True,
+                "enterprise_rag": {
+                    "configured": bool((settings.enterprise_rag_api_url or "").strip()),
+                    "used": None,
+                    "cite_count": 0,
+                    "declined": False,
+                    "error": None,
+                },
+            },
+            "error": None,
+        }
 
     try:
-        sources = await _fetch_external_sources(topic)
+        sources, source_meta = await _fetch_external_sources(topic)
         raw = await call_llm(
             "research",
             RESEARCH_SYSTEM,
@@ -136,7 +172,11 @@ async def research_agent(state: ContentFactoryState) -> dict:
             logger.warning("vector_upsert_failed", error=str(exc))
 
         logger.info("research_completed", topic=topic, brief_chars=len(str(brief)))
-        return {"research_brief": brief, "error": None}
+        return {
+            "research_brief": brief,
+            "research_meta": {"cache_hit": False, **source_meta},
+            "error": None,
+        }
     except Exception as exc:
         logger.error("research_failed", topic=topic, error=str(exc))
         return {"error": f"Research agent failed: {exc}"}

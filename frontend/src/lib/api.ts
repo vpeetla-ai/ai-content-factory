@@ -65,4 +65,16 @@ export const api = {
       request<{ authorize_url: string }>(`/oauth/${platform}/authorize`),
     status: () => request<{ connected: string[] }>("/oauth/status"),
   },
+  ops: {
+    schedule: () =>
+      request<{
+        enabled: boolean;
+        cron: string;
+        topic: string;
+        platforms: string[];
+        timezone: string;
+        mutation: string;
+        note?: string;
+      }>("/ops/schedule"),
+  },
 };
