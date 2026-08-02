@@ -28,6 +28,14 @@ async def ops_metrics(db: Annotated[AsyncSession, Depends(get_db)]):
     extra["enterprise_rag"] = {
         "configured": bool((settings.enterprise_rag_api_url or "").strip()),
     }
+    extra["r2_media"] = {
+        "configured": bool(
+            settings.r2_account_id
+            and settings.r2_access_key_id
+            and settings.r2_secret_access_key
+            and settings.r2_public_url
+        ),
+    }
     metrics["extra"] = extra
     return metrics
 

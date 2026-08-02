@@ -417,6 +417,11 @@ class PipelineService:
             token_data = user_tokens.get(platform_name) or {}
             if not isinstance(token_data, dict):
                 token_data = {}
+            # Pass R2 media URLs to LinkedIn/X adapters (appended as public links).
+            assets = state.get("media_assets") or []
+            media_urls = [a.get("url") for a in assets if isinstance(a, dict) and a.get("url")]
+            if media_urls and platform_name in {"linkedin", "x"}:
+                token_data = {**token_data, "_media_urls": media_urls}
 
             try:
                 post = await publisher.publish_draft(

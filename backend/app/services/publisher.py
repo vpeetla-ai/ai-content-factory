@@ -26,6 +26,11 @@ class PlatformAdapter(ABC):
 class LinkedInAdapter(PlatformAdapter):
     async def publish(self, draft: ContentDraft, token_data: dict) -> dict:
         content = draft.edited_content or draft.draft_content
+        media_urls = token_data.get("_media_urls") if isinstance(token_data, dict) else None
+        if media_urls:
+            url = str(media_urls[0])
+            if url and url not in content:
+                content = f"{content.rstrip()}\n\n{url}"
         access_token = token_data.get("access_token") or ""
         person_id = token_data.get("person_id") or ""
         if not access_token:
@@ -73,6 +78,13 @@ class LinkedInAdapter(PlatformAdapter):
 class XAdapter(PlatformAdapter):
     async def publish(self, draft: ContentDraft, token_data: dict) -> dict:
         content = (draft.edited_content or draft.draft_content)[:280]
+        media_urls = token_data.get("_media_urls") if isinstance(token_data, dict) else None
+        if media_urls:
+            url = str(media_urls[0])
+            # Keep room for URL on X
+            if url and url not in content:
+                room = max(0, 280 - len(url) - 1)
+                content = f"{content[:room].rstrip()}\n{url}"[:280]
         access_token = token_data.get("access_token") or ""
         if not access_token:
             return {
