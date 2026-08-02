@@ -73,6 +73,9 @@ class HITLReviewResponse(BaseModel):
     run_id: UUID
     status: PipelineStatusEnum
     drafts: list[dict]
+    media_assets: list[dict] | None = None
+    image_prompts: list[str] | None = None
+    quality_scores: dict | None = None
 
 
 # ── Content ────────────────────────────────────────────
