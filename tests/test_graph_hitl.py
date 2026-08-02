@@ -49,6 +49,7 @@ async def test_publish_skips_unapproved_platforms(sample_state):
     published = result["published_results"]
     assert "linkedin" in published
     assert "x" not in published
+    assert published["linkedin"]["pending_adapter"] is True
 
 
 @pytest.mark.asyncio
@@ -56,6 +57,7 @@ async def test_publish_uses_hitl_edits_over_draft(sample_state):
     sample_state["hitl_edits"] = {"linkedin": "Human-edited final copy"}
     result = await publisher_agent(sample_state)  # type: ignore[arg-type]
     assert "Human-edited" in result["published_results"]["linkedin"]["content_preview"]
+    assert result["published_results"]["linkedin"].get("url") is None
 
 
 def test_graph_node_order():

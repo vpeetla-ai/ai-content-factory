@@ -1,7 +1,9 @@
-"""Research Agent — Gemini + Redis cache + Qdrant/Pinecone RAG."""
+"""Research Agent — Gemini + Redis cache + Qdrant/Pinecone RAG (+ optional ERAG)."""
 
 import hashlib
 import json
+
+import httpx
 
 from agents.context import set_run_context
 from agents.llm import call_llm, parse_llm_json
@@ -20,13 +22,72 @@ Produce a structured research brief with: key facts, trends, audience angles, an
 Output JSON only: {"brief": "...", "sources": ["..."], "angles": ["..."]}"""
 
 
+async def _fetch_enterprise_rag(topic: str) -> list[str]:
+    """Optional compose to Enterprise RAG (access-before-ranking). Fail soft."""
+    settings = get_settings()
+    base = (settings.enterprise_rag_api_url or "").rstrip("/")
+    if not base:
+        return []
+    headers: dict[str, str] = {"Content-Type": "application/json"}
+    if settings.enterprise_rag_api_key:
+        headers["X-API-Key"] = settings.enterprise_rag_api_key
+        headers["Authorization"] = f"Bearer {settings.enterprise_rag_api_key}"
+    url = f"{base}/v1/answer"
+    payload = {
+        "query": topic,
+        "tenant_id": "ai-content-factory",
+        "user_id": "acf-research",
+        "groups": ["engineering", "content"],
+        "clearance": "internal",
+        "top_k": 5,
+        "rerank": True,
+        "agentic": False,
+    }
+    try:
+        async with httpx.AsyncClient(timeout=settings.enterprise_rag_timeout_s) as client:
+            response = await client.post(url, headers=headers, json=payload)
+            if response.status_code >= 400:
+                logger.warning(
+                    "enterprise_rag_failed",
+                    status=response.status_code,
+                    body=response.text[:200],
+                )
+                return []
+            data = response.json()
+    except Exception as exc:
+        logger.warning("enterprise_rag_error", error=str(exc))
+        return []
+
+    parts: list[str] = []
+    answer = data.get("answer") or data.get("text") or ""
+    if answer:
+        parts.append(f"[enterprise_rag_answer] {str(answer)[:1500]}")
+    citations = data.get("citations") or data.get("sources") or []
+    for i, cite in enumerate(citations[:5], 1):
+        if isinstance(cite, dict):
+            snippet = cite.get("text") or cite.get("snippet") or cite.get("uri") or str(cite)
+            page = cite.get("page")
+            page_s = f" p.{page}" if page is not None else ""
+            parts.append(f"[enterprise_rag_cite_{i}{page_s}] {str(snippet)[:400]}")
+        else:
+            parts.append(f"[enterprise_rag_cite_{i}] {str(cite)[:400]}")
+    if data.get("declined"):
+        parts.append("[enterprise_rag] declined_to_answer")
+    return parts
+
+
 async def _fetch_external_sources(topic: str) -> str:
-    """Augment with vector RAG hits from prior research."""
+    """Augment with Enterprise RAG (optional) + local vector hits from prior research."""
     parts = [f"[topic] {topic}"]
+    erag_parts = await _fetch_enterprise_rag(topic)
+    parts.extend(erag_parts)
     try:
         similar = await search_similar(topic, limit=5)
         for i, hit in enumerate(similar, 1):
-            parts.append(f"[rag_{i}] (score={hit.get('score', 0):.2f}) {hit.get('topic')}: {hit.get('brief', '')[:500]}")
+            parts.append(
+                f"[rag_{i}] (score={hit.get('score', 0):.2f}) "
+                f"{hit.get('topic')}: {hit.get('brief', '')[:500]}"
+            )
     except Exception as exc:
         logger.warning("rag_search_failed", error=str(exc))
     if len(parts) == 1:

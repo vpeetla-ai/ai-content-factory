@@ -82,6 +82,12 @@ class Settings(BaseSettings):
     embedding_model: str = "text-embedding-004"
     embedding_dimensions: int = 768
 
+    # ── Enterprise RAG compose (optional — L4) ───────────
+    # When set, research node retrieves via ERAG /v1/answer (access-before-ranking).
+    enterprise_rag_api_url: str = ""  # e.g. https://enterprise-rag-api-4el1.onrender.com
+    enterprise_rag_api_key: str = ""
+    enterprise_rag_timeout_s: float = 45.0
+
     # ── Object Storage (Cloudflare R2) ───────────────────
     r2_account_id: str = ""
     r2_access_key_id: str = ""

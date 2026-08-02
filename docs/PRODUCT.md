@@ -34,6 +34,7 @@ Topic in → Research (RAG) → Drafts (5 platforms) → Human review → Gatewa
 |--------|-----|------|
 | HITL before publish | Trust + compliance | Slower than fully autonomous |
 | Real OAuth for LinkedIn + X only | Only two platforms have a viable public posting API | Medium/Substack/Instagram are copy-draft export, not auto-publish |
+| Compose Enterprise RAG when configured | Access-before-ranking + citations without forking ERAG | Needs `ENTERPRISE_RAG_API_URL` (+ key); fail-soft to local vectors |
 | In-process MCP bridge | Fast to test; Cursor-ready | Stdio MCP server = Phase 4 |
 | Gateway fail-open in dev | Local velocity | Must fail-closed in prod |
 
