@@ -1,4 +1,4 @@
-"""Visual Agent — image prompt generation."""
+"""Visual Agent — image prompt generation + optional R2 media cards."""
 
 import json
 
@@ -6,6 +6,7 @@ from agents.context import set_run_context
 from agents.llm import call_llm
 from agents.observability import observe_node
 from agents.state import ContentFactoryState
+
 
 VISUAL_SYSTEM = """You generate image prompts for social content.
 Output JSON: {"prompts": ["prompt1", "prompt2", "prompt3"]}
@@ -17,6 +18,7 @@ async def visual_agent(state: ContentFactoryState) -> dict:
     set_run_context(state.get("run_id", ""), "visual")
     topic = state["topic"]
     brief = state.get("research_brief", "")
+    run_id = state.get("run_id", "")
 
     try:
         raw = await call_llm(
@@ -30,6 +32,18 @@ async def visual_agent(state: ContentFactoryState) -> dict:
         except json.JSONDecodeError:
             prompts = [raw]
 
-        return {"image_prompts": prompts, "error": None}
+        media_assets: list = []
+        try:
+            from app.services.media_assets import materialize_media_assets
+
+            media_assets = await materialize_media_assets(
+                run_id=run_id,
+                topic=topic,
+                prompts=prompts if isinstance(prompts, list) else [str(prompts)],
+            )
+        except Exception:
+            media_assets = []
+
+        return {"image_prompts": prompts, "media_assets": media_assets, "error": None}
     except Exception as exc:
         return {"error": f"Visual agent failed: {exc}"}

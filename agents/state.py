@@ -16,6 +16,7 @@ class ContentFactoryState(TypedDict, total=False):
     platform_drafts: dict | None  # {linkedin, substack, medium, x, instagram}
     quality_scores: dict | None  # per-platform rubric results from agents.quality
     image_prompts: list[str] | None
+    media_assets: list | None  # R2-hosted SVG cards when configured
     seo_data: dict | None  # {keywords, hooks, hashtags}
 
     # HITL

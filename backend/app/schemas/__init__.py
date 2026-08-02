@@ -50,6 +50,7 @@ class PipelineStateResponse(BaseModel):
     quality_scores: dict | None = None
     seo_data: dict | None = None
     image_prompts: list[str] | None = None
+    media_assets: list | None = None
     hitl_approved: dict | None = None
     published_results: dict | None = None
     error: str | None = None

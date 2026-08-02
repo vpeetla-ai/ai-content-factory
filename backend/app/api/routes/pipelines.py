@@ -79,6 +79,7 @@ async def get_pipeline(
         quality_scores=state.get("quality_scores"),
         seo_data=state.get("seo_data"),
         image_prompts=state.get("image_prompts"),
+        media_assets=state.get("media_assets"),
         hitl_approved=state.get("hitl_approved"),
         published_results=state.get("published_results"),
         error=state.get("error"),
