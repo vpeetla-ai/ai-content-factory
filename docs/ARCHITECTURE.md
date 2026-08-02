@@ -92,6 +92,9 @@ Trace-linked spans at **system**, **trace**, and **node** levels via `backend/ap
 | Langfuse export | `export_trace_summary` + `configure_langfuse` | `LANGFUSE_*` — see [DEPLOYMENT.md §8](./DEPLOYMENT.md#8-step-by-step-langfuse) |
 | Sentry | FastAPI integration | `SENTRY_DSN` |
 | Postgres audit | `agent_traces` table | Always on when DB configured |
+| Compose honesty | `GET /api/v1/ops/observability/status` | LLM gateway · ERAG research · AegisAI publish planes — public |
+
+I’d keep Postgres pipeline/trace tables as the run ledger for content. Langfuse is optional export. Publish still goes through AegisAI/HITL when wired — the golden path honestly stops at `/health` without Clerk.
 
 **Production import path:** `from app.vpeetla_observability...` (not top-level `vpeetla_observability`).
 
