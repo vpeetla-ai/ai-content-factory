@@ -31,6 +31,17 @@ interface HitlReviewResponse {
   media_assets?: MediaAsset[];
   image_prompts?: string[];
   quality_scores?: Record<string, QualityScore>;
+  research_meta?: {
+    cache_hit?: boolean;
+    local_rag_hits?: number;
+    enterprise_rag?: {
+      configured?: boolean;
+      used?: boolean | null;
+      cite_count?: number;
+      declined?: boolean;
+      error?: string | null;
+    };
+  };
 }
 
 interface Props {
@@ -69,6 +80,16 @@ export function HITLReview({ runId, onComplete }: Props) {
   const assets = review?.media_assets || [];
   const prompts = review?.image_prompts || [];
   const scores = review?.quality_scores || {};
+  const erag = review?.research_meta?.enterprise_rag;
+  const eragLabel = !erag
+    ? null
+    : erag.used === true
+      ? `Enterprise RAG composed · ${erag.cite_count ?? 0} cites`
+      : erag.used === null
+        ? "Research cache hit — ERAG compose skipped this run"
+        : erag.configured
+          ? `Enterprise RAG configured but unused${erag.error ? ` (${erag.error})` : ""}`
+          : "Enterprise RAG not configured (local RAG only)";
 
   const copyUrl = async (url: string) => {
     try {
@@ -85,6 +106,15 @@ export function HITLReview({ runId, onComplete }: Props) {
       <h2 className="text-sm font-semibold uppercase tracking-wider text-green-400 mb-4">
         Human Review (HITL Gate)
       </h2>
+
+      {eragLabel && (
+        <p className="mb-4 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-slate-600">
+          {eragLabel}
+          {review?.research_meta?.local_rag_hits != null
+            ? ` · local hits ${review.research_meta.local_rag_hits}`
+            : ""}
+        </p>
+      )}
 
       {(assets.length > 0 || prompts.length > 0) && (
         <div className="mb-5 rounded-lg border border-border bg-surface p-4">

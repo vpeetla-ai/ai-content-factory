@@ -27,6 +27,8 @@ async def ops_metrics(db: Annotated[AsyncSession, Depends(get_db)]):
     }
     extra["enterprise_rag"] = {
         "configured": bool((settings.enterprise_rag_api_url or "").strip()),
+        "compose": "research_node",
+        "fail_soft": True,
     }
     extra["r2_media"] = {
         "configured": bool(
@@ -35,6 +37,12 @@ async def ops_metrics(db: Annotated[AsyncSession, Depends(get_db)]):
             and settings.r2_secret_access_key
             and settings.r2_public_url
         ),
+    }
+    extra["schedule"] = {
+        "enabled": settings.cron_pipeline_enabled,
+        "cron": settings.cron_schedule,
+        "timezone": "UTC",
+        "mutation": "env_only",
     }
     metrics["extra"] = extra
     return metrics

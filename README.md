@@ -157,7 +157,7 @@ flowchart LR
 | Langfuse LLM traces | ✅ (set `LANGFUSE_*`) |
 | Sentry error tracking | ✅ (set `SENTRY_DSN`) |
 | Qdrant / Pinecone RAG | ✅ |
-| Enterprise RAG compose (research) | ✅ When `ENTERPRISE_RAG_API_URL` set — fail-soft |
+| Enterprise RAG compose (research) | ✅ When `ENTERPRISE_RAG_API_URL` set — fail-soft; HITL shows compose meta; Architecture rail shows configured plane |
 | Draft quality rubrics | ✅ Deterministic per-platform scores on content node |
 | Publish graph intents | ✅ Selects platforms only; real adapters in `PublisherService` (no fake URLs) |
 | WebSocket auth | ✅ |
@@ -176,7 +176,7 @@ flowchart LR
 | AWS reference architectures (×6) | ✅ | `docs/reference-architectures/` + `infra/aws/` |
 | Public landing page | ✅ | `/` glass-box · `/dashboard` live SSE glass-box |
 | Glass-box workbench UX | ✅ | 3-column: arch/SLOs · research→publish phase replay · product |
-| Schedule surface | ✅ | `GET /api/v1/ops/schedule` — cron env exposed as product read API |
+| Schedule surface | ✅ | `GET /api/v1/ops/schedule` + dashboard read-only panel; mutations env-only |
 
 ---
 

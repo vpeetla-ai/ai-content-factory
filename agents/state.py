@@ -13,6 +13,7 @@ class ContentFactoryState(TypedDict, total=False):
 
     # Agent outputs
     research_brief: str | None
+    research_meta: dict | None  # ERAG compose + local RAG honesty for HITL/ops
     platform_drafts: dict | None  # {linkedin, substack, medium, x, instagram}
     quality_scores: dict | None  # per-platform rubric results from agents.quality
     image_prompts: list[str] | None

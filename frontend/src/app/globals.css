@@ -128,6 +128,27 @@ body {
 .gb-metric { background: var(--vp-bg-subtle); border: 1px solid var(--vp-border); border-radius: var(--vp-radius-sm); padding: 0.4rem 0.5rem; }
 .gb-metric span { display: block; font-size: 0.62rem; color: var(--vp-text-muted); text-transform: uppercase; }
 .gb-metric strong { font-size: 0.95rem; font-weight: 700; }
+.gb-compose-planes {
+  list-style: none;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+.gb-compose-planes li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  padding: 0.25rem 0.35rem;
+  border-radius: var(--vp-radius-sm);
+  border: 1px solid var(--vp-border);
+  background: var(--vp-bg-subtle);
+}
+.gb-compose-planes li strong { font-weight: 600; color: var(--vp-text); }
+.gb-compose-planes li span { color: var(--vp-text-muted); text-align: right; }
+.gb-compose-planes li.on { border-color: rgba(5, 150, 105, 0.35); }
+.gb-compose-planes li.off { opacity: 0.85; }
 .gb-metrics-failed .gb-retry,
 .gb-retry {
   margin-top: 0.35rem;

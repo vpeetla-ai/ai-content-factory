@@ -14,6 +14,7 @@ import { HITLReview } from "@/components/hitl-review";
 import { RunList } from "@/components/run-list";
 import { PublishResults } from "@/components/publish-results";
 import { ConnectAccounts } from "@/components/connect-accounts";
+import { SchedulePanel } from "@/components/schedule-panel";
 import { isClerkEnabled } from "@/components/providers";
 import Link from "next/link";
 import { GlassboxWorkbench } from "@/components/GlassboxWorkbench";
@@ -261,6 +262,7 @@ function DashboardShell({
           )}
           <PublishResults results={publishResults} />
           <div className="gb-side-stack">
+            <SchedulePanel />
             <ConnectAccounts />
             <RunList runs={runs} onSelect={onSelectRun} />
           </div>

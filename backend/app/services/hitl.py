@@ -48,6 +48,7 @@ class HITLService:
             "media_assets": snap.get("media_assets") or [],
             "image_prompts": snap.get("image_prompts") or [],
             "quality_scores": snap.get("quality_scores") or {},
+            "research_meta": snap.get("research_meta") or {},
         }
 
     async def approve(

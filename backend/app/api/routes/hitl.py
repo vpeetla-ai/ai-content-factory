@@ -39,6 +39,7 @@ async def get_review(
         media_assets=review.get("media_assets") or [],
         image_prompts=review.get("image_prompts") or [],
         quality_scores=review.get("quality_scores") or {},
+        research_meta=review.get("research_meta") or {},
     )
 
 
