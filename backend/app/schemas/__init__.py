@@ -47,6 +47,7 @@ class PipelineStateResponse(BaseModel):
     topic: str
     research_brief: str | None = None
     platform_drafts: dict | None = None
+    quality_scores: dict | None = None
     seo_data: dict | None = None
     image_prompts: list[str] | None = None
     hitl_approved: dict | None = None
