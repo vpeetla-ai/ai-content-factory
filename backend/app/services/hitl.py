@@ -27,6 +27,7 @@ class HITLService:
             select(ContentDraft).where(ContentDraft.run_id == run_id)
         )
         drafts = drafts_result.scalars().all()
+        snap = run.state_snapshot or {}
 
         return {
             "run_id": run.id,
@@ -44,6 +45,9 @@ class HITLService:
                 }
                 for d in drafts
             ],
+            "media_assets": snap.get("media_assets") or [],
+            "image_prompts": snap.get("image_prompts") or [],
+            "quality_scores": snap.get("quality_scores") or {},
         }
 
     async def approve(

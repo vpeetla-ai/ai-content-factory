@@ -36,6 +36,9 @@ async def get_review(
         run_id=review["run_id"],
         status=PipelineStatusEnum(review["status"].value),
         drafts=review["drafts"],
+        media_assets=review.get("media_assets") or [],
+        image_prompts=review.get("image_prompts") or [],
+        quality_scores=review.get("quality_scores") or {},
     )
 
 
