@@ -21,6 +21,7 @@ clone → scan (pytest) → orchestrate → code → review → quality
 ```bash
 curl -X POST https://loopforge-api.onrender.com/api/repo-fix \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: $LOOPFORGE_API_KEY" \
   -d '{"repo_url":"https://github.com/org/repo.git","task":"Fix failing tests","create_pr":true}'
 ```
 
@@ -28,12 +29,21 @@ curl -X POST https://loopforge-api.onrender.com/api/repo-fix \
 
 - `GROQ_API_KEY` — live LLM
 - `GITHUB_TOKEN` — fine-grained PAT: Contents + Pull requests write
+- `LOOPFORGE_API_KEY` — **required in production**; without it `/api/repo-fix` and
+  `/api/hitl/resume` have no authentication at all (see
+  [ADR-002](https://github.com/vpeetla-ai/loop-engine-agent-platform/blob/main/docs/ADR-002-repo-fix-auth-and-isolation.md))
 
 ## Rules
 
 - **Never** push to `main`
 - Branch: `loopforge/fix-{run_id[:12]}`
 - PR body includes run_id, review score, test status
+- **Git author:** always `Venkata Peetla <vpeetla.ai@gmail.com>` (author + committer). Never
+  `Co-authored-by: Cursor`. See skill `git-commit-author`.
+- `local_path` only works when `LOOPFORGE_API_KEY` is unset (dev-only) — rejected once the
+  key is enforced
+- Even authenticated, `run_pytest` executes cloned code with no container isolation — only
+  point this at trusted repos until sandboxing lands (ADR-002 follow-up)
 
 ## Extending
 

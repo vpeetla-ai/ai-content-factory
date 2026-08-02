@@ -8,9 +8,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Portfolio](https://img.shields.io/badge/🌐_venkat--ai.com-Portfolio-5eead4?style=flat-square)](https://venkat-ai.com/work)
 
-**Turn one topic into platform-ready content for LinkedIn, Substack, Medium, Instagram & X — with human approval before anything goes live.** Real auto-publish today covers LinkedIn and X; the other three return a copy-ready draft (no public posting API exists for Substack/Medium, and Instagram requires Meta app review — see [docs/PRODUCT.md](docs/PRODUCT.md)).
+**Job of the system:** take one topic through research → multi-platform drafts → SEO/visual → **human approval** → publish only what the gateway allows. Real auto-publish today is LinkedIn and X; Substack/Medium/Instagram stay copy-ready (API limits / Meta review — [docs/PRODUCT.md](docs/PRODUCT.md)).
 
-> Not another ChatGPT wrapper. A production multi-agent pipeline with RAG, human-in-the-loop gates, full observability, and CI/CD to Render + Vercel.
+> Not a single-prompt wrapper. LangGraph pipeline with RAG, HITL before anything goes live, traces when configured, free-tier Render + Vercel deploy. Demo vs Strict honesty in the status table — don't read "production" as inventing enterprise SLOs on sleep-prone free tiers.
 
 [🚀 Try the live demo](https://ai-content-factory-iota.vercel.app) · [📖 Production deploy](docs/DEPLOYMENT.md) · [🐛 Report an issue](https://github.com/vpeetla-ai/ai-content-factory/issues) · [🤝 Contribute](CONTRIBUTING.md)
 
@@ -18,18 +18,18 @@
 
 ## Why this exists
 
-Most "AI content tools" are single-prompt generators. Real teams need:
+Most "AI content tools" are one prompt. Teams that actually ship need:
 
-- **Specialized agents** (research, writing, SEO, visuals) — not one monolithic LLM call
-- **Human-in-the-loop (HITL)** before publishing to any platform
-- **Observability** (LangSmith, Langfuse, Sentry) when agents fail silently
-- **Deployable architecture** on a free-tier cloud stack (Render, Vercel, Neon, Upstash)
+- **Specialized agents** (research, writing, SEO, visuals) — not one monolithic call
+- **HITL** before any platform post
+- **Observability** when agents fail quietly
+- A stack you can run on free-tier cloud without pretending it's multi-region HA
 
-This repo is a reference implementation for that stack.
+This repo is that reference path — and the scar that pushed governance into AegisAI lives in the flagship essay below.
 
-**Product framing:** [docs/PRODUCT.md](docs/PRODUCT.md) — who we serve, trade-offs, success metrics.
+**Product framing:** [docs/PRODUCT.md](docs/PRODUCT.md)
 
-**Portfolio:** [Case study](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/ai-content-factory.md) · [Architecture](docs/ARCHITECTURE.md) · [Org README standard](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/README_STANDARD.md)
+**Portfolio:** [Case study](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/ai-content-factory.md) · [Architecture](docs/ARCHITECTURE.md) · [Essay](docs/content/from-multi-agent-os-to-agent-governance.md) · [Org README standard](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/README_STANDARD.md)
 
 ---
 
