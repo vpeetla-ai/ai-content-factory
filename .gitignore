@@ -44,3 +44,4 @@ htmlcov/
 # Secrets
 *.pem
 credentials.json
+*.tsbuildinfo
