@@ -10,6 +10,8 @@
 
 **Job of the system:** take one topic through research → multi-platform drafts → SEO/visual → **human approval** → publish only what the gateway allows. Real auto-publish today is LinkedIn and X; Substack/Medium/Instagram stay copy-ready (API limits / Meta review — [docs/PRODUCT.md](docs/PRODUCT.md)).
 
+This is personal work — a public reference you can inspect. Side effects stay behind gates — publish fails closed when Strict. Golden path on the public demo is `/health` only unless Clerk is configured.
+
 > Not a single-prompt wrapper. LangGraph pipeline with RAG, HITL before anything goes live, traces when configured, free-tier Render + Vercel deploy. Demo vs Strict honesty in the status table — don't read "production" as inventing enterprise SLOs on sleep-prone free tiers.
 
 [🚀 Try the live demo](https://ai-content-factory-iota.vercel.app) · [📖 Production deploy](docs/DEPLOYMENT.md) · [🐛 Report an issue](https://github.com/vpeetla-ai/ai-content-factory/issues) · [🤝 Contribute](CONTRIBUTING.md)
