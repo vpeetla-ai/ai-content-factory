@@ -23,20 +23,24 @@ Next.js (Vercel) ──JWT──► FastAPI (Render) ──► LangGraph pipelin
 flowchart LR
     T[Topic] --> R[research]
     R --> C[content]
-    C --> E[enrich]
-    E --> S[seo]
-    E --> V[visual]
-    S & V --> H[hitl]
+    C --> E["enrich<br/>(single graph node —<br/>asyncio.gather visual_agent + seo_agent)"]
+    E --> H["hitl<br/>(interrupt_before)"]
     H --> P[publish]
     subgraph Obs["Trace-linked LLMOps"]
         LF[Langfuse]
     end
-    R & C & S & V -.-> LF
+    R & C & E -.-> LF
 ```
 
 ```text
-research → content → enrich [seo ∥ visual] → hitl → publish
+research → content → enrich [visual ∥ seo, in-process] → hitl → publish
 ```
+
+The `StateGraph` (`agents/graph.py`) has exactly 5 nodes — `research`, `content`, `enrich`, `hitl`,
+`publish` — connected by 5 straight edges. SEO and Visual are **not** separate graph nodes; they
+run concurrently inside the single `enrich` node via `asyncio.gather(visual_agent(state),
+seo_agent(state))` (`agents/nodes/enrich.py`). `interrupt_before=["hitl"]` is what makes HITL
+actually block the graph before `publish` runs.
 
 - **HITL:** `interrupt_before` on the **hitl** node — human approves before side effects
 - **RAG:** local Qdrant/Pinecone similarity + optional Enterprise RAG compose (`ENTERPRISE_RAG_API_URL`)
