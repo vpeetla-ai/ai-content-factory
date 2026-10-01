@@ -3,6 +3,10 @@
 
 # Hi, I'm Venkata Peetla — Principal AI Architect
 
+**Principal AI Architect at [SNH AI](https://www.snh-ai.com/)** (Sep 2026–). I architect digital employees that own a regulated role — verification, public-records research, adjudication — inside the systems a screener already runs. A trace on every action. A person on the exception.
+
+Canonical org profile: [`vpeetla-ai/README.md`](https://github.com/vpeetla-ai/vpeetla-ai/blob/main/README.md). Public repos are reference architecture, not SNH or Lucid production binaries.
+
 > **17 live products** (12 production platforms + 5 curriculum pattern products) · **23 open-source repos** · **27 ADRs** — inspect before we talk.
 
 [![Website](https://img.shields.io/badge/Website-venkat--ai.com-blue)](https://venkat-ai.com)
