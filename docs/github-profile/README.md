@@ -20,8 +20,8 @@
 
 | For | Link |
 |-----|------|
-| **Engineering panels (~15 min)** | [venkat-ai.com/technical-review](https://venkat-ai.com/technical-review) |
-| **Hire overview** | [venkat-ai.com/hire](https://venkat-ai.com/hire) |
+| **Technical review (~15 min)** | [venkat-ai.com/technical-review](https://venkat-ai.com/technical-review) |
+| **Current role** | [venkat-ai.com/hire](https://venkat-ai.com/hire) |
 | **Full portfolio catalog** | [venkat-ai.com/work](https://venkat-ai.com/work) |
 | **Model Plane plan** | [MODEL_PLANE_100_PLAN](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/MODEL_PLANE_100_PLAN.md) |
 | **Flagship essay** | [From Multi-Agent OS to Agent Governance](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/from-multi-agent-os-to-agent-governance.md) |
