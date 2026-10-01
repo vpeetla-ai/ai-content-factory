@@ -5,14 +5,12 @@
 
 **Principal AI Architect at [SNH AI](https://www.snh-ai.com/)** (Sep 2026–). I architect digital employees that own a regulated role — verification, public-records research, adjudication — inside the systems a screener already runs. A trace on every action. A person on the exception.
 
-Canonical org profile: [`vpeetla-ai/README.md`](https://github.com/vpeetla-ai/vpeetla-ai/blob/main/README.md). Public repos are reference architecture, not SNH or Lucid production binaries.
-
-> **17 live products** (12 production platforms + 5 curriculum pattern products) · **23 open-source repos** · **27 ADRs** — inspect before we talk.
+> **6-spine review path** below is inspectable reference architecture (govern · orchestrate · RAG · **models** · publish · ADRs) · **34 ADRs** — not SNH or Lucid production code.
 
 [![Website](https://img.shields.io/badge/Website-venkat--ai.com-blue)](https://venkat-ai.com)
-[![Technical review](https://img.shields.io/badge/5--Min_Technical_Review-Start_here-5eead4)](https://venkat-ai.com/technical-review)
+[![Technical review](https://img.shields.io/badge/15--Min_Technical_Review-Start_here-5eead4)](https://venkat-ai.com/technical-review)
 [![Architecture portfolio](https://img.shields.io/badge/Architecture_Portfolio-ADRs_%26_Case_Studies-purple)](https://github.com/vpeetla-ai/ai-architecture-portfolio)
-[![LinkedIn launch plan](https://img.shields.io/badge/LinkedIn_Launch_Plan-Phase_tracker-0A66C2)](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/LINKEDIN_LAUNCH_PLAN.md)
+[![Model Plane 100%](https://img.shields.io/badge/Model_Plane-100%25_plan-9333EA)](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/MODEL_PLANE_100_PLAN.md)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2)](https://linkedin.com/in/venkata-peetla)
 [![Substack](https://img.shields.io/badge/Substack-Subscribe-orange)](https://venkatapeetla.substack.com)
 
@@ -22,192 +20,123 @@ Canonical org profile: [`vpeetla-ai/README.md`](https://github.com/vpeetla-ai/vp
 
 | For | Link |
 |-----|------|
-| **Engineering panels (5 min)** | [venkat-ai.com/technical-review](https://venkat-ai.com/technical-review) |
-| **Full portfolio** | [venkat-ai.com/work](https://venkat-ai.com/work) |
+| **Engineering panels (~15 min)** | [venkat-ai.com/technical-review](https://venkat-ai.com/technical-review) |
 | **Hire overview** | [venkat-ai.com/hire](https://venkat-ai.com/hire) |
+| **Full portfolio catalog** | [venkat-ai.com/work](https://venkat-ai.com/work) |
+| **Model Plane plan** | [MODEL_PLANE_100_PLAN](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/MODEL_PLANE_100_PLAN.md) |
 | **Flagship essay** | [From Multi-Agent OS to Agent Governance](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/from-multi-agent-os-to-agent-governance.md) |
 
 ---
 
-## Architecture portfolio
+## Public spine (D1 — review these)
 
-**[ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio)** — **27 ADRs**, case studies, trade-offs, and stack map (incl. `PRODUCTION_STRICT`, NIST AI RMF, multi-tenant isolation).
+Narrative hub + **agent plane** + **model plane**. Labs stay labs — ModelForge is the hire hero for SLM / PEFT / CUDA vLLM / LLMOps.
 
-→ [Featured case studies](https://github.com/vpeetla-ai/ai-architecture-portfolio#featured-case-studies) · [LinkedIn launch plan](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/LINKEDIN_LAUNCH_PLAN.md) · [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) (CI regression gates) · [Top-1% 90-day backlog](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/TOP1PCT_90DAY_BACKLOG.md)
+| # | Layer | Repo | Live |
+|---|-------|------|------|
+| 1 | **Decisions** | [ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio) | ADRs · [Model Plane 100%](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/MODEL_PLANE_100_PLAN.md) |
+| 2 | **Governance** | [aegisai-enterprise-agent-platform](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | [Control plane](https://aegisai-enterprise-agent-platform.vercel.app) |
+| 3 | **Orchestration** | [venkat-ai-platform](https://github.com/vpeetla-ai/venkat-ai-platform) | [VAP console](https://venkat-ai-platform.vercel.app) |
+| 4 | **Knowledge** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | [RAG lab](https://enterprise-rag-platform-eta.vercel.app) |
+| 5 | **Models** | [modelforge-llmops](https://github.com/vpeetla-ai/modelforge-llmops) | [ModelForge live](https://modelforge-gamma.vercel.app) |
+| 6 | **Application** | [ai-content-factory](https://github.com/vpeetla-ai/ai-content-factory) | [Content pipeline](https://ai-content-factory-iota.vercel.app) |
 
-### RAG + inference track (flagship quartet)
+**Proof (linked, not hero):** [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) · [agent-finops](https://github.com/vpeetla-ai/agent-finops)  
+**Career layer:** [ai-architect-interview-playbook](https://github.com/vpeetla-ai/ai-architect-interview-playbook) · [ai-architect-practice-arena](https://github.com/vpeetla-ai/ai-architect-practice-arena)
 
-| Repo | Hook |
-|------|------|
-| [Enterprise RAG](https://github.com/vpeetla-ai/enterprise_rag_platform) | Access-before-ranking · page-aware PDF Q&A · BM25+dense RRF · CE rerank · decline · JWT Principal under `PRODUCTION_STRICT` |
-| [DomainForge](https://github.com/vpeetla-ai/domainforge-rag-peft) | RAG facts + PEFT behavior · S0→S4 eval · educational vLLM Path B (ADR-022) |
-| [vLLM Lab](https://github.com/vpeetla-ai/vllm-architecture-lab) | PagedAttention · continuous batching · educational multi-LoRA chat `/v1/adapters` |
-| [VoiceForge](https://github.com/vpeetla-ai/voiceforge-assistant) | ASR → LLM → TTS · P50/P95 latency budgets |
+---
+
+## Two planes (how I talk to a CAIO)
+
+```text
+AGENT PLANE                         MODEL PLANE
+What should agents do?     → VAP    Which weights?          → ModelForge
+What are they allowed?     → Aegis  How do we adapt?        → DomainForge (PEFT)
+What knowledge?            → RAG    How do we serve?        → CUDA vLLM (+ lab for math)
+What do they produce?      → ACF    How do we route/meter?  → LLM gateway + FinOps
+```
+
+**30s:** I don’t only build agents. Agents decide *what to do*; ModelForge decides *which weights, where they run, and how we prove it* — SLM bake-offs, PEFT receipts, CUDA vLLM metrics, gateway enforce+record.
 
 ---
 
 ## Agent skills (Cursor + Codex)
 
-**[vpeetla-ai-skills](https://github.com/vpeetla-ai/vpeetla-ai-skills)** — org-wide agent skills for every repo: LangGraph, gateway/HITL, loop engineering, TDD, deploy.
+**[vpeetla-ai-skills](https://github.com/vpeetla-ai/vpeetla-ai-skills)** — org-wide agent skills for every repo: LangGraph, gateway/HITL, loop engineering, TDD, deploy, vLLM inference.
 
 ```bash
 git clone https://github.com/vpeetla-ai/vpeetla-ai-skills.git
 ./vpeetla-ai-skills/scripts/install.sh --cursor --codex --project .
 ```
 
-Inspired by [mattpocock/skills](https://github.com/mattpocock/skills) + [Karpathy agentic engineering](https://www.youtube.com/watch?v=96jN2OCOfLs) + [autoresearch](https://github.com/karpathy/autoresearch).
-
 ---
 
-## Top projects
-
-### [OmniForge — Multimodal Multi-LLM Ask](https://github.com/vpeetla-ai/omniforge) · **LIVE**
-
-**Ask anything. Right agents. Right models.** — text / image / voice fan out across agents + MCP tools; task-class Multi-LLM Brain with a live model waterfall + A/B proof. Self-contained monorepo (no sibling runtime deps).
-
-[▶ Live demo](https://omniforge-flame.vercel.app) · [API](https://omniforge-api.onrender.com/health) · [Architecture](https://github.com/vpeetla-ai/omniforge/blob/main/docs/ARCHITECTURE.md) · [ADR-027](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-027-omniforge-self-contained-multimodal-multi-llm.md)
-
-### [VoiceForge — Real-Time Voice Triage](https://github.com/vpeetla-ai/voiceforge-assistant) · **LIVE**
-
-**ASR → LLM → TTS** — browser speech + edge-tts + pluggable triage (mock / Ollama / DomainForge), latency waterfall UI, WebSocket phases, graceful degradation.
-
-[▶ Live demo](https://voiceforge-assistant.vercel.app) · [API](https://voiceforge-api-eysb.onrender.com/health) · [ADR-021](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-021-voiceforge-multimodal-pipeline.md) · FastAPI · edge-tts · Next.js
-
-### [DomainForge — Enterprise RAG + PEFT Pipeline](https://github.com/vpeetla-ai/domainforge-rag-peft) · **LIVE**
-
-**Fine-tune behavior, retrieve facts** — QLoRA for strict JSON triage + hybrid RAG over capstone SOP corpus, with S0→S4 eval harness (incl. DPO) and adapter promotion gates.
-
-[▶ Live demo](https://domainforge-rag-peft.vercel.app) · [API](https://domainforge-api.onrender.com/health) · [ADR-019](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-019-rag-facts-peft-behavior.md) · Chroma · TRL · PEFT · Bitext SFT
-
-### [LoopForge — Self-Improving Agent Harness](https://github.com/vpeetla-ai/loop-engine-agent-platform) · **LIVE**
-
-**Agent → Harness → Loops → Memory** — LangGraph coding loop (Orchestrator · Review · Quality), ODAEU RAG tuning, **real repo bug-fix → GitHub PR** (never pushes to `main`).
-
-[▶ Live demo](https://demo-omega-taupe.vercel.app) · [API](https://loopforge-api.onrender.com/health) · LangGraph · MCP · Groq · GitHub PR workflow
+## Top projects (spine detail)
 
 ### [AegisAI — Enterprise Agent Governance](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform)
 
-**Monitor → Govern → Remediate** — AI Gateway for tool authorization: policy, HITL, signed audit, registry lifecycle, FinOps.
+I'd put an independent gateway in front of irreversible tools — policy, HITL on the scary ones, signed audit. The agent graph doesn't get a back door.
 
-[▶ Live control plane](https://aegisai-enterprise-agent-platform.vercel.app) · Gateway SDK · OPA · FastAPI · Next.js
+[▶ Live control plane](https://aegisai-enterprise-agent-platform.vercel.app)
 
 ### [Venkat AI Platform (VAP)](https://github.com/vpeetla-ai/venkat-ai-platform)
 
-**Principal-architect multi-agent OS** — 3 LangGraph orchestrators, **7 RAG strategies** (incl. Enterprise RAG adapter), loop patterns (ReAct · Reflection · Plan-Execute), gateway-wrapped notify.
-
-Chief → parallel specialists → Critic → Slack / Telegram / WhatsApp · pairs with AegisAI
+**Principal-architect multi-agent OS** — LangGraph orchestrators, RAG strategies, loop patterns, gateway-wrapped notify.
 
 [▶ Live demo](https://venkat-ai-platform.vercel.app)
 
 ### [Enterprise RAG Platform](https://github.com/vpeetla-ai/enterprise_rag_platform)
 
-**Governed knowledge layer** — access-before-ranking, page-aware PDF ingest (`/v1/ingest/pdf`), BM25+dense RRF, cross-encoder rerank, faithfulness + decline, Demo/Strict Principal, AegisAI HITL bridge.
+**Governed knowledge layer** — access-before-ranking, hybrid retrieval, cross-encoder rerank, decline-to-answer.
 
-[▶ Live demo](https://enterprise-rag-platform-eta.vercel.app) · [Top-1% program](https://github.com/vpeetla-ai/enterprise_rag_platform/blob/main/docs/TOP1PCT_ERAG_PROGRAM.md)
+[▶ Live demo](https://enterprise-rag-platform-eta.vercel.app)
+
+### [ModelForge — Model Plane](https://github.com/vpeetla-ai/modelforge-llmops)
+
+**SLM · PEFT · CUDA vLLM · LLMOps** — hire hero for the model plane. Composes DomainForge training, upstream vLLM serve receipts, SLM bake-off, and aegis-llm-gateway.
+
+[▶ Live ModelForge](https://modelforge-gamma.vercel.app) · [ADR-034](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-034-modelforge-model-plane.md) · [100% plan](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/MODEL_PLANE_100_PLAN.md)
 
 ### [AI Content Factory](https://github.com/vpeetla-ai/ai-content-factory)
 
-**Multi-agent content pipeline** — Research → 5 platform drafts → HITL → Publish.
+**Multi-agent content pipeline** — Research → drafts → HITL → Publish.
 
-[▶ Live demo](https://ai-content-factory-iota.vercel.app) · LangGraph · Clerk · Render + Vercel
+[▶ Live demo](https://ai-content-factory-iota.vercel.app)
 
-### [Golden Eval Registry](https://github.com/vpeetla-ai/golden-eval-registry)
+### [Architecture portfolio — ADRs](https://github.com/vpeetla-ai/ai-architecture-portfolio)
 
-**Cross-repo regression contracts** — versioned golden fixtures for RAG answers, LoopForge benchmarks, repo-fix, mission gates, and Content Factory HITL.
-
-Validator · JSONL suites · CI · Evals-as-product proof
-
-### [vLLM Architecture Lab](https://github.com/vpeetla-ai/vllm-architecture-lab) · **LIVE**
-
-**PagedAttention · Continuous Batching · KV Cache** — interactive 5-tab architecture explorer + Python engine simulator (scheduler, block allocator, memory budget API).
-
-[▶ Live demo](https://vllm-architecture-lab.vercel.app) · [API](https://vllm-architecture-lab-api.onrender.com/health) · FastAPI · Educational simulator
-
-### [AegisLoop AgentOps Workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench)
-
-**Mission fleets + eval gates** — FinOps estimates, Langfuse spans, VAP delegation, AegisAI human-gated ship, Netlify→FastAPI proxy.
-
-[▶ Live mission console](https://aegisloop-agentops-workbench.vercel.app)
-
-### [Sentinel Brief](https://github.com/vpeetla-ai/sentinel-brief) · **LIVE**
-
-**Overnight AI radar** — HN, arXiv, VentureBeat, MIT Tech Review, The Batch, Paper Digest, Towards Data Science, and more → snapshot diff → eval gate → governed email.
-
-[▶ Live demo](https://sentinel-brief-ruddy.vercel.app) · [API](https://sentinel-brief-api.onrender.com/health) · LangGraph · Resend · eval gate · cron
+**34 ADRs**, case studies, Model Plane 100% tracker.
 
 ---
 
-## How the stack fits together
+## Model Plane depth (feeds ModelForge)
 
-```text
-What should agents do?       →  Venkat AI Platform (orchestration)
-What are agents allowed?     →  AegisAI (gateway, policy, HITL, audit)
-What knowledge can they use? →  Enterprise RAG (access-before-ranking)
-How do we adapt domain format? → DomainForge (RAG facts + PEFT behavior)
-How do we run voice triage?     → VoiceForge (ASR → LLM → TTS + latency budgets)
-How do we operate fleets?    →  AegisLoop (missions, traces, eval gates)
-What did agents cost?        →  Agent FinOps (metering + budgets)
-What do they produce?        →  AI Content Factory (governed publish)
-How do agents improve?       →  LoopForge (harness · repo fix → PR)
-How do we serve LLMs?        →  vLLM Architecture Lab (educational multi-LoRA Path B)
-How do we prove quality?     →  Golden Eval Registry (versioned eval contracts)
-Right model for this step?   →  OmniForge (multimodal multi-LLM waterfall)
-Overnight signal?            →  Sentinel Brief
-```
-
-| Layer | Repository | Live demo |
-|-------|------------|-----------|
-| **Multimodal multi-LLM** | [omniforge](https://github.com/vpeetla-ai/omniforge) | [OmniForge UI](https://omniforge-flame.vercel.app) · [API](https://omniforge-api.onrender.com) |
-| **Knowledge + MLOps** | [domainforge-rag-peft](https://github.com/vpeetla-ai/domainforge-rag-peft) | [DomainForge UI](https://domainforge-rag-peft.vercel.app) · [API](https://domainforge-api.onrender.com) |
-| **Voice / Multimodal** | [voiceforge-assistant](https://github.com/vpeetla-ai/voiceforge-assistant) | [VoiceForge UI](https://voiceforge-assistant.vercel.app) · [API](https://voiceforge-api-eysb.onrender.com) |
-| **Self-improvement** | [loop-engine-agent-platform](https://github.com/vpeetla-ai/loop-engine-agent-platform) | [LoopForge UI](https://demo-omega-taupe.vercel.app) · [API](https://loopforge-api.onrender.com) |
-| **Agent governance** | [aegisai-enterprise-agent-platform](https://github.com/vpeetla-ai/aegisai-enterprise-agent-platform) | [Control plane](https://aegisai-enterprise-agent-platform.vercel.app) |
-| **Multi-agent OS** | [venkat-ai-platform](https://github.com/vpeetla-ai/venkat-ai-platform) | [VAP console](https://venkat-ai-platform.vercel.app) |
-| **Knowledge** | [enterprise_rag_platform](https://github.com/vpeetla-ai/enterprise_rag_platform) | [RAG lab](https://enterprise-rag-platform-eta.vercel.app) |
-| **AgentOps** | [aegisloop-agentops-workbench](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | [Mission console](https://aegisloop-agentops-workbench.vercel.app) |
-| **FinOps** | [agent-finops](https://github.com/vpeetla-ai/agent-finops) | [FinOps UI](https://agent-finops.vercel.app) · [API](https://agent-finops-api.onrender.com) |
-| **Content automation** | [ai-content-factory](https://github.com/vpeetla-ai/ai-content-factory) | [Content pipeline](https://ai-content-factory-iota.vercel.app) |
-| **LLM inference** | [vllm-architecture-lab](https://github.com/vpeetla-ai/vllm-architecture-lab) | [Architecture lab](https://vllm-architecture-lab.vercel.app) · [API](https://vllm-architecture-lab-api.onrender.com) |
-| **Eval contracts** | [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) | Versioned golden eval fixtures |
-| **Overnight intelligence** | [sentinel-brief](https://github.com/vpeetla-ai/sentinel-brief) | [Brief UI](https://sentinel-brief-ruddy.vercel.app) · [API](https://sentinel-brief-api.onrender.com) |
-
-### Curriculum Agent Patterns (series — teaching stubs)
-
-Deterministic stub loops + live trace viewers for interviews and skill-building. **Not** production fleets — compose into VAP / Content Factory for governed graphs. Status tables mark LangGraph production graph 🟡, gateway ❌.
-
-| # | Pattern | Repository | Live demo |
-|---|---------|------------|-----------|
-| 1 | ReAct | [react-agent-pattern](https://github.com/vpeetla-ai/react-agent-pattern) | [Trace viewer](https://react-agent-pattern.vercel.app) |
-| 2 | Reflection | [reflection-agent-pattern](https://github.com/vpeetla-ai/reflection-agent-pattern) | [Trace viewer](https://reflection-agent-pattern.vercel.app) |
-| 3 | Plan-Execute | [plan-execute-agent-pattern](https://github.com/vpeetla-ai/plan-execute-agent-pattern) | [Trace viewer](https://plan-execute-agent-pattern.vercel.app) |
-| 4 | Multi-Agent | [multi-agent-system-pattern](https://github.com/vpeetla-ai/multi-agent-system-pattern) | [Trace viewer](https://multi-agent-system-pattern.vercel.app) |
-| 5 | Swarm | [swarm-agent-pattern](https://github.com/vpeetla-ai/swarm-agent-pattern) | [Trace viewer](https://swarm-agent-pattern.vercel.app) |
+| Repo | Role |
+|------|------|
+| [DomainForge](https://github.com/vpeetla-ai/domainforge-rag-peft) | RAG facts + QLoRA/DPO behavior (ADR-019/020) |
+| [vLLM Architecture Lab](https://github.com/vpeetla-ai/vllm-architecture-lab) | Educational paging/batching (not CUDA prod) |
+| [aegis-llm-gateway](https://github.com/vpeetla-ai/aegis-llm-gateway) | Apps select · plane enforces+records |
 
 ---
 
-## Production platforms (11)
+## Labs & secondary platforms
 
-| Platform | Live URL |
-|----------|----------|
-| **VoiceForge** — real-time voice triage | [voiceforge-assistant.vercel.app](https://voiceforge-assistant.vercel.app) |
-| **DomainForge** — RAG + PEFT triage | [domainforge-rag-peft.vercel.app](https://domainforge-rag-peft.vercel.app) |
-| **AegisAI** — agent governance | [aegisai-enterprise-agent-platform.vercel.app](https://aegisai-enterprise-agent-platform.vercel.app) |
-| **Venkat AI Platform** — multi-agent OS | [venkat-ai-platform.vercel.app](https://venkat-ai-platform.vercel.app) |
-| **Enterprise RAG** — access-aware retrieval | [enterprise-rag-platform-eta.vercel.app](https://enterprise-rag-platform-eta.vercel.app) |
-| **AegisLoop** — AgentOps missions | [aegisloop-agentops-workbench.vercel.app](https://aegisloop-agentops-workbench.vercel.app) |
-| **AI Content Factory** — governed publish | [ai-content-factory-iota.vercel.app](https://ai-content-factory-iota.vercel.app) |
-| **LoopForge** — repo fix → PR | [demo-omega-taupe.vercel.app](https://demo-omega-taupe.vercel.app) |
-| **vLLM Architecture Lab** | [vllm-architecture-lab.vercel.app](https://vllm-architecture-lab.vercel.app) |
-| **Sentinel Brief** — overnight intelligence | [sentinel-brief-ruddy.vercel.app](https://sentinel-brief-ruddy.vercel.app) |
-| **Practice Arena** — system design mock interviews | [ai-architect-practice-arena.vercel.app](https://ai-architect-practice-arena.vercel.app) |
+| Repo | Hook |
+|------|------|
+| [OmniForge](https://github.com/vpeetla-ai/omniforge) | Multimodal multi-LLM ask |
+| [LoopForge](https://github.com/vpeetla-ai/loop-engine-agent-platform) | Harness · repo fix → PR |
+| [VoiceForge](https://github.com/vpeetla-ai/voiceforge-assistant) | ASR → LLM → TTS |
+| [AegisLoop](https://github.com/vpeetla-ai/aegisloop-agentops-workbench) | Mission fleets + eval gates |
+| [Sentinel Brief](https://github.com/vpeetla-ai/sentinel-brief) | Overnight AI radar |
+
+Pattern stubs (ReAct · Reflection · Plan-Execute · Multi-Agent · Swarm) remain curriculum — compose into VAP.
 
 ---
 
 ## Writing
 
-- **Substack** — [venkatapeetla.substack.com](https://venkatapeetla.substack.com) — architecture decisions for production AI
-- **Medium** — [@vpeetla.ai](https://medium.com/@vpeetla.ai) — agent patterns & RAG governance
-- **Essay** — [From Multi-Agent OS to Agent Governance](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/from-multi-agent-os-to-agent-governance.md) (VAP + AegisAI story)
+- **Substack** — [venkatapeetla.substack.com](https://venkatapeetla.substack.com)
+- **Essay** — From Multi-Agent OS to Agent Governance
 
 ---
 
@@ -217,6 +146,4 @@ Deterministic stub loops + live trace viewers for interviews and skill-building.
 - 💼 [LinkedIn](https://linkedin.com/in/venkata-peetla)
 - 📰 [Substack](https://venkatapeetla.substack.com)
 
-If any repo helps you, a ⭐ helps other builders discover it.
-
-*Metrics synced Jul 2026 — update `venkat-ai-portfolio/data/metrics.ts` as source of truth.*
+_Spine narrative: agent plane + model plane (ADR-034) — see MODEL_PLANE_100_PLAN.md._
